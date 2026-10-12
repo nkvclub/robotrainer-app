@@ -1,6 +1,6 @@
 // Settings that differ per language/site. Fill EMAIL_ENDPOINT when the site side is ready.
 window.RT_CONFIG = {
-  version: '0.1.0',
+  version: '0.1.1',
   // Where the app sends email + results (WordPress endpoint, to be agreed with the site owner).
   // Empty = sending is off in this build; the form explains that honestly.
   EMAIL_ENDPOINT: { ru: '', en: '' },

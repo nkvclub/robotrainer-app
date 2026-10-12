@@ -2,9 +2,17 @@
   "appId": "ru.robotrainer.test",
   "appName": "РобоТренер",
   "webDir": "www",
-  "android": { "backgroundColor": "#f4f8fd" },
-  "ios": { "backgroundColor": "#f4f8fd", "contentInset": "never" },
+  "android": {
+    "backgroundColor": "#f4f8fd",
+    "adjustMarginsForEdgeToEdge": "auto"
+  },
+  "ios": {
+    "backgroundColor": "#f4f8fd",
+    "contentInset": "never"
+  },
   "plugins": {
-    "LocalNotifications": { "iconColor": "#0a6fe0" }
+    "LocalNotifications": {
+      "iconColor": "#0a6fe0"
+    }
   }
 }
