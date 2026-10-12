@@ -78,7 +78,8 @@ function show(){
     r.rd.textContent=(m===mode&&!ok)?D.T[m]+' '+D.press:'';});
 }
 function resetRing(){prg.style.transition='';prg.style.stroke='';box.className='ringbox idle showface';box.style.setProperty('--puff',0);prg.style.strokeDashoffset=C;$('time').textContent=fmt(0);$('lbl').textContent=D.start;}
-function pick(m){if(run)return;mode=m;resetRing();show();}
+function pick(m){if(run)return;mode=m;resetRing();show();
+  $('scrTest').classList.toggle('started',ts.inhale!==undefined&&!finished);}  // after step 1 the headline hides, so circle and current step fit on one screen
 ORDER.forEach(function(m){var row=document.createElement('div');row.className='row';row.innerHTML='<div class="num"></div><div class="rl"></div><div class="rw"></div><div class="rd"></div><div class="bar"><div class="fill"></div></div>';$('bars').appendChild(row);rows[m]={row:row,fill:row.querySelector('.fill'),wd:row.querySelector('.rw'),rl:row.querySelector('.rl'),rd:row.querySelector('.rd'),num:row.querySelector('.num')};});
 function newTest(){ts={};lv={};rest=0;finished=false;$('bars').classList.remove('results');$('out').hidden=true;$('againBtn').hidden=true;ORDER.forEach(function(m){rows[m].fill.style.width='0';});pick('inhale');}
 function tick(){var s=(performance.now()-t0)/1000;box.style.setProperty('--puff',Math.min(s/full(mode),1).toFixed(3));prg.style.stroke=acc();prg.style.strokeDashoffset=C*(1-Math.min(s/full(mode),1));rows[mode].wd.textContent=D.going;raf=requestAnimationFrame(tick);}
@@ -98,7 +99,7 @@ function sparks(){var n=16;for(var i=0;i<n;i++){var p=document.createElement('i'
   p.style.animationDelay=Math.round(Math.random()*160)+'ms';if(i%3===0)p.classList.add('gold');box.appendChild(p);setTimeout(function(p){p.remove();}.bind(null,p),1700);}}
 function ringReveal(o){if(o===2)setTimeout(sparks,500);box.className='ringbox idle done lv'+o;prg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';prg.style.stroke=col(o);prg.style.strokeDashoffset=0;$('lbl').textContent=D.B[o];}
 function summary(anim){
-  var o=overall();finished=true;$('bars').classList.add('results');
+  var o=overall();finished=true;$('scrTest').classList.remove('started');$('bars').classList.add('results');
   ORDER.forEach(function(k,i){var r=rows[k];r.row.classList.remove('act','ok','locked');r.rl.textContent=name(k);r.num.textContent=String(i+1);r.rd.textContent='';
     if(anim){r.fill.style.width='0';r.wd.textContent='';setTimeout(function(){paintRow(k,ts[k],true);},1500+i*450);}else paintRow(k,ts[k]);});
   buildResult(o);

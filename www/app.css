@@ -247,3 +247,12 @@ h1.words span{display:inline-block;animation:wordIn .7s cubic-bezier(.2,.8,.2,1)
 .ringbox{width:min(290px,74vw,38vh)}
 .mascot{width:min(170px,42vw,22vh)}
 .hold .mascot,.done .mascot{width:min(118px,30vw,16vh)}
+/* done steps shrink to a slim line so the current step stays on screen */
+#bars:not(.results) .row.ok{padding:8px 14px;gap:0 10px}
+#bars:not(.results) .row.ok .num{grid-row:1;width:28px;height:28px;font-size:13px}
+#bars:not(.results) .row.ok .rl{font-size:14px}
+#bars:not(.results) .row.ok .rw{font-size:12px}
+#bars:not(.results) .row.ok .rd{display:none}
+/* test in progress: headline folds away, the circle and the current step stay on one screen */
+#scrTest .head h1,#scrTest .head .sub{transition:opacity .35s,max-height .45s ease,margin .45s;max-height:200px;overflow:hidden}
+#scrTest.started .head h1,#scrTest.started .head .sub{opacity:0;max-height:0;margin:0}
