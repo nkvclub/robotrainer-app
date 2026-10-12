@@ -1,6 +1,6 @@
 window.RT_I18N = {
 ru:{
- brand1:'Робо',brand2:'Тренер',eyebrow:'Бесплатный тест',h1:'Силы есть, а ты уже выдохся?',sub:'За 3 минуты узнай, где спряталась твоя выносливость. Нажми на круг и останови его при первом желании вдохнуть.',
+ brand1:'Робо',brand2:'Тренер',eyebrow:'Бесплатный тест',h1:'Силы есть, а ты уже выдохся?',sub:'За 3 минуты узнай, где спряталась твоя выносливость.',
  T:{inhale:'Сядь спокойно. Сделай вдох и выдох, затем глубокий (не максимальный) вдох и задержи дыхание.',exhale:'Подыши спокойно 1–2 минуты. Сделай полный выдох и задержи дыхание.',load:'Сделай 20 приседаний за 30 секунд, сразу вдохни и задержи дыхание.'},
  N:{inhale:'В покое, на вдохе',exhale:'В покое, на выдохе',load:'После нагрузки'},
  W:{inhale:['Ниже нормы','Хорошо','Отлично'],exhale:['Мало','Средне','Отлично'],load:['Слабее нормы','Средне','Хорошо']},
@@ -27,7 +27,7 @@ ru:{
  sendOff:'Это тестовая версия: отправку разбора на почту подключим скоро.',ver:'Версия'
 },
 en:{
- brand1:'Robo',brand2:'Trainer',eyebrow:'Free breath test',h1:'Still strong, but already out of breath?',sub:'In 3 minutes, find out where your endurance is hiding. Tap the circle and stop it at the first urge to breathe.',
+ brand1:'Robo',brand2:'Trainer',eyebrow:'Free breath test',h1:'Still strong, but already out of breath?',sub:'In 3 minutes, find out where your endurance is hiding.',
  T:{inhale:'Sit down. Breathe normally, then take a deep (not maximal) breath and hold.',exhale:'Sit down and breathe calmly for 1 to 2 minutes. Breathe out fully and hold.',load:'Do 20 squats in 30 seconds, breathe in right away and hold.'},
  N:{inhale:'Inhale hold',exhale:'Exhale hold',load:'After exercise'},
  W:{inhale:['Below normal','Good','Excellent'],exhale:['Low','Average','Excellent'],load:['Below normal','Average','Good']},
