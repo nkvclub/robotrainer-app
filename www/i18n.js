@@ -22,9 +22,9 @@ ru:{
  remTitle:'РобоТренер',remBody:'Пора проверить дыхание: 3 минуты, и видно, есть ли прогресс',
  privacy:'Политика конфиденциальности',privacy2:'(политика)',site:'Сайт РобоТренер',
  emailSub:'Пришлём разбор твоих трёх замеров и что с этим делать. Бесплатно, без спама.',
- consent:'Я согласен(на) на обработку персональных данных',send:'Получить разбор',close:'Закрыть',
+ consent:'Согласен(на) на обработку персональных данных и получение писем',send:'Получить разбор',close:'Закрыть',
  badEmail:'Проверь адрес почты',sent:'Готово! Разбор придёт на почту в течение нескольких минут.',sendErr:'Не получилось отправить. Проверь интернет и попробуй ещё раз.',
- sendOff:'Это тестовая версия: отправку разбора на почту подключим скоро.',ver:'Версия'
+ queued:'Нет интернета. Отправим сами, как только появится сеть.',rate:'Слишком много попыток, попробуй позже.',repeat:'Готово! Результаты обновили, письмо придёт на почту.',sendOff:'Это тестовая версия: отправку разбора на почту подключим скоро.',ver:'Версия'
 },
 en:{
  brand1:'Robo',brand2:'Trainer',eyebrow:'Free breath test',h1:'Still strong, but already out of breath?',sub:'A test that shows in 3 minutes where your endurance stands.',
@@ -49,7 +49,7 @@ en:{
  remTitle:'RoboTrainer',remBody:'Time to check your breathing: 3 minutes to see your progress',
  privacy:'Privacy policy',privacy2:'(policy)',site:'RoboTrainer website',
  emailSub:'We will send a breakdown of your three tests and what to do next. Free, no spam.',
- consent:'I agree to the processing of my personal data',send:'Get my breakdown',close:'Close',
+ consent:'I agree to the processing of my personal data and to receiving emails',send:'Get my breakdown',close:'Close',
  badEmail:'Check your email address',sent:'Done! Your breakdown will arrive within a few minutes.',sendErr:'Could not send. Check your connection and try again.',
- sendOff:'This is a test version: emailing the breakdown is coming soon.',ver:'Version'
+ queued:'No internet. We will send it as soon as you are back online.',rate:'Too many attempts, try again later.',repeat:'Done! Your results were updated.',sendOff:'This is a test version: emailing the breakdown is coming soon.',ver:'Version'
 }};

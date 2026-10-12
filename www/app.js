@@ -184,27 +184,46 @@ $('sTime').addEventListener('change',function(){S.remTime=this.value||'09:00';sa
 
 /* ---------- email offer ---------- */
 var reEmail=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-function openEmail(){$('emailMsg').textContent='';$('emailMsg').className='msg';$('emailModal').hidden=false;document.body.classList.add('lock');}
+function openEmail(){checkForm();$('emailMsg').textContent='';$('emailMsg').className='msg';$('emailModal').hidden=false;document.body.classList.add('lock');}
 function closeEmail(){$('emailModal').hidden=true;document.body.classList.remove('lock');if(document.activeElement)document.activeElement.blur();}
 $('emailClose').addEventListener('click',closeEmail);
 $('emailModal').addEventListener('click',function(e){if(e.target===this)closeEmail();});
 function checkForm(){$('emailSend').disabled=!($('consent').checked&&$('email').value.trim());}
 $('consent').addEventListener('change',checkForm);$('email').addEventListener('input',checkForm);
-// Flat fields, named like the contact fields on the site (FluentCRM incoming webhook)
-function payload(email,last){var t=last.ts||{},i=t.inhale||0;
-  return {email:email,consent:'yes',lang:lang,source:'app',vdoh_sec:Math.round(i),vydoh_sec:Math.round(t.exhale||0),
-    nagruzka_pct:i?Math.round((t.load||0)/i*100):0,uroven:last.o===undefined?'':D.B[last.o]};}
+// Fields as the site expects them (robotrainer.ru/wp-json/rt/v1/app-lead)
+function payload(email,last){var t=last.ts||{};
+  return {key:CFG.EMAIL_KEY,email:email,consent:true,lang:lang,inhale:Math.round(t.inhale||0),exhale:Math.round(t.exhale||0),load:Math.round(t.load||0),website:''};}
+function post(url,body){
+  var ac=window.AbortController?new AbortController():null;if(ac)setTimeout(function(){ac.abort();},15000);
+  return fetch(url,{method:'POST',signal:ac?ac.signal:undefined,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){return r.json().catch(function(){return {};}).then(function(j){j.status=r.status;return j;});});}
+// No internet: keep the request and send it when the network is back
+var flushing=false;
+function flushQueue(){if(!navigator.onLine||flushing)return;flushing=true;store.get('emailQueue').then(function(q){if(!q){flushing=false;return;}
+  post(q.url,q.body).then(function(j){if(j.status<500)store.set('emailQueue',null);}).catch(function(){}).then(function(){flushing=false;});});}
+window.addEventListener('online',flushQueue);setTimeout(flushQueue,3000);
 $('emailForm').addEventListener('submit',function(e){
   e.preventDefault();
   var email=$('email').value.trim(),msg=$('emailMsg');
-  if(!reEmail.test(email)){msg.textContent=D.badEmail;msg.className='msg err';return;}
+  var say=function(t,ok){msg.textContent=t;msg.className='msg '+(ok?'ok':'err');};
+  $('consent').parentNode.classList.remove('need');
+  if(!reEmail.test(email)){say(D.badEmail);return;}
   var url=CFG.EMAIL_ENDPOINT[lang];
-  if(!url){msg.textContent=D.sendOff;msg.className='msg ok';setTimeout(closeEmail,2500);return;}
+  if(!url){say(D.sendOff,true);setTimeout(closeEmail,2500);return;}
+  var body=payload(email,history[0]||{});
+  if(!navigator.onLine){store.set('emailQueue',{url:url,body:body});say(D.queued,true);store.set('emailSent',true);setTimeout(closeEmail,2500);return;}
   $('emailSend').disabled=true;
-  var ac=window.AbortController?new AbortController():null;if(ac)setTimeout(function(){ac.abort();},15000);
-  fetch(url,{method:'POST',signal:ac?ac.signal:undefined,headers:{'Content-Type':'application/json'},body:JSON.stringify(payload(email,history[0]||{}))})
-  .then(function(r){if(!r.ok)throw new Error(r.status);msg.textContent=D.sent;msg.className='msg ok';store.set('emailSent',true);})
-  .catch(function(){msg.textContent=D.sendErr;msg.className='msg err';$('emailSend').disabled=false;});
+  var server=function(j,fallback){return lang==='ru'&&j.message?j.message:fallback;};
+  post(url,body).then(function(j){
+    if(j.ok){say(server(j,j.repeat?D.repeat:D.sent),true);store.set('emailSent',true);setTimeout(closeEmail,3000);return;}
+    $('emailSend').disabled=false;
+    if(j.error==='email')say(server(j,D.badEmail));
+    else if(j.error==='consent'){$('consent').parentNode.classList.add('need');say(server(j,D.consent));}
+    else if(j.error==='rate'||j.status===429)say(server(j,D.rate));
+    else say(server(j,D.sendErr));
+  }).catch(function(){
+    // Network dropped mid-way: queue it so the person doesn't lose their result
+    store.set('emailQueue',{url:url,body:body});say(D.queued,true);store.set('emailSent',true);setTimeout(closeEmail,3000);});
 });
 
 /* ---------- Android back button ---------- */

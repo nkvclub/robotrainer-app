@@ -261,3 +261,5 @@ h1.words span{display:inline-block;animation:wordIn .7s cubic-bezier(.2,.8,.2,1)
 body.lock{overflow:hidden}
 .modal{overscroll-behavior:contain}
 .sheet{max-height:100%;overflow-y:auto}
+.check.need{color:var(--bad,#d33);animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
