@@ -198,3 +198,40 @@ input[type=email]{width:100%;font-size:16px}
 .seg button:active,.langs button:active{transform:translateY(2px);box-shadow:0 1px 0 #d6e0ee}
 .tabs button[aria-current="page"] svg{filter:drop-shadow(0 3px 4px var(--glow))}
 @media (prefers-reduced-motion:reduce){.cta,.again,.row{transition:none}}
+
+/* ---------- living background: soft drifting blue glow ---------- */
+body{background:var(--bg)}
+body::before,body::after{content:"";position:fixed;z-index:-1;pointer-events:none;border-radius:50%;filter:blur(60px);opacity:.55}
+body::before{width:70vmax;height:70vmax;left:-25vmax;top:-20vmax;background:radial-gradient(circle,#b9dbff 0%,rgba(185,219,255,0) 70%);animation:drift1 22s ease-in-out infinite alternate}
+body::after{width:60vmax;height:60vmax;right:-25vmax;top:30vh;background:radial-gradient(circle,#c9f0ff 0%,rgba(201,240,255,0) 70%);animation:drift2 26s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(12vmax,10vmax) scale(1.1)}}
+@keyframes drift2{to{transform:translate(-14vmax,-8vmax) scale(1.15)}}
+.screen{position:relative;z-index:0}
+
+/* ---------- headline: words appear one by one ---------- */
+h1.words span{display:inline-block;animation:wordIn .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes wordIn{from{opacity:0;filter:blur(8px);transform:translateY(10px)}to{opacity:1;filter:none;transform:none}}
+
+/* ---------- sparks for a good result ---------- */
+.spark{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#43c46a;box-shadow:0 0 14px #43c46a,0 0 4px #fff inset;pointer-events:none;z-index:5;animation:spark 1.5s cubic-bezier(.15,.7,.3,1) both}
+.spark.gold{background:#ffc93c;box-shadow:0 0 14px #ffc93c;width:11px;height:11px}
+@keyframes spark{0%{left:50%;top:50%;transform:scale(.4);opacity:0}25%{opacity:1}70%{opacity:1}100%{left:calc(50% + var(--x));top:calc(50% + var(--y));transform:scale(1);opacity:0}}
+
+/* ---------- history ---------- */
+.hsum{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px;background:linear-gradient(135deg,#ffffff,#eef5ff);border-radius:18px;padding:14px;box-shadow:0 4px 0 #dde7f4,0 10px 20px rgba(12,38,83,.07)}
+.hs{display:flex;flex-direction:column;gap:2px;min-width:0}
+.hs b{font-size:18px;font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}
+.hs span{font-size:12px;color:var(--muted);line-height:1.3}
+.hcard{position:relative;overflow:hidden;padding-left:20px;background:linear-gradient(180deg,#ffffff,#f7faff);box-shadow:0 4px 0 #dde7f4,0 10px 20px rgba(12,38,83,.07)}
+.hcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--lv,var(--accent))}
+.hcard .badge{box-shadow:0 2px 0 rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.35)}
+.empty{display:flex;flex-direction:column;align-items:center;gap:14px}
+.empty img{border-radius:18px;box-shadow:0 10px 24px var(--glow);animation:floaty 3s ease-in-out infinite}
+.empty p{margin:0;max-width:280px}
+.empty .cta{align-self:stretch}
+@keyframes floaty{50%{transform:translateY(-6px)}}
+@media (prefers-reduced-motion:reduce){body::before,body::after,.empty img{animation:none}h1.words span{animation:none}}
+.hs.hlv b{font-size:15px}
+/* active step: title on one line, no "your turn" label (the card pulse already calls) */
+#bars:not(.results) .row.act .rw{display:none}
+#bars:not(.results) .row.act .rl{grid-column:2/4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
