@@ -180,7 +180,7 @@ input[type=email]{width:100%;font-size:16px}
 .cta{background:linear-gradient(180deg,var(--accent-light) 0%,var(--accent) 55%,#0861c7 100%);
   box-shadow:0 5px 0 var(--accent-dark),0 14px 26px var(--glow),inset 0 1px 0 rgba(255,255,255,.45),inset 0 -2px 0 rgba(0,0,0,.08);
   text-shadow:0 1px 1px rgba(0,0,0,.18);letter-spacing:.01em;position:relative;overflow:hidden}
-.cta::after{content:"";position:absolute;left:8%;right:8%;top:3px;height:42%;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0));pointer-events:none}
+.cta::after{content:none}
 .cta:active:not([disabled]){transform:translateY(4px);box-shadow:0 1px 0 var(--accent-dark),0 5px 12px var(--glow),inset 0 1px 0 rgba(255,255,255,.35)}
 .cta[disabled]{box-shadow:0 3px 0 color-mix(in srgb,var(--accent-dark) 50%,transparent)}
 .again{background:linear-gradient(180deg,#ffffff,#eef5fe);border:1.5px solid color-mix(in srgb,var(--accent) 28%,transparent);
