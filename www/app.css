@@ -60,7 +60,7 @@ svg.ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90de
 #bars:not(.results) .row.act{border-color:var(--accent);animation:callme 1.6s ease-in-out infinite}
 #bars:not(.results) .row.act .num{background:var(--accent);color:#fff;box-shadow:0 6px 16px var(--glow)}
 #bars:not(.results) .row.act .rw{color:var(--accent);font-weight:700}
-@keyframes callme{0%,100%{box-shadow:0 4px 14px rgba(12,38,83,.07),0 0 0 0 color-mix(in srgb,var(--accent) 40%,transparent)}50%{box-shadow:0 4px 14px rgba(12,38,83,.07),0 0 0 7px color-mix(in srgb,var(--accent) 0%,transparent)}}
+@keyframes callme{0%,100%{box-shadow:0 5px 0 color-mix(in srgb,var(--accent) 45%,#c9daf2),0 14px 26px var(--glow),0 0 0 0 color-mix(in srgb,var(--accent) 35%,transparent)}50%{box-shadow:0 5px 0 color-mix(in srgb,var(--accent) 45%,#c9daf2),0 14px 26px var(--glow),0 0 0 8px color-mix(in srgb,var(--accent) 0%,transparent)}}
 #bars:not(.results) .row.ok{background:color-mix(in srgb,var(--green) 10%,var(--card))}
 #bars:not(.results) .row.ok .num{background:var(--green);color:#fff}
 #bars:not(.results) .row.ok .rw{color:var(--green);font-weight:700}
