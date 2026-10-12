@@ -178,14 +178,22 @@ $('emailForm').addEventListener('submit',function(e){
   var email=$('email').value.trim(),msg=$('emailMsg');
   if(!reEmail.test(email)){msg.textContent=D.badEmail;msg.className='msg err';return;}
   var url=CFG.EMAIL_ENDPOINT[lang];
-  if(!url){msg.textContent=D.sendOff;msg.className='msg err';return;}
+  if(!url){msg.textContent=D.sendOff;msg.className='msg ok';setTimeout(closeEmail,2500);return;}
   var last=history[0]||{};
   $('emailSend').disabled=true;
-  fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,consent:true,lang:lang,source:'app',
+  var ac=window.AbortController?new AbortController():null;if(ac)setTimeout(function(){ac.abort();},15000);
+  fetch(url,{method:'POST',signal:ac?ac.signal:undefined,headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,consent:true,lang:lang,source:'app',
     results:{inhale:Math.round(last.ts&&last.ts.inhale||0),exhale:Math.round(last.ts&&last.ts.exhale||0),load:Math.round(last.ts&&last.ts.load||0),level:last.o}})})
   .then(function(r){if(!r.ok)throw new Error(r.status);msg.textContent=D.sent;msg.className='msg ok';store.set('emailSent',true);})
   .catch(function(){msg.textContent=D.sendErr;msg.className='msg err';$('emailSend').disabled=false;});
 });
+
+/* ---------- Android back button ---------- */
+if(P.App&&P.App.addListener){P.App.addListener('backButton',function(){
+  if(!$('emailModal').hidden){closeEmail();return;}
+  if($('scrTest').hidden&&S.warned){go('scrTest');return;}
+  P.App.minimizeApp();
+});}
 
 /* ---------- start ---------- */
 $('warnOk').addEventListener('change',function(){$('warnGo').disabled=!this.checked;});
