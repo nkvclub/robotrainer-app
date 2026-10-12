@@ -190,17 +190,19 @@ $('emailClose').addEventListener('click',closeEmail);
 $('emailModal').addEventListener('click',function(e){if(e.target===this)closeEmail();});
 function checkForm(){$('emailSend').disabled=!($('consent').checked&&$('email').value.trim());}
 $('consent').addEventListener('change',checkForm);$('email').addEventListener('input',checkForm);
+// Flat fields, named like the contact fields on the site (FluentCRM incoming webhook)
+function payload(email,last){var t=last.ts||{},i=t.inhale||0;
+  return {email:email,consent:'yes',lang:lang,source:'app',vdoh_sec:Math.round(i),vydoh_sec:Math.round(t.exhale||0),
+    nagruzka_pct:i?Math.round((t.load||0)/i*100):0,uroven:last.o===undefined?'':D.B[last.o]};}
 $('emailForm').addEventListener('submit',function(e){
   e.preventDefault();
   var email=$('email').value.trim(),msg=$('emailMsg');
   if(!reEmail.test(email)){msg.textContent=D.badEmail;msg.className='msg err';return;}
   var url=CFG.EMAIL_ENDPOINT[lang];
   if(!url){msg.textContent=D.sendOff;msg.className='msg ok';setTimeout(closeEmail,2500);return;}
-  var last=history[0]||{};
   $('emailSend').disabled=true;
   var ac=window.AbortController?new AbortController():null;if(ac)setTimeout(function(){ac.abort();},15000);
-  fetch(url,{method:'POST',signal:ac?ac.signal:undefined,headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,consent:true,lang:lang,source:'app',
-    results:{inhale:Math.round(last.ts&&last.ts.inhale||0),exhale:Math.round(last.ts&&last.ts.exhale||0),load:Math.round(last.ts&&last.ts.load||0),level:last.o}})})
+  fetch(url,{method:'POST',signal:ac?ac.signal:undefined,headers:{'Content-Type':'application/json'},body:JSON.stringify(payload(email,history[0]||{}))})
   .then(function(r){if(!r.ok)throw new Error(r.status);msg.textContent=D.sent;msg.className='msg ok';store.set('emailSent',true);})
   .catch(function(){msg.textContent=D.sendErr;msg.className='msg err';$('emailSend').disabled=false;});
 });
