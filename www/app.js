@@ -184,8 +184,8 @@ $('sTime').addEventListener('change',function(){S.remTime=this.value||'09:00';sa
 
 /* ---------- email offer ---------- */
 var reEmail=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-function openEmail(){$('emailMsg').textContent='';$('emailMsg').className='msg';$('emailModal').hidden=false;}
-function closeEmail(){$('emailModal').hidden=true;}
+function openEmail(){$('emailMsg').textContent='';$('emailMsg').className='msg';$('emailModal').hidden=false;document.body.classList.add('lock');}
+function closeEmail(){$('emailModal').hidden=true;document.body.classList.remove('lock');if(document.activeElement)document.activeElement.blur();}
 $('emailClose').addEventListener('click',closeEmail);
 $('emailModal').addEventListener('click',function(e){if(e.target===this)closeEmail();});
 function checkForm(){$('emailSend').disabled=!($('consent').checked&&$('email').value.trim());}
