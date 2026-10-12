@@ -71,7 +71,7 @@ function show(){
     r.num.innerHTML=ok?'✓':((m!==mode)?LOCK:String(i+1));
     r.rd.textContent=(m===mode&&!ok)?D.T[m]+' '+D.press:'';});
 }
-function resetRing(){prg.style.transition='';box.className='ringbox idle showface';box.style.setProperty('--puff',0);prg.style.strokeDashoffset=C;$('time').textContent=fmt(0);$('lbl').textContent=D.start;}
+function resetRing(){prg.style.transition='';prg.style.stroke='';box.className='ringbox idle showface';box.style.setProperty('--puff',0);prg.style.strokeDashoffset=C;$('time').textContent=fmt(0);$('lbl').textContent=D.start;}
 function pick(m){if(run)return;mode=m;resetRing();show();}
 ORDER.forEach(function(m){var row=document.createElement('div');row.className='row';row.innerHTML='<div class="num"></div><div class="rl"></div><div class="rw"></div><div class="rd"></div><div class="bar"><div class="fill"></div></div>';$('bars').appendChild(row);rows[m]={row:row,fill:row.querySelector('.fill'),wd:row.querySelector('.rw'),rl:row.querySelector('.rl'),rd:row.querySelector('.rd'),num:row.querySelector('.num')};});
 function newTest(){ts={};lv={};rest=0;finished=false;$('bars').classList.remove('results');$('out').hidden=true;$('againBtn').hidden=true;ORDER.forEach(function(m){rows[m].fill.style.width='0';});pick('inhale');}
@@ -103,7 +103,7 @@ function saveResult(){
   history=history.slice(0,200);store.set('history',history);
 }
 $('btn').addEventListener('click',function(){
-  if(finished)return;
+  if(finished){newTest();window.scrollTo({top:0,behavior:'smooth'});return;}  // tap the face again = new test
   if(!run){
     run=true;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
     if(P.KeepAwake)P.KeepAwake.keepAwake().catch(function(){});
