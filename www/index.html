@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#f4f8fd">
+<title>РобоТренер</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<!-- Safety screen before the first test (needed for store review) -->
+<section class="screen" id="scrWarn" hidden>
+  <div class="wrap">
+    <div class="warn-ico"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5M12 18v.01"/></svg></div>
+    <h2 class="h2" style="text-align:center" data-t="warnH"></h2>
+    <div class="card">
+      <ul class="warn-list" id="warnList"></ul>
+    </div>
+    <label class="check"><input type="checkbox" id="warnOk"> <span data-t="warnOk"></span></label>
+    <button class="cta" type="button" id="warnGo" disabled data-t="warnGo"></button>
+  </div>
+</section>
+
+<!-- Test -->
+<section class="screen" id="scrTest" hidden>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow" data-t="eyebrow"></div>
+      <h1 data-t="h1"></h1>
+      <p class="sub" data-t="sub"></p>
+    </div>
+    <div class="ringbox idle showface" id="box">
+    <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+      <circle class="trk" cx="60" cy="60" r="54"/><g id="zones"></g>
+      <circle class="prg" id="prg" cx="60" cy="60" r="54" stroke-dasharray="339.3" stroke-dashoffset="339.3"/>
+    </svg>
+    <button class="face" id="btn" type="button" aria-label="Старт или стоп таймера">
+      <div>
+        <svg class="mascot" viewBox="0 -8 100 78" aria-hidden="true"><defs><radialGradient id="iris" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#5aa8ff"/><stop offset=".6" stop-color="#1747d6"/><stop offset="1" stop-color="#0a2484"/></radialGradient></defs><g class="face-g">
+          <circle class="cheek" cx="12" cy="52" r="11"/><circle class="cheek" cx="88" cy="52" r="11"/>
+          <path class="brow browL" d="M18 0 Q30 -6 42 0" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/><path class="brow browR" d="M58 0 Q70 -6 82 0" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+          <ellipse cx="30" cy="28" rx="15" ry="19" fill="#fff"/>
+          <g class="pupil"><g><circle cx="30" cy="31" r="10.5" fill="url(#iris)"/><circle cx="30" cy="31" r="5.5" fill="#0a1830"/><circle cx="34" cy="26" r="3.6" fill="#fff"/><circle cx="26.5" cy="35.5" r="1.7" fill="#fff"/></g></g>
+          <path d="M14 24 Q30 4 46 24" fill="none" stroke="#0a1830" stroke-width="3" stroke-linecap="round"/>
+          <path d="M21 12 l-5 -4" stroke="#0a1830" stroke-width="2.5" stroke-linecap="round"/>
+          <ellipse class="eyeR" cx="70" cy="28" rx="15" ry="19" fill="#fff"/>
+          <g class="pupil"><g class="eyeR"><circle cx="70" cy="31" r="10.5" fill="url(#iris)"/><circle cx="70" cy="31" r="5.5" fill="#0a1830"/><circle cx="74" cy="26" r="3.6" fill="#fff"/><circle cx="66.5" cy="35.5" r="1.7" fill="#fff"/></g></g>
+          <path class="eyeR" d="M54 24 Q70 4 86 24" fill="none" stroke="#0a1830" stroke-width="3" stroke-linecap="round"/>
+          <path class="eyeR" d="M79 12 l5 -4" stroke="#0a1830" stroke-width="2.5" stroke-linecap="round"/>
+          <path class="wink" d="M55 30 Q70 16 85 30" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+          <rect class="lid" x="14" y="8" width="32" height="40" rx="15" fill="var(--accent)"/><rect class="lid lidR" x="54" y="8" width="32" height="40" rx="15" fill="var(--accent)"/>
+          <path class="m-smile" d="M36 55 Q50 67 64 55" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+          <path class="m-puff" d="M42 57 Q50 64 58 57" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+          <path class="m-grin" d="M32 53 Q50 74 68 53 Z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+          <path class="m-mod" d="M41 57 Q50 63 59 57" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+          <path class="m-sad" d="M39 62 Q50 54 61 62" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+          <path class="tear" d="M23 44 q-6 9 0 12 q6 -3 0 -12z" fill="#bfe8ff"/>
+        </g></svg>
+        <div class="lvl" id="lvl"></div>
+        <div class="time" id="time">0,0</div>
+        <div class="lbl" id="lbl">Нажми и задержи дыхание</div>
+      </div>
+    </button>
+  </div>
+    <div class="hint" id="hint"></div>
+    <div class="bars" id="bars"></div>
+    <div class="out" id="out" hidden></div>
+    <button class="again" type="button" id="againBtn" hidden data-t="againAll"></button>
+    <p class="note" data-t="note"></p>
+  </div>
+</section>
+
+<!-- History -->
+<section class="screen" id="scrHist" hidden>
+  <div class="wrap">
+    <h2 class="h2" data-t="histH"></h2>
+    <div id="histList"></div>
+  </div>
+</section>
+
+<!-- Settings -->
+<section class="screen" id="scrSet" hidden>
+  <div class="wrap">
+    <h2 class="h2" data-t="setH"></h2>
+    <div class="card">
+      <div class="set-row"><label data-t="setLang"></label><div class="seg"><button type="button" id="lru">RU</button><button type="button" id="len">EN</button></div></div>
+      <div class="set-row"><label for="sSnd" data-t="setSnd"></label><input class="switch" type="checkbox" id="sSnd"></div>
+      <div class="set-row"><label for="sVib" data-t="setVib"></label><input class="switch" type="checkbox" id="sVib"></div>
+    </div>
+    <div class="card">
+      <div class="set-row"><label for="sRem" data-t="setRem"></label><input class="switch" type="checkbox" id="sRem"></div>
+      <div class="set-row" id="remWhen"><select id="sDay" aria-label="day"></select><input type="time" id="sTime" value="09:00" aria-label="time"></div>
+      <div class="small" data-t="setRemNote"></div>
+      <div class="msg" id="remMsg"></div>
+    </div>
+    <div class="card">
+      <a class="link" id="privLink" href="#" target="_blank" rel="noopener" data-t="privacy"></a>
+      <a class="link" id="siteLink" href="#" target="_blank" rel="noopener" data-t="site"></a>
+      <div class="small" data-t="noteLong"></div>
+      <div class="small" id="ver"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Email sheet -->
+<div class="modal" id="emailModal" hidden>
+  <form class="sheet" id="emailForm" novalidate>
+    <button class="close" type="button" id="emailClose" data-t="close"></button>
+    <div class="ctah" data-t="ctaH"></div>
+    <div class="small" data-t="emailSub"></div>
+    <input type="email" id="email" autocomplete="email" inputmode="email" placeholder="you@mail.ru">
+    <label class="check"><input type="checkbox" id="consent"> <span><span data-t="consent"></span> <a class="link" id="consentLink" href="#" target="_blank" rel="noopener" data-t="privacy2"></a></span></label>
+    <button class="cta" type="submit" id="emailSend" disabled data-t="send"></button>
+    <div class="msg" id="emailMsg"></div>
+  </form>
+</div>
+
+<nav class="tabs" id="tabs">
+  <button type="button" data-go="scrTest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg><span data-t="tabTest"></span></button>
+  <button type="button" data-go="scrHist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span data-t="tabHist"></span></button>
+  <button type="button" data-go="scrSet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-t="tabSet"></span></button>
+</nav>
+
+<script src="config.js"></script>
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
