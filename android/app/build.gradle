@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "ru.robotrainer.test"
+    namespace "ru.robotrainer.app"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "ru.robotrainer.test"
+        applicationId "ru.robotrainer.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -24,9 +24,19 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        // Store release key: only on GitHub (secrets), never in the repo
+        if (System.getenv('RT_KEYSTORE_FILE')) {
+            release {
+                storeFile file(System.getenv('RT_KEYSTORE_FILE'))
+                storePassword System.getenv('RT_KEYSTORE_PASSWORD')
+                keyAlias 'robotrainer'
+                keyPassword System.getenv('RT_KEYSTORE_PASSWORD')
+            }
+        }
     }
     buildTypes {
         release {
+            if (System.getenv('RT_KEYSTORE_FILE')) signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
