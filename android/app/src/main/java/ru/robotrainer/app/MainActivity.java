@@ -1,4 +1,4 @@
-package ru.robotrainer.test;
+package ru.robotrainer.app;
 
 import android.os.Bundle;
 import android.view.ViewGroup.MarginLayoutParams;

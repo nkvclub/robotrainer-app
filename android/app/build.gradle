@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "ru.robotrainer.test"
+    namespace "ru.robotrainer.app"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "ru.robotrainer.test"
+        applicationId "ru.robotrainer.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
