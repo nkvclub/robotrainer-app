@@ -1,6 +1,6 @@
 name: Store release APK
 
-# Signed APK for RuStore. Runs when a tag like v1.0.0 is pushed.
+# Signed APK for RuStore and AAB for Google Play. Runs when a tag like v1.0.0 is pushed.
 on:
   push:
     tags: ['v*']
@@ -30,20 +30,22 @@ jobs:
         run: |
           if [ -z "$KEY_B64" ]; then echo "Secret RELEASE_KEYSTORE_BASE64 is missing"; exit 1; fi
           echo "$KEY_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
-      - name: Build signed release APK
+      - name: Build signed release APK and AAB
         working-directory: android
         env:
           RT_KEYSTORE_FILE: ${{ runner.temp }}/release.jks
           RT_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
-        run: ./gradlew assembleRelease --no-daemon
-      - run: cp android/app/build/outputs/apk/release/app-release.apk robotrainer.apk
+        run: ./gradlew assembleRelease bundleRelease --no-daemon
+      - run: |
+          cp android/app/build/outputs/apk/release/app-release.apk robotrainer.apk
+          cp android/app/build/outputs/bundle/release/app-release.aab robotrainer.aab
       - name: Publish store release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="${GITHUB_REF_NAME}"
           case "$TAG" in v*) ;; *) TAG="store-${{ github.run_number }}";; esac
-          gh release create "$TAG" robotrainer.apk \
+          gh release create "$TAG" robotrainer.apk robotrainer.aab \
             --title "Для магазина $TAG" \
-            --notes "Подписанный файл для загрузки в RuStore." \
+            --notes "robotrainer.apk для RuStore, robotrainer.aab для Google Play." \
             --latest=false
