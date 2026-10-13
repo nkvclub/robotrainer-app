@@ -1,0 +1,45 @@
+name: iOS check build
+
+# Builds the iPhone app for the simulator (no Apple account needed yet),
+# opens it there and saves a screenshot to the "ios-preview" release.
+on:
+  push:
+    branches: [main]
+    paths: ['ios/**', 'www/**', 'capacitor.config.json', 'package*.json', '.github/workflows/ios.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx cap sync ios
+      - name: Build for simulator
+        working-directory: ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build | tail -n 30
+      - name: Run in simulator and take a screenshot
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys;d=json.load(sys.stdin)['devices'];print([x['udid'] for k in d for x in d[k] if x['name'].startswith('iPhone 16') and 'iOS' in k][0])")
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" ios/App/build/Build/Products/Debug-iphonesimulator/App.app
+          xcrun simctl launch "$UDID" ru.robotrainer.app
+          sleep 15
+          xcrun simctl io "$UDID" screenshot ios-screen.png
+      - name: Save screenshot
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view ios-preview >/dev/null 2>&1 || gh release create ios-preview --title "iPhone: проверка" --notes "Скриншот из симулятора iPhone." --prerelease --latest=false
+          gh release upload ios-preview ios-screen.png --clobber
