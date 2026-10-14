@@ -1,6 +1,6 @@
 name: Store release APK
 
-# Signed APK for RuStore and AAB for Google Play. Runs when a tag like v1.0.0 is pushed.
+# Signed APK for RuStore (ru.robotrainer.app) and AAB for Google Play (com.robotrainerpro.app). Runs when a tag like v1.0.0 is pushed.
 on:
   push:
     tags: ['v*']
@@ -35,10 +35,12 @@ jobs:
         env:
           RT_KEYSTORE_FILE: ${{ runner.temp }}/release.jks
           RT_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
-        run: ./gradlew assembleRelease bundleRelease --no-daemon
-      - run: |
-          cp android/app/build/outputs/apk/release/app-release.apk robotrainer.apk
-          cp android/app/build/outputs/bundle/release/app-release.aab robotrainer.aab
+        run: |
+          ./gradlew assembleRelease --no-daemon
+          cp app/build/outputs/apk/release/app-release.apk ../robotrainer.apk
+          # Google Play app id differs from RuStore's
+          RT_APP_ID=com.robotrainerpro.app ./gradlew clean bundleRelease --no-daemon
+          cp app/build/outputs/bundle/release/app-release.aab ../robotrainer.aab
       - name: Publish store release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -47,5 +49,5 @@ jobs:
           case "$TAG" in v*) ;; *) TAG="store-${{ github.run_number }}";; esac
           gh release create "$TAG" robotrainer.apk robotrainer.aab \
             --title "Для магазина $TAG" \
-            --notes "robotrainer.apk для RuStore, robotrainer.aab для Google Play." \
+            --notes "robotrainer.apk для RuStore (ru.robotrainer.app), robotrainer.aab для Google Play (com.robotrainerpro.app)." \
             --latest=false

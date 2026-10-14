@@ -4,7 +4,8 @@ android {
     namespace "ru.robotrainer.app"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "ru.robotrainer.app"
+        // RuStore keeps ru.robotrainer.app; Google Play uses RT_APP_ID=com.robotrainerpro.app
+        applicationId System.getenv('RT_APP_ID') ?: "ru.robotrainer.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
