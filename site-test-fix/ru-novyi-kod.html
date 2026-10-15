@@ -2,14 +2,14 @@
 /* Blind test v3 (15.10.2026): auto 1-min rest before step 2, no 30 s squat timer. Results hidden until all 3 holds are done */
 var ORDER=['inhale','exhale','load'];
 var N={inhale:'1. В покое, на вдохе',exhale:'2. В покое, на выдохе',load:'3. После нагрузки'};
-var T={inhale:'Сядь спокойно. Сделай глубокий (не максимальный) вдох, задержи дыхание и жми на кнопку.',exhale:'Отдохни минуту, время идёт на кнопке. По сигналу выдохни, задержи дыхание и жми на кнопку.',load:'Сделай 20 приседаний. Потом сядь, задержи дыхание и жми на кнопку.'};
+var T={inhale:'Сядь спокойно. Сделай глубокий (не максимальный) вдох, задержи дыхание и жми на кнопку.',exhale:'Отдохни минуту, время идёт на кнопке. По сигналу выдохни, задержи дыхание и жми на кнопку.',load:'Сделай 20 приседаний. Потом сядь, задержи дыхание и жми на кнопку.'};
 var GO={inhale:'Жми на кнопку!',exhale:'Жми на кнопку!',load:'Жми на кнопку!'};
-var STOP='Отпускай кнопку при первом сильном желании вдохнуть, не терпи до последнего.';
+var STOP='Нажми ещё раз при первом сильном желании вдохнуть, не терпи до последнего.';
 var C=['#e53935','#fb8c00','#43a047'],NC='#7f9cc4',iv=null,rt=0,ac=null,REST=60;
 var i=0,run=false,busy=false,t0=0,ts={},lv={},rows={},bad={};
 var btn=document.getElementById('rtBtn'),tm=document.getElementById('rtTime'),lb=document.getElementById('rtLabel'),hint=document.getElementById('rtHint'),box=document.getElementById('rtBars'),out=document.getElementById('rtOut');
 if(!btn||!box){return;}
-var st=document.createElement('style');st.textContent='#test .rt-row{cursor:default}#test .rt-row.rt-lock{opacity:.45}#test .rt-row.rt-lock .rt-rl{border-style:dashed}#test .rt-row.rt-done .rt-rl{border-color:rgba(255,255,255,.55)}#test .rt-hint-err{font-weight:700;margin-bottom:8px}#test .rt-hint-main{color:#e53935;font-weight:700}#test .rt-hint-go{color:#e53935;font-weight:800;margin-top:6px}#test .rt-calc{font-size:18px;font-weight:700;text-align:center;padding:18px 0}#test .rt-again{display:block;margin:18px auto 0;padding:12px 26px;border-radius:999px;border:2px solid #e53935;background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer}#test .rt-again:hover{background:#e53935;color:#fff}';document.head.appendChild(st);
+var st=document.createElement('style');st.textContent='#test .rt-row{cursor:default}#test .rt-row.rt-lock{opacity:.45}#test .rt-row.rt-lock .rt-rl{border-style:dashed}#test .rt-row.rt-done .rt-rl{border-color:rgba(255,255,255,.55)}#test .rt-hint-err{font-weight:700;margin-bottom:8px}#test .rt-hint-main{color:#fff!important;font-weight:600}#test .rt-hint-go{color:#ff6b57!important;font-weight:800;margin-top:8px}#test .rt-calc{font-size:18px;font-weight:700;text-align:center;padding:18px 0}#test .rt-again{display:block;margin:18px auto 0;padding:12px 26px;border-radius:999px;border:2px solid #e53935;background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer}#test .rt-again:hover{background:#e53935;color:#fff}';document.head.appendChild(st);
 function pad(n){return (n<10?'0':'')+n;}
 function fmt(ms){var s=Math.floor(ms/1000);return pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60);}
 function neutral(m,sec){var r=rows[m];r.fill.style.background=NC;r.fill.style.width=Math.round(frac(sec,m)*100)+'%';r.wd.style.color='';r.wd.textContent=Math.round(sec)+' с';}
