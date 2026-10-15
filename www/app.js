@@ -71,7 +71,7 @@ function col(l){return getComputedStyle(document.documentElement).getPropertyVal
 function acc(){return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();}
 var mode='inhale',run=false,t0=0,raf=0,rest=0,ts={},lv={},rows={},finished=false;
 var prg=$('prg'),box=$('box'),C=339.3;
-var REST=60,restT=0,restLeft=0;  // calm breathing before the exhale hold, counted down automatically
+var REST=30,restT=0,restLeft=0;  // calm breathing before the exhale hold, counted down automatically
 function level(s,m){if(m==='inhale')return s>=50?2:(s>=40?1:0);if(m==='exhale')return s>70?2:(s>=25?1:0);var p=s/rest*100;return p>50?2:(p>=30?1:0);}
 function full(m){return m==='inhale'?60:(m==='exhale'?80:rest*0.6);}
 function fmt(s){var t=s.toFixed(1);return lang==='ru'?t.replace('.',','):t;}
@@ -81,6 +81,7 @@ function paintRow(m,s,count){var r=rows[m],l=level(s,m),c=col(l);r.fill.style.ba
   if(!count){r.wd.textContent=txt(s);return;}
   var a=performance.now();(function step(){var k=Math.min((performance.now()-a)/900,1);r.wd.textContent=txt(s*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(step);})();}
 function show(){
+  $('calcBtn').hidden=finished||ORDER.some(function(k){return ts[k]===undefined;});
   $('restartBtn').hidden=finished||ts.inhale===undefined;$('stepBtn').hidden=finished||!lastDone();
   ORDER.forEach(function(m,i){var ok=ts[m]!==undefined,r=rows[m];
     r.row.classList.toggle('act',m===mode&&!ok);r.row.classList.toggle('ok',ok);r.row.classList.toggle('locked',!ok&&m!==mode);
@@ -109,7 +110,8 @@ function startRest(o){cd=o||{sec:REST,calm:'restCalm',soon:'restSoon',go:'restGo
 function pick(m){if(run)return;mode=m;squatDone=false;stopRest();resetRing();show();
   if(m==='exhale'&&ts.exhale===undefined)startRest();
   if(m==='load'&&ts.load===undefined)sqPaint();
-  $('scrTest').classList.toggle('started',ts.inhale!==undefined&&!finished);}  // after step 1 the headline hides, so circle and current step fit on one screen
+  $('scrTest').classList.toggle('started',ts.inhale!==undefined&&!finished);
+  if(ts.inhale!==undefined)setTimeout(function(){window.scrollTo({top:0,behavior:'smooth'});},50);}  // after step 1 the headline hides, so circle and current step fit on one screen
 ORDER.forEach(function(m){var row=document.createElement('div');row.className='row';row.innerHTML='<div class="num"></div><div class="rl"></div><div class="rw"></div><div class="rd"></div><div class="bar"><div class="fill"></div></div>';$('bars').appendChild(row);rows[m]={row:row,fill:row.querySelector('.fill'),wd:row.querySelector('.rw'),rl:row.querySelector('.rl'),rd:row.querySelector('.rd'),num:row.querySelector('.num')};});
 // Step 3: after the squats the person types how many they did, then the START command appears
 (function(){var w=document.createElement('label');w.className='sqin';w.hidden=true;w.innerHTML='<input type="number" inputmode="numeric" min="1" max="100" placeholder="?" id="sqNum"><span id="sqUnit"></span>';
@@ -158,7 +160,7 @@ $('btn').addEventListener('click',function(){
     run=true;$('stepBtn').hidden=true;$('restartBtn').hidden=true;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
     if(P.KeepAwake)P.KeepAwake.keepAwake().catch(function(){});
   }else{
-    run=false;cancelAnimationFrame(raf);var s=(performance.now()-t0)/1000,m=mode;
+    run=false;cancelAnimationFrame(raf);$('restartBtn').hidden=false;$('stepBtn').hidden=!lastDone();var s=(performance.now()-t0)/1000,m=mode;
     box.className='ringbox idle done '+(s<5?'lvx':'mid');box.style.setProperty('--puff',0);prg.style.strokeDashoffset=C;beep(330);
     track((s<5?'short_':'done_')+m);
     if(s<5){rows[m].wd.textContent=D.short;rows[m].wd.style.color='';$('lbl').textContent=D.again;return;}
@@ -166,18 +168,19 @@ $('btn').addEventListener('click',function(){
     ts[m]=s;lv[m]=level(s,m);rows[m].wd.textContent=D.doneT;
     var next=ORDER.filter(function(k){return ts[k]===undefined;})[0];
     if(next){$('lbl').textContent=D.nextT;show();setTimeout(function(){pick(next);},800);}
-    else{saveResult();summary(true);track('finished');sendTrack();}
+    else{show();$('lbl').textContent=D.calcReady;$('calcBtn').hidden=false;setTimeout(function(){$('calcBtn').scrollIntoView({behavior:'smooth',block:'nearest'});},300);}
   }
 });
 // Tap the current step card = same as the big button; locked cards just wiggle
-ORDER.forEach(function(m){rows[m].row.addEventListener('click',function(){
+ORDER.forEach(function(m){rows[m].row.addEventListener('click',function(e){
   if(finished)return;var r=rows[m].row;
-  if(r.classList.contains('act')){track('card_tap');$('btn').click();return;}
+  if(r.classList.contains('act')){if(!e.target.closest('.cbtn'))return;track('card_tap');$('btn').click();return;}
   if(r.classList.contains('locked')){track('locked_tap');r.classList.remove('nudge');void r.offsetWidth;r.classList.add('nudge');}});});
 // Repeat the last finished step (person made a mistake), like the reset button on a phone timer
 function lastDone(){return ORDER.filter(function(k){return ts[k]!==undefined;}).pop();}
 $('stepBtn').addEventListener('click',function(){if(run||finished)return;var k=lastDone();if(!k)return;track('step_again_'+k);
   delete ts[k];delete lv[k];if(k==='inhale')rest=0;rows[k].fill.style.width='0';rows[k].wd.textContent='';pick(k);});
+$('calcBtn').addEventListener('click',function(){if(run||finished)return;$('calcBtn').hidden=true;saveResult();window.scrollTo({top:0,behavior:'smooth'});summary(true);track('finished');sendTrack();});
 $('restartBtn').addEventListener('click',function(){if(run)return;track('restart');newTest();window.scrollTo({top:0,behavior:'smooth'});});
 $('againBtn').addEventListener('click',function(){track('again');newTest();window.scrollTo({top:0,behavior:'smooth'});});
 
