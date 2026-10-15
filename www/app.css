@@ -317,3 +317,8 @@ body.lock{overflow:hidden}
 .rbtn:active svg{background:color-mix(in srgb,var(--accent) 12%,#fff)}
 .rbtn span{font-size:11px;font-weight:700;color:var(--accent);line-height:1.1;text-align:center}
 .rleft{left:-38px}.rright{right:-38px}
+/* clearer buttons: solid round buttons, crisper START pill */
+.rbtn svg{width:52px;height:52px;padding:13px;background:var(--accent);color:#fff;border:3px solid #fff;box-shadow:0 4px 14px rgba(10,111,224,.45)}
+.rbtn:active svg{background:#0758b4}
+.rbtn span{font-size:12px;font-weight:800;color:#0b2a66}
+.ringbox.showface:not(.done) .lbl{font-size:17px;padding:9px 22px;border:2px solid #fff;box-shadow:0 4px 0 #0758b4,0 6px 16px rgba(0,30,90,.35)}
