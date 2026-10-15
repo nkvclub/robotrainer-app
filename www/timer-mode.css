@@ -1,0 +1,9 @@
+/* Variant B: circle is only a timer, start/stop on the step card */
+.mascot{display:none!important}
+.ringbox.lv0 .mascot,.ringbox.lv1 .mascot,.ringbox.lv2 .mascot{display:block!important}  /* face comes back only to react to the result */
+.ringbox .face{pointer-events:none}
+.ringbox.showface .lbl,.ringbox.hold .lbl{display:none!important}
+#vbcap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;font-weight:800;font-size:26px;line-height:1.2;padding:0 40px;pointer-events:none;z-index:2}
+#vbcap small{display:block;font-size:15px;font-weight:600;opacity:.85;margin-top:6px}
+.cbtn{grid-column:2/4;justify-self:start;margin-top:8px;padding:12px 30px;border-radius:999px;background:var(--accent);color:#fff;font-weight:800;font-size:18px;letter-spacing:.05em;box-shadow:0 4px 0 #0758b4,0 6px 16px rgba(0,30,90,.3);cursor:pointer}
+.cbtn.stop{background:#e5484d;box-shadow:0 4px 0 #a32a2e,0 6px 16px rgba(90,0,0,.3)}

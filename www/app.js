@@ -137,7 +137,7 @@ function sparks(){var n=16;for(var i=0;i<n;i++){var p=document.createElement('i'
   p.style.animationDelay=Math.round(Math.random()*160)+'ms';if(i%3===0)p.classList.add('gold');box.appendChild(p);setTimeout(function(p){p.remove();}.bind(null,p),1700);}}
 function ringReveal(o){if(o===2)setTimeout(sparks,500);box.className='ringbox idle done lv'+o;prg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';prg.style.stroke=col(o);prg.style.strokeDashoffset=0;$('lbl').textContent=D.B[o];}
 function summary(anim){
-  var o=overall();finished=true;$('restartBtn').hidden=true;$('scrTest').classList.remove('started');$('bars').classList.add('results');
+  var o=overall();finished=true;$('restartBtn').hidden=true;$('stepBtn').hidden=true;rows.load.sq.hidden=true;$('scrTest').classList.remove('started');$('bars').classList.add('results');
   ORDER.forEach(function(k,i){var r=rows[k];r.row.classList.remove('act','ok','locked');r.rl.textContent=name(k);r.num.textContent=String(i+1);r.rd.textContent='';
     if(anim){r.fill.style.width='0';r.wd.textContent='';setTimeout(function(){paintRow(k,ts[k],true);},1500+i*450);}else paintRow(k,ts[k]);});
   buildResult(o);
