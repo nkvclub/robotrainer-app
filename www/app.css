@@ -275,7 +275,7 @@ body.lock{overflow:hidden}
 #bars:not(.results) .row.act{cursor:pointer}
 .row.nudge{animation:nudge .35s}
 @keyframes nudge{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-.restart{all:unset;cursor:pointer;align-self:center;color:var(--muted);font-weight:600;font-size:14px;padding:8px 14px;border-radius:10px}
+.restart{all:unset;cursor:pointer;align-self:center;color:var(--accent);background:#fff;border:2px solid var(--accent);font-weight:700;font-size:16px;padding:12px 26px;border-radius:999px;box-shadow:0 4px 12px rgba(23,71,214,.15)}
 .restart:active{background:color-mix(in srgb,var(--accent) 10%,transparent)}
 
 /* overview of the 3 steps */

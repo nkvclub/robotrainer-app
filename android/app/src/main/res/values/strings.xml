@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">РобоТренер</string>
-    <string name="title_activity_main">РобоТренер</string>
+    <string name="app_name">RoboTrainer</string>
+    <string name="title_activity_main">RoboTrainer</string>
     <string name="package_name">ru.robotrainer.app</string>
     <string name="custom_url_scheme">ru.robotrainer.app</string>
 </resources>
