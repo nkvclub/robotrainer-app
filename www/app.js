@@ -88,7 +88,7 @@ function show(){
     if(!run){r.wd.style.color='';r.wd.textContent=ok?D.doneT:(m===mode?D.yourT:'');}
     r.rl.textContent=(!ok&&m!==mode)?D.stepT+' '+(i+1):name(m);
     r.num.innerHTML=ok?'✓':((m!==mode)?LOCK:String(i+1));
-    r.rd.textContent=(m===mode&&!ok)?D.T[m]+(m==='load'?'':' '+D.press):'';});
+    r.rd.textContent=(m===mode&&!ok)?D.T[m]:'';});
 }
 function resetRing(){prg.style.transition='';prg.style.stroke='';box.className='ringbox idle showface';box.style.setProperty('--puff',0);prg.style.strokeDashoffset=C;$('time').textContent=fmt(0);$('lbl').textContent=D.start;}
 function stopRest(){if(restT){clearInterval(restT);restT=0;}box.classList.remove('rest','ready');}
