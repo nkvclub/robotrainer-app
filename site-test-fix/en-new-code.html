@@ -24,7 +24,7 @@ O.forEach(function(m){var row=el('div','row');var l=el('div','rl','');var b=el('
 function setHint(err){how.textContent='';if(err){how.appendChild(el('span','he',err));}if(i<3){how.appendChild(el('span','hm',H[O[i]]+' '+STOP));how.appendChild(el('span','hg',GO[O[i]]));}}
 function beep(f){try{if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();}var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=0.08;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+0.18);}catch(e){}}
 function stopRest(){if(rt){clearInterval(rt);rt=0;}}
-function startRest(){stopRest();var end=Date.now()+REST*1000,warned=false,l3=document.getElementById('lbl3');var tick=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));tm.textContent=fmt(left);var t=left>10?'Rest. Breathe calmly':(left>0?'Get ready to exhale':'Breathe out & tap');lb.textContent=t;if(l3){l3.textContent=t;}if(left<=10&&!warned){warned=true;beep(520);}if(left<=0){stopRest();beep(880);setTimeout(function(){beep(880);},250);}};tick();rt=setInterval(tick,250);}
+function startRest(){stopRest();var end=Date.now()+REST*1000,warned=false,l3=document.getElementById('lbl3');var tick=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));tm.textContent=fmt(left);var t=left>10?'Rest. Breathe calmly':(left>0?'Get ready to exhale':'Breathe out and tap');lb.textContent=t;if(l3){l3.textContent=t;}if(left<=10){if(!warned){warned=true;beep(520);}}if(left<=0){stopRest();beep(880);setTimeout(function(){beep(880);},250);}};tick();rt=setInterval(tick,250);}
 function setStep(){
 stopRest();
 O.forEach(function(m,k){var r=R[m];r.fill.style.width='0';r.fill.style.background='';r.wd.style.color='';r.lab.textContent='';
@@ -33,7 +33,7 @@ if(k<i){r.row.className='row done';neutral(m,ts[m]);}
 else if(k===i){r.wd.textContent='now';r.row.className='row on';}
 else{r.wd.textContent='';r.row.className='row lock';}});
 if(prog){prog.textContent=i<3?'Result after all 3 tests':'All 3 tests done';}
-tm.textContent='0:00';lb.textContent='Tap to start';big.classList.remove('run');var l3=document.getElementById('lbl3');if(l3){l3.innerHTML='Tap &amp; hold<br>your breath';}
+tm.textContent='0:00';lb.textContent='Tap to start';big.classList.remove('run');var l3=document.getElementById('lbl3');if(l3){l3.innerHTML='Tap \u0026amp; hold<br>your breath';}
 if(i<3){setHint('');var cn=document.getElementById('curn'),ct=document.getElementById('curt');if(cn){cn.textContent='Test '+(i+1)+' of 3';}if(ct){ct.textContent=TT[O[i]];}}
 if(i===1){startRest();}}
 function paint(m,s){var l=level(m,s);R[m].fill.style.background=C[l];R[m].fill.style.width=Math.round(frac(m,s)*100)+'%';R[m].wd.style.color='';R[m].wd.textContent=Math.round(s)+' s';}
