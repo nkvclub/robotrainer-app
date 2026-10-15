@@ -112,10 +112,10 @@ function pick(m){if(run)return;mode=m;squatDone=false;stopRest();resetRing();sho
   $('scrTest').classList.toggle('started',ts.inhale!==undefined&&!finished);}  // after step 1 the headline hides, so circle and current step fit on one screen
 ORDER.forEach(function(m){var row=document.createElement('div');row.className='row';row.innerHTML='<div class="num"></div><div class="rl"></div><div class="rw"></div><div class="rd"></div><div class="bar"><div class="fill"></div></div>';$('bars').appendChild(row);rows[m]={row:row,fill:row.querySelector('.fill'),wd:row.querySelector('.rw'),rl:row.querySelector('.rl'),rd:row.querySelector('.rd'),num:row.querySelector('.num')};});
 // Step 3: after the squats the person types how many they did, then the START command appears
-(function(){var w=document.createElement('label');w.className='sqin';w.hidden=true;w.innerHTML='<input type="number" inputmode="numeric" min="1" max="200" placeholder="?" id="sqNum"><span id="sqUnit"></span>';
+(function(){var w=document.createElement('label');w.className='sqin';w.hidden=true;w.innerHTML='<input type="number" inputmode="numeric" min="1" max="100" placeholder="?" id="sqNum"><span id="sqUnit"></span>';
   rows.load.rd.after(w);rows.load.sq=w;w.addEventListener('click',function(e){e.stopPropagation();});
   var inp=w.querySelector('input');
-  inp.addEventListener('input',function(){var v=parseInt(inp.value,10);sqN=(v>0&&v<=200)?v:0;sqPaint();show();});
+  inp.addEventListener('input',function(){var v=parseInt(inp.value,10);sqN=(v>0&&v<=100)?v:0;sqPaint();show();});
   inp.addEventListener('keydown',function(e){if(e.key==='Enter'){inp.blur();}});})();
 function sqPaint(){if(mode!=='load'||run||ts.load!==undefined)return;$('sqUnit').textContent=D.sqUnit;
   box.classList.toggle('ready',!!sqN);$('lbl').textContent=sqN?D.start:D.sqFirst;}
@@ -239,7 +239,8 @@ function checkForm(){$('emailSend').disabled=!($('consent').checked&&$('email').
 $('consent').addEventListener('change',checkForm);$('email').addEventListener('input',checkForm);
 // Fields as the site expects them (robotrainer.ru/wp-json/rt/v1/app-lead)
 function payload(email,last){var t=last.ts||{};
-  return {key:CFG.EMAIL_KEY,email:email,consent:true,lang:lang,inhale:Math.round(t.inhale||0),exhale:Math.round(t.exhale||0),load:Math.round(t.load||0),squats:Math.round(last.sq||0),website:''};}
+  var b={key:CFG.EMAIL_KEY,email:email,consent:true,lang:lang,inhale:Math.round(t.inhale||0),exhale:Math.round(t.exhale||0),load:Math.round(t.load||0),website:''};
+  if(last.sq>0&&last.sq<=100)b.squats=Math.round(last.sq);return b;}
 function post(url,body){
   var ac=window.AbortController?new AbortController():null;if(ac)setTimeout(function(){ac.abort();},15000);
   return fetch(url,{method:'POST',signal:ac?ac.signal:undefined,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
