@@ -275,8 +275,8 @@ body.lock{overflow:hidden}
 #bars:not(.results) .row.act{cursor:pointer}
 .row.nudge{animation:nudge .35s}
 @keyframes nudge{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-.restart{all:unset;cursor:pointer;align-self:center;color:var(--accent);background:#fff;border:2px solid var(--accent);font-weight:700;font-size:16px;padding:12px 26px;border-radius:999px;box-shadow:0 4px 12px rgba(23,71,214,.15)}
-.restart:active{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+/* old pill, unused */.restart-old{all:unset;cursor:pointer;align-self:center;color:var(--accent);background:#fff;border:2px solid var(--accent);font-weight:700;font-size:16px;padding:12px 26px;border-radius:999px;box-shadow:0 4px 12px rgba(23,71,214,.15)}
+.restart-old:active{background:color-mix(in srgb,var(--accent) 10%,transparent)}
 
 /* overview of the 3 steps */
 .howlink{all:unset;cursor:pointer;color:var(--accent);font-weight:700;font-size:14px;padding:4px 10px;border-radius:8px;-webkit-tap-highlight-color:transparent}
@@ -310,3 +310,10 @@ body.lock{overflow:hidden}
 .sqin span{font-weight:700;color:var(--ink,#0b1b3a)}
 .sqin.nudge{animation:nudge .4s}
 .sqin input::placeholder{color:color-mix(in srgb,var(--accent) 35%,transparent)}
+
+/* round buttons beside the circle, like a phone timer: left = redo step, right = restart test */
+.rbtn{all:unset;cursor:pointer;position:absolute;bottom:-6px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:4px;width:84px;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.rbtn svg{box-sizing:border-box;width:48px;height:48px;padding:12px;border-radius:50%;background:#fff;color:var(--accent);border:2px solid color-mix(in srgb,var(--accent) 35%,#fff);box-shadow:0 4px 12px rgba(23,71,214,.18)}
+.rbtn:active svg{background:color-mix(in srgb,var(--accent) 12%,#fff)}
+.rbtn span{font-size:11px;font-weight:700;color:var(--accent);line-height:1.1;text-align:center}
+.rleft{left:-38px}.rright{right:-38px}

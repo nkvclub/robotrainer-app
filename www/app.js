@@ -81,7 +81,7 @@ function paintRow(m,s,count){var r=rows[m],l=level(s,m),c=col(l);r.fill.style.ba
   if(!count){r.wd.textContent=txt(s);return;}
   var a=performance.now();(function step(){var k=Math.min((performance.now()-a)/900,1);r.wd.textContent=txt(s*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(step);})();}
 function show(){
-  $('restartBtn').hidden=finished||ts.inhale===undefined;
+  $('restartBtn').hidden=finished||ts.inhale===undefined;$('stepBtn').hidden=finished||!lastDone();
   ORDER.forEach(function(m,i){var ok=ts[m]!==undefined,r=rows[m];
     r.row.classList.toggle('act',m===mode&&!ok);r.row.classList.toggle('ok',ok);r.row.classList.toggle('locked',!ok&&m!==mode);
     if(finished)return;
@@ -155,7 +155,7 @@ $('btn').addEventListener('click',function(){
   if(!run){
     if(mode==='load'&&!sqN){var i=$('sqNum'),w=rows.load.sq;w.classList.remove('nudge');void w.offsetWidth;w.classList.add('nudge');i.focus();return;}  // number of squats first
     track(restT?'rest_skip':'start_'+mode);stopRest();
-    run=true;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
+    run=true;$('stepBtn').hidden=true;$('restartBtn').hidden=true;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
     if(P.KeepAwake)P.KeepAwake.keepAwake().catch(function(){});
   }else{
     run=false;cancelAnimationFrame(raf);var s=(performance.now()-t0)/1000,m=mode;
@@ -174,6 +174,10 @@ ORDER.forEach(function(m){rows[m].row.addEventListener('click',function(){
   if(finished)return;var r=rows[m].row;
   if(r.classList.contains('act')){track('card_tap');$('btn').click();return;}
   if(r.classList.contains('locked')){track('locked_tap');r.classList.remove('nudge');void r.offsetWidth;r.classList.add('nudge');}});});
+// Repeat the last finished step (person made a mistake), like the reset button on a phone timer
+function lastDone(){return ORDER.filter(function(k){return ts[k]!==undefined;}).pop();}
+$('stepBtn').addEventListener('click',function(){if(run||finished)return;var k=lastDone();if(!k)return;track('step_again_'+k);
+  delete ts[k];delete lv[k];if(k==='inhale')rest=0;rows[k].fill.style.width='0';rows[k].wd.textContent='';pick(k);});
 $('restartBtn').addEventListener('click',function(){if(run)return;track('restart');newTest();window.scrollTo({top:0,behavior:'smooth'});});
 $('againBtn').addEventListener('click',function(){track('again');newTest();window.scrollTo({top:0,behavior:'smooth'});});
 
