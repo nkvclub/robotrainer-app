@@ -263,3 +263,17 @@ body.lock{overflow:hidden}
 .sheet{max-height:100%;overflow-y:auto}
 .check.need{color:var(--bad,#d33);animation:shake .4s}
 @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* START pill: the circle reads as a button, not just a face */
+.ringbox.showface:not(.done) .lbl{display:inline-block;max-width:none;margin-top:10px;padding:7px 18px;border-radius:999px;background:#fff;color:var(--accent);font-weight:800;font-size:15px;letter-spacing:.06em;opacity:1;box-shadow:0 3px 0 color-mix(in srgb,var(--accent) 35%,#c9daf2)}
+.ringbox.showface.ready .lbl{font-size:13px;letter-spacing:0;animation:callpill 1s ease-in-out infinite}
+@keyframes callpill{50%{transform:scale(1.08)}}
+/* rest countdown */
+.ringbox.rest .time{font-size:46px}
+.ringbox.rest .lbl{max-width:170px}
+/* tappable step cards */
+#bars:not(.results) .row.act{cursor:pointer}
+.row.nudge{animation:nudge .35s}
+@keyframes nudge{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.restart{all:unset;cursor:pointer;align-self:center;color:var(--muted);font-weight:600;font-size:14px;padding:8px 14px;border-radius:10px}
+.restart:active{background:color-mix(in srgb,var(--accent) 10%,transparent)}
