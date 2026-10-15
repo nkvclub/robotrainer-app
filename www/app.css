@@ -284,3 +284,12 @@ body.lock{overflow:hidden}
 .howlist{margin:0;padding:0;list-style:none;counter-reset:h;display:flex;flex-direction:column;gap:12px}
 .howlist li{counter-increment:h;display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:start;font-size:15px;line-height:1.4}
 .howlist li::before{content:counter(h);width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-weight:800;box-shadow:0 3px 0 var(--accent-dark)}
+
+/* button tour */
+.tour{position:fixed;inset:0;z-index:20}
+.tour-hole{position:fixed;box-shadow:0 0 0 9999px rgba(12,38,83,.62);border:3px solid #fff;transition:all .35s ease;pointer-events:none}
+.tour-tip{position:fixed;left:16px;right:16px;max-width:440px;margin:0 auto;background:var(--card);color:var(--fg);border-radius:16px;padding:16px;font-size:16px;line-height:1.4;font-weight:600;box-shadow:0 12px 30px rgba(12,38,83,.3);display:flex;flex-direction:column;gap:12px;animation:fadeUp .25s ease both}
+.tour-nav{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tour-skip{all:unset;cursor:pointer;color:var(--muted);font-weight:600;padding:8px 4px}
+.tour-next{all:unset;cursor:pointer;margin-left:auto;background:var(--accent);color:#fff;font-weight:800;padding:10px 22px;border-radius:12px;box-shadow:0 3px 0 var(--accent-dark)}
+#bars .row{scroll-margin-bottom:96px}

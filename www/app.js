@@ -261,6 +261,7 @@ $('emailForm').addEventListener('submit',function(e){
 
 /* ---------- Android back button ---------- */
 if(P.App&&P.App.addListener){P.App.addListener('backButton',function(){
+  if(!$('tour').hidden){endTour();return;}
   if(!$('howModal').hidden){closeHow();return;}
   if(!$('emailModal').hidden){closeEmail();return;}
   if($('scrTest').hidden&&S.warned){go('scrTest');return;}
@@ -273,8 +274,26 @@ $('warnGo').addEventListener('click',function(){S.warned=true;saveS();go('scrTes
 // Short overview of the 3 steps: shown once before the first test, then on the link under the headline
 function openHow(){track('how_open');$('howModal').hidden=false;document.body.classList.add('lock');}
 function closeHow(){$('howModal').hidden=true;document.body.classList.remove('lock');if(!S.howSeen){S.howSeen=true;saveS();}}
-$('howBtn').addEventListener('click',openHow);$('howOk').addEventListener('click',closeHow);
+$('howBtn').addEventListener('click',openHow);$('howOk').addEventListener('click',function(){closeHow();setTimeout(startTour,250);});
 $('howModal').addEventListener('click',function(e){if(e.target===this)closeHow();});
+// Tour: highlight each button with a short note (circle, current card, next steps, tabs)
+var tourI=-1;
+function tourTargets(){return [$('box'),document.querySelector('#bars .row.act'),document.querySelector('#bars .row.locked')||$('bars'),$('tabs')];}
+function startTour(){if(run||finished)return;track('tour_start');tourI=0;$('tour').hidden=false;showTour();}
+function endTour(){$('tour').hidden=true;tourI=-1;}
+function showTour(){var el=tourTargets()[tourI];if(!el){endTour();return;}
+  el.scrollIntoView({block:'nearest'});
+  var r=el.getBoundingClientRect(),pad=8,hole=$('tourHole'),tip=$('tourTip');
+  if(el!==$('tabs')){var lim=$('tabs').getBoundingClientRect().top-pad-4;if(r.bottom>lim)r={left:r.left,top:r.top,width:r.width,height:Math.max(40,lim-r.top),bottom:lim};}  // keep the box above the tab bar
+  hole.style.left=(r.left-pad)+'px';hole.style.top=(r.top-pad)+'px';hole.style.width=(r.width+pad*2)+'px';hole.style.height=(r.height+pad*2)+'px';
+  hole.style.borderRadius=el===$('box')?'50%':'18px';
+  $('tourText').textContent=D.tour[tourI];
+  var last=tourI===D.tour.length-1;$('tourNext').textContent=last?D.tourDone:D.tourNext;$('tourSkip').hidden=last;
+  var below=r.top+r.height/2<window.innerHeight/2;
+  tip.style.top=below?(r.bottom+pad+14)+'px':'';tip.style.bottom=below?'':(window.innerHeight-r.top+pad+14)+'px';}
+$('tourNext').addEventListener('click',function(){tourI++;if(tourI>=D.tour.length)endTour();else showTour();});
+$('tourSkip').addEventListener('click',function(){track('tour_skip');endTour();});
+window.addEventListener('resize',function(){if(tourI>=0)showTour();});
 Promise.all([store.get('settings'),store.get('history')]).then(function(r){
   if(r[0])for(var k in r[0])S[k]=r[0][k];
   history=Array.isArray(r[1])?r[1]:[];
