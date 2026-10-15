@@ -38,6 +38,7 @@ function applyTexts(){
   var h1=document.querySelector('#scrTest h1');h1.innerHTML='';h1.classList.remove('words');
   D.h1.split(' ').forEach(function(w,i){var sp=document.createElement('span');sp.textContent=w;sp.style.animationDelay=(120+i*90)+'ms';h1.appendChild(sp);h1.appendChild(document.createTextNode(' '));});
   void h1.offsetWidth;h1.classList.add('words');
+  $('howList').innerHTML='';D.howL.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('howList').appendChild(li);});
   $('warnList').innerHTML='';D.warnL.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('warnList').appendChild(li);});
   $('lru').setAttribute('aria-pressed',lang==='ru');$('len').setAttribute('aria-pressed',lang==='en');
   $('privLink').href=CFG.PRIVACY_URL[lang];$('consentLink').href=CFG.PRIVACY_URL[lang];$('siteLink').href=CFG.SITE_URL[lang];
@@ -53,7 +54,7 @@ function beep(f){
 }
 
 /* ---------- screens ---------- */
-function go(id){track('tab_'+id);
+function go(id){track('tab_'+id);if(id==='scrTest'&&S.warned&&!S.howSeen)setTimeout(openHow,300);
   ['scrWarn','scrTest','scrHist','scrSet'].forEach(function(s){$(s).hidden=s!==id;});
   $('tabs').hidden=id==='scrWarn';
   document.querySelectorAll('#tabs button').forEach(function(b){b.toggleAttribute('aria-current',b.dataset.go===id);if(b.dataset.go===id)b.setAttribute('aria-current','page');});
@@ -260,6 +261,7 @@ $('emailForm').addEventListener('submit',function(e){
 
 /* ---------- Android back button ---------- */
 if(P.App&&P.App.addListener){P.App.addListener('backButton',function(){
+  if(!$('howModal').hidden){closeHow();return;}
   if(!$('emailModal').hidden){closeEmail();return;}
   if($('scrTest').hidden&&S.warned){go('scrTest');return;}
   P.App.minimizeApp();
@@ -268,6 +270,11 @@ if(P.App&&P.App.addListener){P.App.addListener('backButton',function(){
 /* ---------- start ---------- */
 $('warnOk').addEventListener('change',function(){$('warnGo').disabled=!this.checked;});
 $('warnGo').addEventListener('click',function(){S.warned=true;saveS();go('scrTest');});
+// Short overview of the 3 steps: shown once before the first test, then on the link under the headline
+function openHow(){track('how_open');$('howModal').hidden=false;document.body.classList.add('lock');}
+function closeHow(){$('howModal').hidden=true;document.body.classList.remove('lock');if(!S.howSeen){S.howSeen=true;saveS();}}
+$('howBtn').addEventListener('click',openHow);$('howOk').addEventListener('click',closeHow);
+$('howModal').addEventListener('click',function(e){if(e.target===this)closeHow();});
 Promise.all([store.get('settings'),store.get('history')]).then(function(r){
   if(r[0])for(var k in r[0])S[k]=r[0][k];
   history=Array.isArray(r[1])?r[1]:[];
