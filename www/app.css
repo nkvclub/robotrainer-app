@@ -294,3 +294,5 @@ body.lock{overflow:hidden}
 .tour-next{all:unset;cursor:pointer;margin-left:auto;background:var(--accent);color:#fff;font-weight:800;padding:10px 22px;border-radius:12px;box-shadow:0 3px 0 var(--accent-dark)}
 #bars .row{scroll-margin-bottom:96px}
 .ringbox.hold .lbl{display:inline-block;max-width:180px;padding:6px 14px;border-radius:14px;background:#fff;color:var(--accent);font-weight:800;opacity:1;box-shadow:0 3px 0 color-mix(in srgb,var(--accent) 35%,#c9daf2)}
+.cta.off{opacity:.45;box-shadow:none}
+.check.need span{color:#d33;font-weight:700}

@@ -93,21 +93,24 @@ function show(){
 function resetRing(){prg.style.transition='';prg.style.stroke='';box.className='ringbox idle showface';box.style.setProperty('--puff',0);prg.style.strokeDashoffset=C;$('time').textContent=fmt(0);$('lbl').textContent=D.start;}
 function stopRest(){if(restT){clearInterval(restT);restT=0;}box.classList.remove('rest','ready');}
 function mmss(n){return Math.floor(n/60)+':'+('0'+n%60).slice(-2);}
-function startRest(){stopRest();restLeft=REST;box.className='ringbox idle rest';prg.style.stroke=acc();
-  var paint=function(){$('time').textContent=mmss(restLeft);prg.style.strokeDashoffset=C*(1-restLeft/REST);
-    $('lbl').textContent=restLeft>10?D.restCalm:(restLeft>0?D.restSoon:D.restGo);};
+var cd={sec:REST,calm:'restCalm',soon:'restSoon',go:'restGo'},squatDone=false;
+function startSquat(){track('squat_start');startRest({sec:30,calm:'sqCalm',soon:'sqSoon',go:'sqGo'});}
+function startRest(o){cd=o||{sec:REST,calm:'restCalm',soon:'restSoon',go:'restGo'};var TOT=cd.sec;stopRest();restLeft=TOT;box.className='ringbox idle rest';prg.style.stroke=acc();
+  var paint=function(){$('time').textContent=mmss(restLeft);prg.style.strokeDashoffset=C*(1-restLeft/TOT);
+    $('lbl').textContent=restLeft>10?D[cd.calm]:(restLeft>0?D[cd.soon]:D[cd.go]);};
   paint();
-  var end=Date.now()+REST*1000,warned=false;  // wall clock, so a dimmed screen doesn't slow it down
+  var end=Date.now()+TOT*1000,warned=false;  // wall clock, so a dimmed screen doesn't slow it down
   restT=setInterval(function(){restLeft=Math.max(0,Math.ceil((end-Date.now())/1000));
     if(restLeft<=10&&!warned){warned=true;beep(520);}
-    if(restLeft<=0){clearInterval(restT);restT=0;restLeft=0;beep(880);setTimeout(function(){beep(880);},250);
+    if(restLeft<=0){clearInterval(restT);restT=0;restLeft=0;if(cd.calm==='sqCalm')squatDone=true;beep(880);setTimeout(function(){beep(880);},250);
       box.className='ringbox idle showface ready';prg.style.strokeDashoffset=C;}
     paint();},250);}
-function pick(m){if(run)return;mode=m;stopRest();resetRing();show();
+function pick(m){if(run)return;mode=m;squatDone=false;stopRest();resetRing();show();
+  if(m==='load'&&ts.load===undefined)$('lbl').textContent=D.sqBtn;
   if(m==='exhale'&&ts.exhale===undefined)startRest();
   $('scrTest').classList.toggle('started',ts.inhale!==undefined&&!finished);}  // after step 1 the headline hides, so circle and current step fit on one screen
 ORDER.forEach(function(m){var row=document.createElement('div');row.className='row';row.innerHTML='<div class="num"></div><div class="rl"></div><div class="rw"></div><div class="rd"></div><div class="bar"><div class="fill"></div></div>';$('bars').appendChild(row);rows[m]={row:row,fill:row.querySelector('.fill'),wd:row.querySelector('.rw'),rl:row.querySelector('.rl'),rd:row.querySelector('.rd'),num:row.querySelector('.num')};});
-function newTest(){stopRest();ts={};lv={};rest=0;finished=false;$('bars').classList.remove('results');$('out').hidden=true;$('againBtn').hidden=true;ORDER.forEach(function(m){rows[m].fill.style.width='0';});pick('inhale');}
+function newTest(){stopRest();squatDone=false;ts={};lv={};rest=0;finished=false;$('bars').classList.remove('results');$('out').hidden=true;$('againBtn').hidden=true;ORDER.forEach(function(m){rows[m].fill.style.width='0';});pick('inhale');}
 function tick(){var s=(performance.now()-t0)/1000;box.style.setProperty('--puff',Math.min(s/full(mode),1).toFixed(3));prg.style.stroke=acc();prg.style.strokeDashoffset=C*(1-Math.min(s/full(mode),1));rows[mode].wd.textContent=D.going;raf=requestAnimationFrame(tick);}
 function overall(){var a=(lv.inhale+lv.exhale+lv.load)/3;return a>=1.5?2:(a>=.6?1:0);}
 function buildResult(o){
@@ -131,7 +134,7 @@ function summary(anim){
   buildResult(o);
   if(anim){$('out').hidden=true;$('lbl').textContent=D.calc;box.className='ringbox showface';
     setTimeout(function(){ringReveal(o);},1300);
-    setTimeout(function(){$('out').hidden=false;$('out').classList.add('reveal');$('againBtn').hidden=false;$('out').scrollIntoView({behavior:'smooth',block:'nearest'});},2050+3*450);}
+    setTimeout(function(){$('out').hidden=false;$('out').classList.add('reveal');$('againBtn').hidden=false;var cb=$('out').querySelector('.ctabox');(cb||$('out')).scrollIntoView({behavior:'smooth',block:'center'});},2050+3*450);}
   else{$('out').hidden=false;$('againBtn').hidden=false;ringReveal(o);}
 }
 function saveResult(){
@@ -141,6 +144,8 @@ function saveResult(){
 $('btn').addEventListener('click',function(){
   if(finished){newTest();window.scrollTo({top:0,behavior:'smooth'});return;}  // tap the face again = new test
   if(!run){
+    if(mode==='load'&&!squatDone&&!restT&&ts.load===undefined){startSquat();return;}  // first tap on step 3 = 30 s squat timer
+    if(restT&&cd.calm==='sqCalm')squatDone=true;
     track(restT?'rest_skip':'start_'+mode);stopRest();
     run=true;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
     if(P.KeepAwake)P.KeepAwake.keepAwake().catch(function(){});
@@ -270,8 +275,8 @@ if(P.App&&P.App.addListener){P.App.addListener('backButton',function(){
 });}
 
 /* ---------- start ---------- */
-$('warnOk').addEventListener('change',function(){$('warnGo').disabled=!this.checked;});
-$('warnGo').addEventListener('click',function(){S.warned=true;saveS();go('scrTest');});
+$('warnOk').addEventListener('change',function(){$('warnGo').classList.toggle('off',!this.checked);$('warnOk').parentNode.classList.remove('need');});
+$('warnGo').addEventListener('click',function(){if(!$('warnOk').checked){var c=$('warnOk').parentNode;c.classList.remove('need');void c.offsetWidth;c.classList.add('need');return;}S.warned=true;saveS();go('scrTest');});
 // Short overview of the 3 steps: shown once before the first test, then on the link under the headline
 function openHow(){track('how_open');$('howModal').hidden=false;document.body.classList.add('lock');}
 function closeHow(){$('howModal').hidden=true;document.body.classList.remove('lock');if(!S.howSeen){S.howSeen=true;saveS();}}
