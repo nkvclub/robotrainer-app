@@ -239,7 +239,7 @@ function checkForm(){$('emailSend').disabled=!($('consent').checked&&$('email').
 $('consent').addEventListener('change',checkForm);$('email').addEventListener('input',checkForm);
 // Fields as the site expects them (robotrainer.ru/wp-json/rt/v1/app-lead)
 function payload(email,last){var t=last.ts||{};
-  return {key:CFG.EMAIL_KEY,email:email,consent:true,lang:lang,inhale:Math.round(t.inhale||0),exhale:Math.round(t.exhale||0),load:Math.round(t.load||0),website:''};}
+  return {key:CFG.EMAIL_KEY,email:email,consent:true,lang:lang,inhale:Math.round(t.inhale||0),exhale:Math.round(t.exhale||0),load:Math.round(t.load||0),squats:Math.round(last.sq||0),website:''};}
 function post(url,body){
   var ac=window.AbortController?new AbortController():null;if(ac)setTimeout(function(){ac.abort();},15000);
   return fetch(url,{method:'POST',signal:ac?ac.signal:undefined,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
