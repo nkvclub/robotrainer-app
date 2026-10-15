@@ -88,12 +88,13 @@ function show(){
     if(!run){r.wd.style.color='';r.wd.textContent=ok?D.doneT:(m===mode?D.yourT:'');}
     r.rl.textContent=(!ok&&m!==mode)?D.stepT+' '+(i+1):name(m);
     r.num.innerHTML=ok?'✓':((m!==mode)?LOCK:String(i+1));
-    r.rd.textContent=(m===mode&&!ok)?D.T[m]:'';});
+    r.rd.textContent=(m===mode&&!ok)?(m==='load'&&!sqN?D.sqAsk:D.T[m]):'';
+    if(r.sq)r.sq.hidden=!(m===mode&&!ok);});
 }
 function resetRing(){prg.style.transition='';prg.style.stroke='';box.className='ringbox idle showface';box.style.setProperty('--puff',0);prg.style.strokeDashoffset=C;$('time').textContent=fmt(0);$('lbl').textContent=D.start;}
 function stopRest(){if(restT){clearInterval(restT);restT=0;}box.classList.remove('rest','ready');}
 function mmss(n){return Math.floor(n/60)+':'+('0'+n%60).slice(-2);}
-var cd={sec:REST,calm:'restCalm',soon:'restSoon',go:'restGo'},squatDone=false;
+var cd={sec:REST,calm:'restCalm',soon:'restSoon',go:'restGo'},squatDone=false,sqN=0;
 function startSquat(){track('squat_start');startRest({sec:30,calm:'sqCalm',soon:'sqSoon',go:'sqGo'});}
 function startRest(o){cd=o||{sec:REST,calm:'restCalm',soon:'restSoon',go:'restGo'};var TOT=cd.sec;stopRest();restLeft=TOT;box.className='ringbox idle rest';prg.style.stroke=acc();
   var paint=function(){$('time').textContent=mmss(restLeft);prg.style.strokeDashoffset=C*(1-restLeft/TOT);
@@ -107,9 +108,18 @@ function startRest(o){cd=o||{sec:REST,calm:'restCalm',soon:'restSoon',go:'restGo
     paint();},250);}
 function pick(m){if(run)return;mode=m;squatDone=false;stopRest();resetRing();show();
   if(m==='exhale'&&ts.exhale===undefined)startRest();
+  if(m==='load'&&ts.load===undefined)sqPaint();
   $('scrTest').classList.toggle('started',ts.inhale!==undefined&&!finished);}  // after step 1 the headline hides, so circle and current step fit on one screen
 ORDER.forEach(function(m){var row=document.createElement('div');row.className='row';row.innerHTML='<div class="num"></div><div class="rl"></div><div class="rw"></div><div class="rd"></div><div class="bar"><div class="fill"></div></div>';$('bars').appendChild(row);rows[m]={row:row,fill:row.querySelector('.fill'),wd:row.querySelector('.rw'),rl:row.querySelector('.rl'),rd:row.querySelector('.rd'),num:row.querySelector('.num')};});
-function newTest(){stopRest();squatDone=false;ts={};lv={};rest=0;finished=false;$('bars').classList.remove('results');$('out').hidden=true;$('againBtn').hidden=true;ORDER.forEach(function(m){rows[m].fill.style.width='0';});pick('inhale');}
+// Step 3: after the squats the person types how many they did, then the START command appears
+(function(){var w=document.createElement('label');w.className='sqin';w.hidden=true;w.innerHTML='<input type="number" inputmode="numeric" min="1" max="200" placeholder="?" id="sqNum"><span id="sqUnit"></span>';
+  rows.load.rd.after(w);rows.load.sq=w;w.addEventListener('click',function(e){e.stopPropagation();});
+  var inp=w.querySelector('input');
+  inp.addEventListener('input',function(){var v=parseInt(inp.value,10);sqN=(v>0&&v<=200)?v:0;sqPaint();show();});
+  inp.addEventListener('keydown',function(e){if(e.key==='Enter'){inp.blur();}});})();
+function sqPaint(){if(mode!=='load'||run||ts.load!==undefined)return;$('sqUnit').textContent=D.sqUnit;
+  box.classList.toggle('ready',!!sqN);$('lbl').textContent=sqN?D.start:D.sqFirst;}
+function newTest(){stopRest();squatDone=false;sqN=0;$('sqNum').value='';ts={};lv={};rest=0;finished=false;$('bars').classList.remove('results');$('out').hidden=true;$('againBtn').hidden=true;ORDER.forEach(function(m){rows[m].fill.style.width='0';});pick('inhale');}
 function tick(){var s=(performance.now()-t0)/1000;box.style.setProperty('--puff',Math.min(s/full(mode),1).toFixed(3));prg.style.stroke=acc();prg.style.strokeDashoffset=C*(1-Math.min(s/full(mode),1));rows[mode].wd.textContent=D.going;raf=requestAnimationFrame(tick);}
 function overall(){var a=(lv.inhale+lv.exhale+lv.load)/3;return a>=1.5?2:(a>=.6?1:0);}
 function buildResult(o){
@@ -137,13 +147,13 @@ function summary(anim){
   else{$('out').hidden=false;$('againBtn').hidden=false;ringReveal(o);}
 }
 function saveResult(){
-  history.unshift({d:Date.now(),ts:{inhale:ts.inhale,exhale:ts.exhale,load:ts.load},o:overall()});
+  history.unshift({d:Date.now(),ts:{inhale:ts.inhale,exhale:ts.exhale,load:ts.load},sq:sqN,o:overall()});
   history=history.slice(0,200);store.set('history',history);
 }
 $('btn').addEventListener('click',function(){
   if(finished){newTest();window.scrollTo({top:0,behavior:'smooth'});return;}  // tap the face again = new test
   if(!run){
-    if(restT&&cd.calm==='sqCalm')squatDone=true;
+    if(mode==='load'&&!sqN){var i=$('sqNum'),w=rows.load.sq;w.classList.remove('nudge');void w.offsetWidth;w.classList.add('nudge');i.focus();return;}  // number of squats first
     track(restT?'rest_skip':'start_'+mode);stopRest();
     run=true;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
     if(P.KeepAwake)P.KeepAwake.keepAwake().catch(function(){});

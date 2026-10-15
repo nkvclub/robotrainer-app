@@ -302,3 +302,11 @@ body.lock{overflow:hidden}
 .ringbox.rest .mascot{width:min(120px,30vw,16vh)}
 .ringbox.rest .time{font-size:36px}
 .ringbox.sqwait .lbl{animation:callpill 1.2s ease-in-out infinite}
+
+/* step 3: how many squats */
+.sqin{grid-column:2/4;display:flex;align-items:center;gap:10px;margin-top:4px}
+.sqin input{width:88px;font:inherit;font-size:22px;font-weight:800;text-align:center;color:var(--accent);padding:8px 6px;border:2px solid var(--accent);border-radius:12px;background:#fff;outline:none}
+.sqin input:focus{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 20%,transparent)}
+.sqin span{font-weight:700;color:var(--ink,#0b1b3a)}
+.sqin.nudge{animation:nudge .4s}
+.sqin input::placeholder{color:color-mix(in srgb,var(--accent) 35%,transparent)}
