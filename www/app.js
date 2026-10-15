@@ -82,7 +82,7 @@ function paintRow(m,s,count){var r=rows[m],l=level(s,m),c=col(l);r.fill.style.ba
   var a=performance.now();(function step(){var k=Math.min((performance.now()-a)/900,1);r.wd.textContent=txt(s*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(step);})();}
 function show(){
   $('calcBtn').hidden=finished||ORDER.some(function(k){return ts[k]===undefined;});
-  $('restartBtn').hidden=finished||ts.inhale===undefined;$('stepBtn').hidden=finished||!lastDone();
+  $('restartBtn').hidden=finished;$('stepBtn').hidden=finished||!(lastDone()||run);
   ORDER.forEach(function(m,i){var ok=ts[m]!==undefined,r=rows[m];
     r.row.classList.toggle('act',m===mode&&!ok);r.row.classList.toggle('ok',ok);r.row.classList.toggle('locked',!ok&&m!==mode);
     if(finished)return;
@@ -157,13 +157,13 @@ $('btn').addEventListener('click',function(){
   if(!run){
     if(mode==='load'&&!sqN){var i=$('sqNum'),w=rows.load.sq;w.classList.remove('nudge');void w.offsetWidth;w.classList.add('nudge');i.focus();return;}  // number of squats first
     track(restT?'rest_skip':'start_'+mode);stopRest();
-    run=true;$('stepBtn').hidden=true;$('restartBtn').hidden=true;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
+    run=true;$('stepBtn').hidden=false;$('restartBtn').hidden=false;rows[mode].rd.textContent=D.holdT;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
     if(P.KeepAwake)P.KeepAwake.keepAwake().catch(function(){});
   }else{
     run=false;cancelAnimationFrame(raf);$('restartBtn').hidden=false;$('stepBtn').hidden=!lastDone();var s=(performance.now()-t0)/1000,m=mode;
     box.className='ringbox idle done '+(s<5?'lvx':'mid');box.style.setProperty('--puff',0);prg.style.strokeDashoffset=C;beep(330);
     track((s<5?'short_':'done_')+m);
-    if(s<5){rows[m].wd.textContent=D.short;rows[m].wd.style.color='';$('lbl').textContent=D.again;return;}
+    if(s<5){show();rows[m].wd.textContent=D.short;rows[m].wd.style.color='';$('lbl').textContent=D.again;return;}
     if(m==='inhale')rest=s;
     ts[m]=s;lv[m]=level(s,m);rows[m].wd.textContent=D.doneT;
     var next=ORDER.filter(function(k){return ts[k]===undefined;})[0];
@@ -178,10 +178,13 @@ ORDER.forEach(function(m){rows[m].row.addEventListener('click',function(e){
   if(r.classList.contains('locked')){track('locked_tap');r.classList.remove('nudge');void r.offsetWidth;r.classList.add('nudge');}});});
 // Repeat the last finished step (person made a mistake), like the reset button on a phone timer
 function lastDone(){return ORDER.filter(function(k){return ts[k]!==undefined;}).pop();}
-$('stepBtn').addEventListener('click',function(){if(run||finished)return;var k=lastDone();if(!k)return;track('step_again_'+k);
+function cancelHold(){run=false;cancelAnimationFrame(raf);box.style.setProperty('--puff',0);}
+$('stepBtn').addEventListener('click',function(){if(finished)return;
+  if(run){track('step_cancel_'+mode);cancelHold();pick(mode);return;}  // during a hold: start this step over
+  var k=lastDone();if(!k)return;track('step_again_'+k);
   delete ts[k];delete lv[k];if(k==='inhale')rest=0;rows[k].fill.style.width='0';rows[k].wd.textContent='';pick(k);});
 $('calcBtn').addEventListener('click',function(){if(run||finished)return;$('calcBtn').hidden=true;saveResult();window.scrollTo({top:0,behavior:'smooth'});summary(true);track('finished');sendTrack();});
-$('restartBtn').addEventListener('click',function(){if(run)return;track('restart');newTest();window.scrollTo({top:0,behavior:'smooth'});});
+$('restartBtn').addEventListener('click',function(){if(run)cancelHold();track('restart');newTest();window.scrollTo({top:0,behavior:'smooth'});});
 $('againBtn').addEventListener('click',function(){track('again');newTest();window.scrollTo({top:0,behavior:'smooth'});});
 
 /* ---------- history ---------- */
