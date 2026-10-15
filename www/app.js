@@ -106,7 +106,7 @@ function startRest(o){cd=o||{sec:REST,calm:'restCalm',soon:'restSoon',go:'restGo
       box.className='ringbox idle showface ready';prg.style.strokeDashoffset=C;}
     paint();},250);}
 function pick(m){if(run)return;mode=m;squatDone=false;stopRest();resetRing();show();
-  if(m==='load'&&ts.load===undefined)$('lbl').textContent=D.sqBtn;
+  if(m==='load'&&ts.load===undefined){box.className='ringbox idle rest sqwait';$('time').textContent='0:30';$('lbl').textContent=D.sqBtn;}  // show the 30 s squat timer before it starts
   if(m==='exhale'&&ts.exhale===undefined)startRest();
   $('scrTest').classList.toggle('started',ts.inhale!==undefined&&!finished);}  // after step 1 the headline hides, so circle and current step fit on one screen
 ORDER.forEach(function(m){var row=document.createElement('div');row.className='row';row.innerHTML='<div class="num"></div><div class="rl"></div><div class="rw"></div><div class="rd"></div><div class="bar"><div class="fill"></div></div>';$('bars').appendChild(row);rows[m]={row:row,fill:row.querySelector('.fill'),wd:row.querySelector('.rw'),rl:row.querySelector('.rl'),rd:row.querySelector('.rd'),num:row.querySelector('.num')};});

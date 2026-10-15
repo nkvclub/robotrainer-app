@@ -301,3 +301,4 @@ body.lock{overflow:hidden}
 .ringbox.rest .lbl{display:inline-block;max-width:160px;margin-top:8px;padding:5px 12px;border-radius:12px;background:#fff;color:var(--accent);font-weight:800;font-size:12.5px;line-height:1.25;opacity:1;box-shadow:0 3px 0 color-mix(in srgb,var(--accent) 35%,#c9daf2)}
 .ringbox.rest .mascot{width:min(120px,30vw,16vh)}
 .ringbox.rest .time{font-size:36px}
+.ringbox.sqwait .lbl{animation:callpill 1.2s ease-in-out infinite}
