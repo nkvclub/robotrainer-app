@@ -17,3 +17,4 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 /* the step card stays still and the same width as the others; only its button invites a tap */
 #bars:not(.results) .row.act{animation:none;cursor:default}
 #bars:not(.results) .row.act:active{transform:none}
+.sqin input::-webkit-outer-spin-button,.sqin input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}.sqin input{-moz-appearance:textfield}

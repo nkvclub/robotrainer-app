@@ -114,12 +114,12 @@ function pick(m){if(run)return;mode=m;squatDone=false;stopRest();resetRing();sho
   if(ts.inhale!==undefined)setTimeout(function(){window.scrollTo({top:0,behavior:'smooth'});},50);}  // after step 1 the headline hides, so circle and current step fit on one screen
 ORDER.forEach(function(m){var row=document.createElement('div');row.className='row';row.innerHTML='<div class="num"></div><div class="rl"></div><div class="rw"></div><div class="rd"></div><div class="bar"><div class="fill"></div></div>';$('bars').appendChild(row);rows[m]={row:row,fill:row.querySelector('.fill'),wd:row.querySelector('.rw'),rl:row.querySelector('.rl'),rd:row.querySelector('.rd'),num:row.querySelector('.num')};});
 // Step 3: after the squats the person types how many they did, then the START command appears
-(function(){var w=document.createElement('label');w.className='sqin';w.hidden=true;w.innerHTML='<input type="number" inputmode="numeric" min="1" max="100" placeholder="?" id="sqNum"><span id="sqUnit"></span>';
+(function(){var w=document.createElement('label');w.className='sqin';w.hidden=true;w.innerHTML='<span id="sqDid"></span><input type="number" inputmode="numeric" min="1" max="100" placeholder="?" id="sqNum"><span id="sqUnit"></span>';
   rows.load.rd.after(w);rows.load.sq=w;w.addEventListener('click',function(e){e.stopPropagation();});
   var inp=w.querySelector('input');
   inp.addEventListener('input',function(){var v=parseInt(inp.value,10);sqN=(v>0&&v<=100)?v:0;sqPaint();show();});
   inp.addEventListener('keydown',function(e){if(e.key==='Enter'){inp.blur();}});})();
-function sqPaint(){if(mode!=='load'||run||ts.load!==undefined)return;$('sqUnit').textContent=D.sqUnit;
+function sqPaint(){if(mode!=='load'||run||ts.load!==undefined)return;$('sqUnit').textContent=D.sqUnit;$('sqDid').textContent=D.sqDid;
   box.classList.toggle('ready',!!sqN);$('lbl').textContent=sqN?D.start:D.sqFirst;}
 function newTest(){stopRest();squatDone=false;sqN=0;$('sqNum').value='';ts={};lv={};rest=0;finished=false;$('bars').classList.remove('results');$('out').hidden=true;$('againBtn').hidden=true;ORDER.forEach(function(m){rows[m].fill.style.width='0';});pick('inhale');}
 function tick(){var s=(performance.now()-t0)/1000;box.style.setProperty('--puff',Math.min(s/full(mode),1).toFixed(3));prg.style.stroke=acc();prg.style.strokeDashoffset=C*(1-Math.min(s/full(mode),1));rows[mode].wd.textContent=D.going;raf=requestAnimationFrame(tick);}
@@ -157,7 +157,7 @@ $('btn').addEventListener('click',function(){
   if(!run){
     if(mode==='load'&&!sqN){var i=$('sqNum'),w=rows.load.sq;w.classList.remove('nudge');void w.offsetWidth;w.classList.add('nudge');i.focus();return;}  // number of squats first
     track(restT?'rest_skip':'start_'+mode);stopRest();
-    run=true;$('stepBtn').hidden=false;$('restartBtn').hidden=false;rows[mode].rd.textContent=D.holdT;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
+    run=true;$('stepBtn').hidden=false;$('restartBtn').hidden=false;rows[mode].rd.textContent=D.holdT;if(rows[mode].sq)rows[mode].sq.hidden=true;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
     if(P.KeepAwake)P.KeepAwake.keepAwake().catch(function(){});
   }else{
     run=false;cancelAnimationFrame(raf);$('restartBtn').hidden=false;$('stepBtn').hidden=!lastDone();var s=(performance.now()-t0)/1000,m=mode;

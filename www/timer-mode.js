@@ -10,7 +10,11 @@
     var h='';if(hold)h=(ru?'Замер идёт':'Measuring')+'<small>'+(ru?'жми СТОП, когда захочешь вдохнуть':'tap STOP when you want to breathe')+'</small>';
     else if(rest||done||bars.classList.contains('results'))h='';
     else if(!document.getElementById('calcBtn').hidden)h=(ru?'Готово!':'Done!')+'<small>'+(ru?'жми «Рассчитать тест» ниже':'tap «Calculate result» below')+'</small>';
-    else if(n)h=(ru?'Шаг ':'Step ')+n+(ru?' из 3':' of 3');
+    else if(n){var sqNum=document.getElementById('sqNum'),hint;
+      if(n===3&&!sqNum.value)hint=ru?'сначала 20 приседаний':'first, 20 squats';
+      else if(n===3)hint=ru?'сядь, вдохни и жми СТАРТ':'sit, breathe in, tap START';
+      else hint=n===2?(ru?'выдохни и жми СТАРТ':'breathe out, tap START'):(ru?'вдохни и жми СТАРТ':'breathe in, tap START');
+      h=(ru?'Шаг ':'Step ')+n+(ru?' из 3':' of 3')+'<small>'+hint+'</small>';}
     if(cap.innerHTML!==h)cap.innerHTML=h;
     if(document.body.classList.contains('vbcap-on')!==!!h)document.body.classList.toggle('vbcap-on',!!h);  // caption replaces the small label, no overlap
     var needNum=a&&a.querySelector('.sqin')&&!a.querySelector('.sqin').hidden&&!document.getElementById('sqNum').value;
