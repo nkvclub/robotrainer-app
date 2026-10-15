@@ -17,6 +17,15 @@ var store={
     try{localStorage.setItem(k,s);}catch(e){}return Promise.resolve();
   }
 };
+/* ---------- usage counter: which buttons people press, nothing personal ----------
+   One batch per app session: app version, language, platform and a list of [event, seconds since open].
+   No email, no results, no device or user id. Off while CFG.ANALYTICS_ENDPOINT is empty. */
+var EV=[],evT0=Date.now();
+function track(e){if(EV.length<200)EV.push([e,Math.round((Date.now()-evT0)/1000)]);}
+function sendTrack(){var url=CFG.ANALYTICS_ENDPOINT;if(!url||!EV.length)return;
+  var body=JSON.stringify({key:CFG.EMAIL_KEY,v:CFG.version,lang:lang,os:(window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform())||'web',ev:EV});
+  EV=[];try{fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true}).catch(function(){});}catch(e){}}
+document.addEventListener('visibilitychange',function(){if(document.hidden)sendTrack();});
 var S={lang:null,snd:true,vib:true,warned:false,rem:false,remDay:1,remTime:'09:00'};
 var history=[];
 
@@ -44,7 +53,7 @@ function beep(f){
 }
 
 /* ---------- screens ---------- */
-function go(id){
+function go(id){track('tab_'+id);
   ['scrWarn','scrTest','scrHist','scrSet'].forEach(function(s){$(s).hidden=s!==id;});
   $('tabs').hidden=id==='scrWarn';
   document.querySelectorAll('#tabs button').forEach(function(b){b.toggleAttribute('aria-current',b.dataset.go===id);if(b.dataset.go===id)b.setAttribute('aria-current','page');});
@@ -130,27 +139,28 @@ function saveResult(){
 $('btn').addEventListener('click',function(){
   if(finished){newTest();window.scrollTo({top:0,behavior:'smooth'});return;}  // tap the face again = new test
   if(!run){
-    stopRest();
+    track(restT?'rest_skip':'start_'+mode);stopRest();
     run=true;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
     if(P.KeepAwake)P.KeepAwake.keepAwake().catch(function(){});
   }else{
     run=false;cancelAnimationFrame(raf);var s=(performance.now()-t0)/1000,m=mode;
     box.className='ringbox idle done '+(s<5?'lvx':'mid');box.style.setProperty('--puff',0);prg.style.strokeDashoffset=C;beep(330);
+    track((s<5?'short_':'done_')+m);
     if(s<5){rows[m].wd.textContent=D.short;rows[m].wd.style.color='';$('lbl').textContent=D.again;return;}
     if(m==='inhale')rest=s;
     ts[m]=s;lv[m]=level(s,m);rows[m].wd.textContent=D.doneT;
     var next=ORDER.filter(function(k){return ts[k]===undefined;})[0];
     if(next){$('lbl').textContent=D.nextT;show();setTimeout(function(){pick(next);},800);}
-    else{saveResult();summary(true);}
+    else{saveResult();summary(true);track('finished');sendTrack();}
   }
 });
 // Tap the current step card = same as the big button; locked cards just wiggle
 ORDER.forEach(function(m){rows[m].row.addEventListener('click',function(){
   if(finished)return;var r=rows[m].row;
-  if(r.classList.contains('act')){$('btn').click();return;}
-  if(r.classList.contains('locked')){r.classList.remove('nudge');void r.offsetWidth;r.classList.add('nudge');}});});
-$('restartBtn').addEventListener('click',function(){if(run)return;newTest();window.scrollTo({top:0,behavior:'smooth'});});
-$('againBtn').addEventListener('click',function(){newTest();window.scrollTo({top:0,behavior:'smooth'});});
+  if(r.classList.contains('act')){track('card_tap');$('btn').click();return;}
+  if(r.classList.contains('locked')){track('locked_tap');r.classList.remove('nudge');void r.offsetWidth;r.classList.add('nudge');}});});
+$('restartBtn').addEventListener('click',function(){if(run)return;track('restart');newTest();window.scrollTo({top:0,behavior:'smooth'});});
+$('againBtn').addEventListener('click',function(){track('again');newTest();window.scrollTo({top:0,behavior:'smooth'});});
 
 /* ---------- history ---------- */
 function renderHistory(){
@@ -206,7 +216,7 @@ $('sTime').addEventListener('change',function(){S.remTime=this.value||'09:00';sa
 
 /* ---------- email offer ---------- */
 var reEmail=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-function openEmail(){checkForm();$('emailMsg').textContent='';$('emailMsg').className='msg';$('emailModal').hidden=false;document.body.classList.add('lock');}
+function openEmail(){track('email_open');checkForm();$('emailMsg').textContent='';$('emailMsg').className='msg';$('emailModal').hidden=false;document.body.classList.add('lock');}
 function closeEmail(){$('emailModal').hidden=true;document.body.classList.remove('lock');if(document.activeElement)document.activeElement.blur();}
 $('emailClose').addEventListener('click',closeEmail);
 $('emailModal').addEventListener('click',function(e){if(e.target===this)closeEmail();});
@@ -237,7 +247,7 @@ $('emailForm').addEventListener('submit',function(e){
   $('emailSend').disabled=true;
   var server=function(j,fallback){return lang==='ru'&&j.message?j.message:fallback;};
   post(url,body).then(function(j){
-    if(j.ok){say(server(j,j.repeat?D.repeat:D.sent),true);store.set('emailSent',true);setTimeout(closeEmail,3000);return;}
+    if(j.ok){track('email_sent');sendTrack();say(server(j,j.repeat?D.repeat:D.sent),true);store.set('emailSent',true);setTimeout(closeEmail,3000);return;}
     $('emailSend').disabled=false;
     if(j.error==='email')say(server(j,D.badEmail));
     else if(j.error==='consent'){$('consent').parentNode.classList.add('need');say(server(j,D.consent));}

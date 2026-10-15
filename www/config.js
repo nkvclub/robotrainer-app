@@ -5,6 +5,8 @@ window.RT_CONFIG = {
   // Empty = sending is off in this build; the form explains that honestly.
   EMAIL_ENDPOINT: { ru: 'https://robotrainer.ru/wp-json/rt/v1/app-lead', en: 'https://robotrainerpro.com/wp-json/rt/v1/app-lead' },
   // Fixed key the site expects from the app (not a password: it only tells the site the request came from the app)
+  // Anonymous button counter (see track() in app.js). Empty = off; set when the site has the endpoint.
+  ANALYTICS_ENDPOINT: '',
   EMAIL_KEY: '4xMjzz1oodpWT5zJyO87L55fefdPQ80W',
   PRIVACY_URL: { ru: 'https://robotrainer.ru/privacy-policy/', en: 'https://robotrainerpro.com/privacy-policy/' },
   SITE_URL: { ru: 'https://robotrainer.ru/?utm_source=app&utm_medium=settings', en: 'https://robotrainerpro.com/?utm_source=app&utm_medium=settings' }
