@@ -9,7 +9,11 @@
 .cbtn.stop{background:#e5484d;box-shadow:0 4px 0 #a32a2e,0 6px 16px rgba(90,0,0,.3)}
 
 /* after step 1: the current step stays big, done and next steps shrink, like a drum */
-#scrTest.started #bars:not(.results) .row:not(.act){padding-block:8px;opacity:.6;transform:scale(.94);transition:all .3s}
+#scrTest.started #bars:not(.results) .row:not(.act){padding-block:8px;opacity:.6;transition:all .3s}
+#scrTest.started #bars{margin-top:18px}
 #scrTest.started #bars:not(.results) .row:not(.act) .bar,#scrTest.started #bars:not(.results) .row:not(.act) .rd{display:none}
 #calcBtn{margin-top:4px;animation:callpill 1.2s ease-in-out infinite}
 body.vbcap-on .ringbox .lbl{display:none!important}
+/* the step card stays still and the same width as the others; only its button invites a tap */
+#bars:not(.results) .row.act{animation:none;cursor:default}
+#bars:not(.results) .row.act:active{transform:none}
