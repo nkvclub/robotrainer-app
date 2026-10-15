@@ -322,3 +322,7 @@ body.lock{overflow:hidden}
 .rbtn:active svg{background:#0758b4}
 .rbtn span{font-size:12px;font-weight:800;color:#0b2a66}
 .ringbox.showface:not(.done) .lbl{font-size:17px;padding:9px 22px;border:2px solid #fff;box-shadow:0 4px 0 #0758b4,0 6px 16px rgba(0,30,90,.35)}
+/* tour hint looks and works like a button: tap it to go on */
+.tour-tip{cursor:pointer;border:3px solid var(--accent);font-size:17px;box-shadow:0 5px 0 #0758b4,0 14px 30px rgba(12,38,83,.35);-webkit-tap-highlight-color:transparent}
+.tour-tip:active{transform:translateY(2px);box-shadow:0 3px 0 #0758b4,0 10px 24px rgba(12,38,83,.35)}
+.tour-next{white-space:nowrap;font-size:16px;padding:12px 20px;border-radius:999px;box-shadow:0 4px 0 #0758b4}

@@ -310,6 +310,7 @@ function showTour(){var el=tourTargets()[tourI];if(!el){endTour();return;}
   var last=tourI===D.tour.length-1;$('tourNext').textContent=last?D.tourDone:D.tourNext;$('tourSkip').hidden=last;
   var below=r.top+r.height/2<window.innerHeight/2;
   tip.style.top=below?(r.bottom+pad+14)+'px':'';tip.style.bottom=below?'':(window.innerHeight-r.top+pad+14)+'px';}
+$('tourTip').addEventListener('click',function(e){if(e.target.closest('#tourSkip,#tourNext'))return;$('tourNext').click();});  // the whole hint works as a button
 $('tourNext').addEventListener('click',function(){tourI++;if(tourI>=D.tour.length)endTour();else showTour();});
 $('tourSkip').addEventListener('click',function(){track('tour_skip');endTour();});
 window.addEventListener('resize',function(){if(tourI>=0)showTour();});
