@@ -238,15 +238,15 @@ h1.words span{display:inline-block;animation:wordIn .7s cubic-bezier(.2,.8,.2,1)
 #bars:not(.results) .row.act .num,#bars:not(.results) .row.act .rd{grid-row:2}
 
 /* ---------- compact first screen: header, circle and step 1 fit without scrolling ---------- */
-#scrTest .wrap{padding-block:10px 40px;gap:14px}
+#scrTest .wrap{padding-block:10px 12px;gap:14px}
 #scrTest .head{gap:4px}
 #scrTest .brand{margin-bottom:2px;font-size:17px}
 #scrTest .brand img{width:26px;height:26px}
 #scrTest .eyebrow{display:none}
 #scrTest h1{font-size:clamp(22px,6.4vw,27px)}
 #scrTest .sub{font-size:14px;line-height:1.4}
-.ringbox{width:min(290px,74vw,32vh)}
-#scrTest:not(.started):not(:has(#bars.results)) .ringbox{width:min(290px,72vw,30vh)}
+.ringbox{width:min(290px,calc(100vw - 156px),32vh)}
+#scrTest:not(.started):not(:has(#bars.results)) .ringbox{width:min(290px,calc(100vw - 156px),30vh)}
 .mascot{width:min(170px,42vw,22vh)}
 .hold .mascot,.done .mascot{width:min(118px,30vw,16vh)}
 /* done steps shrink to a slim line so the current step stays on screen */
@@ -291,7 +291,7 @@ body.lock{overflow:hidden}
 .tour{position:fixed;inset:0;z-index:20}
 .tour-hole{position:fixed;box-shadow:0 0 0 9999px rgba(12,38,83,.62);border:3px solid #fff;transition:all .35s ease;pointer-events:none}
 .tour-tip{position:fixed;left:16px;right:16px;max-width:440px;margin:0 auto;background:var(--card);color:var(--fg);border-radius:16px;padding:16px;font-size:16px;line-height:1.4;font-weight:600;box-shadow:0 12px 30px rgba(12,38,83,.3);display:flex;flex-direction:column;gap:12px;animation:fadeUp .25s ease both}
-.tour-nav{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tour-nav{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 12px}
 .tour-skip{all:unset;cursor:pointer;color:var(--muted);font-weight:600;padding:8px 4px}
 .tour-next{all:unset;cursor:pointer;margin-left:auto;background:var(--accent);color:#fff;font-weight:800;padding:10px 22px;border-radius:12px;box-shadow:0 3px 0 var(--accent-dark)}
 #bars .row{scroll-margin-bottom:96px}
@@ -319,7 +319,7 @@ body.lock{overflow:hidden}
 .rbtn svg{box-sizing:border-box;width:48px;height:48px;padding:12px;border-radius:50%;background:#fff;color:var(--accent);border:2px solid color-mix(in srgb,var(--accent) 35%,#fff);box-shadow:0 4px 12px rgba(23,71,214,.18)}
 .rbtn:active svg{background:color-mix(in srgb,var(--accent) 12%,#fff)}
 .rbtn span{font-size:11px;font-weight:700;color:var(--accent);line-height:1.1;text-align:center}
-.rleft{left:-38px}.rright{right:-38px}
+.rleft{left:-74px}.rright{right:-74px}  /* beside the circle, not on it */
 /* clearer buttons: solid round buttons, crisper START pill */
 .rbtn svg{width:52px;height:52px;padding:13px;background:var(--accent);color:#fff;border:3px solid #fff;box-shadow:0 4px 14px rgba(10,111,224,.45)}
 .rbtn:active svg{background:#0758b4}

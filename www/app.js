@@ -95,8 +95,7 @@ function show(){
 function resetRing(){prg.style.transition='';prg.style.stroke='';box.className='ringbox idle showface';box.style.setProperty('--puff',0);prg.style.strokeDashoffset=C;$('time').textContent=fmt(0);$('lbl').textContent=D.start;}
 function stopRest(){if(restT){clearInterval(restT);restT=0;}box.classList.remove('rest','ready');}
 function mmss(n){return Math.floor(n/60)+':'+('0'+n%60).slice(-2);}
-var cd={sec:REST,calm:'restCalm',soon:'restSoon',go:'restGo'},squatDone=false,sqN=0;
-function startSquat(){track('squat_start');startRest({sec:30,calm:'sqCalm',soon:'sqSoon',go:'sqGo'});}
+var cd={sec:REST,calm:'restCalm',soon:'restSoon',go:'restGo'},sqN=0;
 function startRest(o){cd=o||{sec:REST,calm:'restCalm',soon:'restSoon',go:'restGo'};var TOT=cd.sec;stopRest();restLeft=TOT;box.className='ringbox idle rest';prg.style.stroke=acc();
   var paint=function(){$('time').textContent=mmss(restLeft);prg.style.strokeDashoffset=C*(1-restLeft/TOT);
     $('lbl').textContent=restLeft>10?D[cd.calm]:(restLeft>0?D[cd.soon]:D[cd.go]);};
@@ -104,10 +103,10 @@ function startRest(o){cd=o||{sec:REST,calm:'restCalm',soon:'restSoon',go:'restGo
   var end=Date.now()+TOT*1000,warned=false;  // wall clock, so a dimmed screen doesn't slow it down
   restT=setInterval(function(){restLeft=Math.max(0,Math.ceil((end-Date.now())/1000));
     if(restLeft<=10&&!warned){warned=true;beep(520);}
-    if(restLeft<=0){clearInterval(restT);restT=0;restLeft=0;if(cd.calm==='sqCalm')squatDone=true;beep(880);setTimeout(function(){beep(880);},250);
+    if(restLeft<=0){clearInterval(restT);restT=0;restLeft=0;beep(880);setTimeout(function(){beep(880);},250);
       box.className='ringbox idle showface ready';prg.style.strokeDashoffset=C;}
     paint();},250);}
-function pick(m){if(run)return;mode=m;squatDone=false;stopRest();resetRing();show();
+function pick(m){if(run)return;mode=m;stopRest();resetRing();show();
   if(m==='exhale'&&ts.exhale===undefined)startRest();
   if(m==='load'&&ts.load===undefined)sqPaint();
   $('scrTest').classList.toggle('started',ts.inhale!==undefined&&!finished);
@@ -121,7 +120,7 @@ ORDER.forEach(function(m){var row=document.createElement('div');row.className='r
   inp.addEventListener('keydown',function(e){if(e.key==='Enter'){inp.blur();}});})();
 function sqPaint(){if(mode!=='load'||run||ts.load!==undefined)return;$('sqUnit').textContent=D.sqUnit;$('sqDid').textContent=D.sqDid;
   box.classList.toggle('ready',!!sqN);$('lbl').textContent=sqN?D.start:D.sqFirst;}
-function newTest(){stopRest();squatDone=false;sqN=0;$('sqNum').value='';ts={};lv={};rest=0;finished=false;$('bars').classList.remove('results');$('out').hidden=true;$('againBtn').hidden=true;ORDER.forEach(function(m){rows[m].fill.style.width='0';});pick('inhale');}
+function newTest(){stopRest();sqN=0;$('sqNum').value='';ts={};lv={};rest=0;finished=false;$('bars').classList.remove('results');$('out').hidden=true;$('againBtn').hidden=true;ORDER.forEach(function(m){rows[m].fill.style.width='0';});pick('inhale');}
 function tick(){var s=(performance.now()-t0)/1000;box.style.setProperty('--puff',Math.min(s/full(mode),1).toFixed(3));prg.style.stroke=acc();prg.style.strokeDashoffset=C*(1-Math.min(s/full(mode),1));rows[mode].wd.textContent=D.going;raf=requestAnimationFrame(tick);}
 function overall(){var a=(lv.inhale+lv.exhale+lv.load)/3;return a>=1.5?2:(a>=.6?1:0);}
 function buildResult(o){
@@ -157,7 +156,7 @@ $('btn').addEventListener('click',function(){
   if(!run){
     if(mode==='load'&&!sqN){var i=$('sqNum'),w=rows.load.sq;w.classList.remove('nudge');void w.offsetWidth;w.classList.add('nudge');i.focus();return;}  // number of squats first
     track(restT?'rest_skip':'start_'+mode);stopRest();
-    run=true;$('stepBtn').hidden=false;$('restartBtn').hidden=false;rows[mode].rd.textContent=D.holdT;if(rows[mode].sq)rows[mode].sq.hidden=true;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
+    run=true;$('scrTest').classList.add('started');$('stepBtn').hidden=false;$('restartBtn').hidden=false;rows[mode].rd.textContent=D.holdT;if(rows[mode].sq)rows[mode].sq.hidden=true;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
     if(P.KeepAwake)P.KeepAwake.keepAwake().catch(function(){});
   }else{
     run=false;cancelAnimationFrame(raf);$('restartBtn').hidden=false;$('stepBtn').hidden=!lastDone();var s=(performance.now()-t0)/1000,m=mode;

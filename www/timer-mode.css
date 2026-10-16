@@ -10,7 +10,7 @@
 
 /* after step 1: the current step stays big, done and next steps shrink, like a drum */
 #scrTest.started #bars:not(.results) .row:not(.act){padding-block:8px;opacity:.6;transition:all .3s}
-#scrTest.started #bars{margin-top:18px}
+#scrTest.started #bars{margin-top:0}
 #scrTest.started #bars:not(.results) .row:not(.act) .bar,#scrTest.started #bars:not(.results) .row:not(.act) .rd{display:none}
 #calcBtn{display:none!important}
 #scrTest.started #bars:not(.results) .row.calcrow{opacity:1;padding-block:14px}
@@ -24,3 +24,7 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 .ringbox{container-type:inline-size}
 #vbcap{padding:0 13%;font-size:min(26px,9.5cqw)}
 #vbcap small{font-size:min(15px,5.4cqw)}
+/* during the test only the current step stays, done steps are hidden (they come back on «Тест заново») */
+#scrTest.started #bars:not(.results) .row:not(.act):not(.calcrow){display:none}
+#scrTest.started #bars:not(.results) .row.act,#scrTest.started #bars:not(.results) .row.calcrow{animation:beadIn .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes beadIn{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
