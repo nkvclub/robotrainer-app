@@ -7,6 +7,7 @@ var STORE={'com.robotrainerpro.app':'https://play.google.com/store/apps/details?
 var TXT={ru:{t:'Вышло обновление',b:'ОБНОВИТЬ',l:'ПОЗЖЕ'},en:{t:'An update is out',b:'UPDATE',l:'LATER'}};
 var Cap=window.Capacitor,P=(Cap&&Cap.Plugins)||{};
 if(!(Cap&&Cap.isNativePlatform&&Cap.isNativePlatform())||!P.App||!P.App.getInfo)return;
+if(!Cap.getPlatform||Cap.getPlatform()!=='android')return;  // store links and build codes are Android only; iPhone gets its own later
 function show(url){
   var x=TXT[(document.documentElement.lang||'').indexOf('ru')===0?'ru':'en'];
   var bar=document.createElement('div');bar.className='upd';
