@@ -234,7 +234,8 @@ h1.words span{display:inline-block;animation:wordIn .7s cubic-bezier(.2,.8,.2,1)
 .hs.hlv b{font-size:15px}
 /* active step: title on one line, no "your turn" label (the card pulse already calls) */
 #bars:not(.results) .row.act .rw{display:none}
-#bars:not(.results) .row.act .rl{grid-column:2/4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bars:not(.results) .row.act .rl{grid-column:1/-1;grid-row:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+#bars:not(.results) .row.act .num,#bars:not(.results) .row.act .rd{grid-row:2}
 
 /* ---------- compact first screen: header, circle and step 1 fit without scrolling ---------- */
 #scrTest .wrap{padding-block:10px 40px;gap:14px}
