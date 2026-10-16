@@ -337,3 +337,6 @@ body.lock{overflow:hidden}
 .upd-x{all:unset;cursor:pointer;font-weight:800;padding:8px 16px;border-radius:999px;border:2px solid rgba(255,255,255,.7);white-space:nowrap}
 /* big system font: side labels go in two short lines and never reach the screen edge */
 .rbtn{white-space:normal}.rbtn span{max-width:66px;min-height:2.2em;white-space:normal}
+
+/* battery: the big background glows stand still (they were animating all the time the app was open) */
+body::before,body::after{animation:none!important}

@@ -57,5 +57,5 @@
   new MutationObserver(sync).observe(box,{attributes:true,attributeFilter:['class']});
   new MutationObserver(sync).observe(lbl,{childList:true,characterData:true,subtree:true});
   new MutationObserver(sync).observe(bars,{attributes:true,subtree:true,attributeFilter:['class','hidden']});
-  document.addEventListener('input',sync);setInterval(function(){sync();var a=document.querySelector('#bars .row.act')||bars.querySelector('.calcrow');if(a&&!bars.classList.contains('results')&&document.getElementById('scrTest').classList.contains('started')&&!document.getElementById('tour').offsetParent&&(bars.lastElementChild.getBoundingClientRect().bottom>tabsTop()+1||window.scrollY>2))fit();},500);sync();
+  document.addEventListener('input',sync);setInterval(function(){if(document.hidden)return;sync();var a=document.querySelector('#bars .row.act')||bars.querySelector('.calcrow');if(a&&!bars.classList.contains('results')&&document.getElementById('scrTest').classList.contains('started')&&!document.getElementById('tour').offsetParent&&(bars.lastElementChild.getBoundingClientRect().bottom>tabsTop()+1||window.scrollY>2))fit();},500);sync();
 })();

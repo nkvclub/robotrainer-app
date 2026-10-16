@@ -25,7 +25,7 @@ function track(e){if(EV.length<200)EV.push([e,Math.round((Date.now()-evT0)/1000)
 function sendTrack(){var url=CFG.ANALYTICS_ENDPOINT;if(!url||!EV.length)return;
   var body=JSON.stringify({key:CFG.EMAIL_KEY,v:CFG.version,lang:lang,os:(window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform())||'web',ev:EV});
   EV=[];try{fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true}).catch(function(){});}catch(e){}}
-document.addEventListener('visibilitychange',function(){if(document.hidden)sendTrack();});
+document.addEventListener('visibilitychange',function(){if(document.hidden){sendTrack();if(!run)awake(false);if(ac)ac.suspend();}});
 var S={lang:null,snd:true,vib:true,warned:false,rem:false,remDay:1,remTime:'09:00'};
 var history=[];
 
@@ -47,10 +47,15 @@ function applyTexts(){
   var sd=$('sDay');sd.innerHTML='';[1,2,3,4,5,6,0].forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent=D.days[d];sd.appendChild(o);});sd.value=S.remDay;
 }
 
+/* ---------- screen stays on only while a test is going: released after the result, on restart, when the app is hidden, or after 2 idle minutes ---------- */
+var awakeT=0;
+function awake(on){clearTimeout(awakeT);if(!P.KeepAwake)return;
+  if(on){P.KeepAwake.keepAwake().catch(function(){});awakeT=setTimeout(function(){if(!run)awake(false);},120000);}
+  else P.KeepAwake.allowSleep().catch(function(){});}
 /* ---------- feedback: sound + vibration ---------- */
-var ac=null;
+var ac=null,acT=0;  // the sound chip is put to sleep right after each beep (battery)
 function beep(f){
-  if(S.snd){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.25);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.25);}catch(e){}}
+  if(S.snd){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();clearTimeout(acT);acT=setTimeout(function(){if(ac)ac.suspend();},1500);var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.25);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.25);}catch(e){}}
   if(S.vib){if(P.Haptics){P.Haptics.impact({style:'MEDIUM'}).catch(function(){});}else{try{navigator.vibrate&&navigator.vibrate(60);}catch(e){}}}
 }
 
@@ -158,7 +163,7 @@ $('btn').addEventListener('click',function(){
     if(mode==='load'&&!sqN){var i=$('sqNum'),w=rows.load.sq;w.classList.remove('nudge');void w.offsetWidth;w.classList.add('nudge');i.focus();return;}  // number of squats first
     track(restT?'rest_skip':'start_'+mode);stopRest();
     run=true;$('scrTest').classList.add('started');$('stepBtn').hidden=false;$('restartBtn').hidden=false;rows[mode].rd.textContent=D.holdT;if(rows[mode].sq)rows[mode].sq.hidden=true;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
-    if(P.KeepAwake)P.KeepAwake.keepAwake().catch(function(){});
+    awake(true);
   }else{
     run=false;cancelAnimationFrame(raf);$('restartBtn').hidden=!lastDone();$('stepBtn').hidden=!lastDone();var s=(performance.now()-t0)/1000,m=mode;
     box.className='ringbox idle done '+(s<5?'lvx':'mid');box.style.setProperty('--puff',0);prg.style.strokeDashoffset=C;beep(330);
@@ -183,8 +188,8 @@ $('stepBtn').addEventListener('click',function(){if(finished)return;
   if(run){track('step_cancel_'+mode);cancelHold();pick(mode);return;}  // during a hold: start this step over
   var k=lastDone();if(!k)return;track('step_again_'+k);
   delete ts[k];delete lv[k];if(k==='inhale')rest=0;rows[k].fill.style.width='0';rows[k].wd.textContent='';pick(k);});
-$('calcBtn').addEventListener('click',function(){if(run||finished)return;$('calcBtn').hidden=true;saveResult();window.scrollTo({top:0,behavior:'smooth'});summary(true);track('finished');sendTrack();});
-$('restartBtn').addEventListener('click',function(){if(run)cancelHold();track('restart');newTest();window.scrollTo(0,0);});
+$('calcBtn').addEventListener('click',function(){if(run||finished)return;$('calcBtn').hidden=true;awake(false);saveResult();window.scrollTo({top:0,behavior:'smooth'});summary(true);track('finished');sendTrack();});
+$('restartBtn').addEventListener('click',function(){if(run)cancelHold();track('restart');newTest();awake(false);window.scrollTo(0,0);});
 $('againBtn').addEventListener('click',function(){track('again');newTest();window.scrollTo(0,0);});
 
 /* ---------- history ---------- */
