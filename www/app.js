@@ -82,7 +82,7 @@ function paintRow(m,s,count){var r=rows[m],l=level(s,m),c=col(l);r.fill.style.ba
   var a=performance.now();(function step(){var k=Math.min((performance.now()-a)/900,1);r.wd.textContent=txt(s*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(step);})();}
 function show(){
   $('calcBtn').hidden=finished||ORDER.some(function(k){return ts[k]===undefined;});
-  $('restartBtn').hidden=finished;$('stepBtn').hidden=finished||!(lastDone()||run);
+  $('restartBtn').hidden=finished||!(lastDone()||run);$('stepBtn').hidden=finished||!(lastDone()||run);
   ORDER.forEach(function(m,i){var ok=ts[m]!==undefined,r=rows[m];
     r.row.classList.toggle('act',m===mode&&!ok);r.row.classList.toggle('ok',ok);r.row.classList.toggle('locked',!ok&&m!==mode);
     if(finished)return;
@@ -159,7 +159,7 @@ $('btn').addEventListener('click',function(){
     run=true;$('scrTest').classList.add('started');$('stepBtn').hidden=false;$('restartBtn').hidden=false;rows[mode].rd.textContent=D.holdT;if(rows[mode].sq)rows[mode].sq.hidden=true;t0=performance.now();box.className='ringbox hold';$('lbl').textContent=D.stop;beep(660);raf=requestAnimationFrame(tick);
     if(P.KeepAwake)P.KeepAwake.keepAwake().catch(function(){});
   }else{
-    run=false;cancelAnimationFrame(raf);$('restartBtn').hidden=false;$('stepBtn').hidden=!lastDone();var s=(performance.now()-t0)/1000,m=mode;
+    run=false;cancelAnimationFrame(raf);$('restartBtn').hidden=!lastDone();$('stepBtn').hidden=!lastDone();var s=(performance.now()-t0)/1000,m=mode;
     box.className='ringbox idle done '+(s<5?'lvx':'mid');box.style.setProperty('--puff',0);prg.style.strokeDashoffset=C;beep(330);
     track((s<5?'short_':'done_')+m);
     if(s<5){show();rows[m].wd.textContent=D.short;rows[m].wd.style.color='';$('lbl').textContent=D.again;return;}
