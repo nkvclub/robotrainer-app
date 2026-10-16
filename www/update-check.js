@@ -4,7 +4,7 @@
 'use strict';
 var URL_LATEST='https://raw.githubusercontent.com/nkvclub/robotrainer-app/main/latest.json';
 var STORE={'com.robotrainerpro.app':'https://play.google.com/store/apps/details?id=com.robotrainerpro.app','ru.robotrainer.app':'https://www.rustore.ru/catalog/app/ru.robotrainer.app'};
-var TXT={ru:{t:'Вышло обновление',b:'ОБНОВИТЬ'},en:{t:'An update is out',b:'UPDATE'}};
+var TXT={ru:{t:'Вышло обновление',b:'ОБНОВИТЬ',l:'ПОЗЖЕ'},en:{t:'An update is out',b:'UPDATE',l:'LATER'}};
 var Cap=window.Capacitor,P=(Cap&&Cap.Plugins)||{};
 if(!(Cap&&Cap.isNativePlatform&&Cap.isNativePlatform())||!P.App||!P.App.getInfo)return;
 function show(url){
@@ -12,9 +12,10 @@ function show(url){
   var bar=document.createElement('div');bar.className='upd';
   var s=document.createElement('span');s.textContent=x.t;
   var a=document.createElement('a');a.className='upd-go';a.href=url;a.target='_blank';a.rel='noopener';a.textContent=x.b;
-  var c=document.createElement('button');c.type='button';c.className='upd-x';c.setAttribute('aria-label','Close');c.textContent='×';
+  var c=document.createElement('button');c.type='button';c.className='upd-x';c.textContent=x.l;
   c.addEventListener('click',function(){bar.remove();});
-  bar.appendChild(s);bar.appendChild(a);bar.appendChild(c);document.body.appendChild(bar);
+  var row=document.createElement('div');row.className='upd-btns';row.appendChild(c);row.appendChild(a);
+  bar.appendChild(s);bar.appendChild(row);document.body.appendChild(bar);
 }
 P.App.getInfo().then(function(i){
   var url=STORE[i.id],mine=parseInt(i.build,10);
