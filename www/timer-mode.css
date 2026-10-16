@@ -25,10 +25,26 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 #vbcap{padding:0 13%;font-size:min(26px,9.5cqw)}
 #vbcap small{font-size:min(15px,5.4cqw)}
 /* during the test only the current step stays, done steps are hidden (they come back on «Тест заново») */
-#scrTest.started #bars:not(.results) .row:not(.act):not(.calcrow){display:none}
+/* other steps stay on screen as short one-line rows (Nov: keep the steps), no numbers until the end */
+#scrTest.started #bars:not(.results) .row:not(.act):not(.calcrow){padding-block:6px}
+#scrTest.started #bars:not(.results) .row.locked{opacity:.7}
 #scrTest.started #bars:not(.results) .row.act,#scrTest.started #bars:not(.results) .row.calcrow{animation:beadIn .45s cubic-bezier(.2,.8,.2,1)}
 @keyframes beadIn{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
 /* «РАССЧИТАТЬ РЕЗУЛЬТАТ» stays one centered line, even with a big font */
 .cbtn.calc{display:block;box-sizing:border-box;width:100%;text-align:center;white-space:nowrap;padding-inline:12px;font-size:min(18px,5vw);letter-spacing:.03em}
 /* result word on the face stays inside the face on small circles */
 .ringbox.done .lbl{max-width:100px;font-size:min(13px,6.4cqw);line-height:1.15;white-space:normal}
+/* rest timer and its pill scale with the circle, the pill never covers the circle */
+.ringbox.rest .time{font-size:min(44px,18cqw)}
+.ringbox.rest .lbl{max-width:76%;font-size:min(13px,6.2cqw);padding:4px 10px;margin-top:6px}
+/* the circle and the step card sit in the middle of the free space, no empty half at the bottom */
+#scrTest.started .wrap{box-sizing:border-box;min-height:calc(100dvh - var(--tabsH,64px))}
+#scrTest.started .head,#scrTest.started #bars{margin-bottom:auto}
+/* drum: when all 3 steps do not fit, done (green) and next steps show only their edge above and below the current one */
+#scrTest.started #bars.drum:not(.results) .row:not(.act):not(.calcrow){box-sizing:border-box;height:26px;padding-block:0;overflow:hidden;font-size:12px;line-height:1;align-content:center;border-radius:13px}
+#scrTest.started #bars.drum:not(.results) .row:not(.act):not(.calcrow) .num{width:18px;height:18px;font-size:10px}
+#scrTest.started #bars.drum:not(.results) .row:not(.act):not(.calcrow) .rl,#scrTest.started #bars.drum:not(.results) .row:not(.act):not(.calcrow) .wd{font-size:12px}
+/* during the test every other step is one short line, locked ones too; the long disclaimer was on the start screen and comes back with the result */
+#scrTest.started #bars:not(.results) .row.locked{padding-block:4px}
+#scrTest.started #bars:not(.results) .row:not(.act):not(.calcrow) .num{width:26px;height:26px;font-size:13px}
+#scrTest.started:not(:has(#bars.results)) .note{display:none}

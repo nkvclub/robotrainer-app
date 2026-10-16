@@ -8,7 +8,7 @@
     var c=box.classList,a=document.querySelector('#bars .row.act'),n=step(),ru=(document.documentElement.lang||'ru').indexOf('en')!==0;
     var calc=!document.getElementById('calcBtn').hidden&&!bars.classList.contains('results');
     var hold=c.contains('hold'),rest=c.contains('rest'),done=c.contains('done')&&!c.contains('mid')&&!c.contains('lvx');
-    var h='';if(hold)h=(ru?'Замер идёт':'Measuring')+'<small>'+(ru?'жми СТОП, когда захочешь вдохнуть':'tap STOP when you want to breathe')+'</small>';
+    var h='';if(hold)h=(ru?'Замер идёт':'Measuring');  // what to do is already on the card
     else if(c.contains('lvx')&&a){h=(ru?'Слишком коротко':'Too short')+'<small>'+(ru?'держи дольше 5 секунд':'hold longer than 5 seconds')+'</small>';
       var tr=ru?'Слишком коротко, так не считается. Задержи дыхание дольше 5 секунд и жми СТАРТ.':'Too short to count. Hold your breath longer than 5 seconds and tap START.',rd=a.querySelector('.rd');if(rd&&rd.textContent!==tr)rd.textContent=tr;}  // a hold under 5 s does not count: say so instead of silently showing START again
     else if(rest||done||bars.classList.contains('results'))h='';
@@ -28,30 +28,31 @@
     if(show&&!calc){if(cb.parentNode!==a)a.appendChild(cb);var t=hold?(ru?'СТОП':'STOP'):(ru?'СТАРТ':'START');if(cb.textContent!==t)cb.textContent=t;if(cb.classList.contains('stop')!==hold)cb.classList.toggle('stop',hold);}
     if(cb.hidden===show)cb.hidden=!show;
     var key=show?step()+cb.textContent+(cb.parentNode&&cb.parentNode.className):'';
-    var key2=key+'|'+(document.querySelector('#bars .row.act .sqin:not([hidden])')?1:0)+(bars.classList.contains('results')?'r':'');
-    if(key2!==lastKey){lastKey=key2;setTimeout(fit,60);}
+    var key2=key+'|'+(document.querySelector('#bars .row.act .sqin:not([hidden])')?1:0)+(bars.classList.contains('results')?'r':'')+(document.getElementById('scrTest').classList.contains('started')?'s':'');
+    if(key2!==lastKey){lastKey=key2;setTimeout(fit,60);setTimeout(fit,700);}
     busy=false;}
   // any screen size: shrink the circle so the circle and the whole current step card fit above the bottom menu
   var lastKey='';
   function tabsTop(){var t=document.getElementById('tabs');return t&&!t.hidden&&getComputedStyle(t).display!=='none'?t.getBoundingClientRect().top:innerHeight;}
   function fit(){
-    if(bars.classList.contains('results')){box.style.width='';return;}
-    var a=document.querySelector('#bars .row.act')||(cb.parentNode&&cb.parentNode.classList&&cb.parentNode.classList.contains('row')?cb.parentNode:null);if(!a)return;
-    box.style.width='';  // start from the CSS size
-    var maxW=box.getBoundingClientRect().width,sy=window.scrollY;
-    var need=a.getBoundingClientRect().bottom+sy+12-tabsTop();  // how far the card bottom sits below the menu when the page is at the top
-    var w=Math.max(150,Math.min(maxW,maxW-need));
-    if(w<maxW-1)box.style.width=w+'px';
-    var r=a.getBoundingClientRect(),d=r.bottom+12-tabsTop();
+    document.documentElement.style.setProperty('--tabsH',Math.max(0,innerHeight-tabsTop())+'px');
+    box.style.width='';  // the circle keeps its size during the whole test
+    bars.classList.remove('drum');
+    if(bars.classList.contains('results'))return;
     var started=document.getElementById('scrTest').classList.contains('started');
-    if(!started){if(window.scrollY>0)window.scrollTo({top:0,behavior:'smooth'});return;}  // before the test the headline stays whole: no half-scrolled title
-    if(d>0)window.scrollBy({top:d,behavior:'smooth'});           // still too tall (tiny screen): scroll just enough
-    else if(window.scrollY>0&&a.getBoundingClientRect().bottom+window.scrollY+12<=tabsTop())window.scrollTo({top:0,behavior:'smooth'});  // fits from the top: show the circle again
+    if(!started){if(window.scrollY>0)window.scrollTo({top:0,behavior:'smooth'});return;}  // before the test the headline stays whole
+    var z=bars.lastElementChild;if(!z)return;
+    var over=function(){return z.getBoundingClientRect().bottom+window.scrollY+12-tabsTop();};
+    if(over()>0)bars.classList.add('drum');  // all 3 steps do not fit: done and next steps shrink to an edge, like a drum
+    var d=over();
+    if(d>0){var bw=box.getBoundingClientRect().width;box.style.width=Math.max(150,bw-d)+'px';d=over();}  // rare tall card: the circle gives a little room instead of cutting the top
+    if(d>0)window.scrollTo(0,d);           // tiny screen: scroll just enough
+    else if(window.scrollY>0)window.scrollTo(0,0);
   }
   cb.addEventListener('click',function(e){if(cb.classList.contains('calc')){e.stopPropagation();document.getElementById('calcBtn').click();}});  // step 3: START -> STOP -> CALCULATE on one button
   window.addEventListener('resize',function(){lastKey='';});
   new MutationObserver(sync).observe(box,{attributes:true,attributeFilter:['class']});
   new MutationObserver(sync).observe(lbl,{childList:true,characterData:true,subtree:true});
   new MutationObserver(sync).observe(bars,{attributes:true,subtree:true,attributeFilter:['class','hidden']});
-  document.addEventListener('input',sync);setInterval(function(){sync();var a=document.querySelector('#bars .row.act')||bars.querySelector('.calcrow');if(a&&!bars.classList.contains('results')&&document.getElementById('scrTest').classList.contains('started')&&!document.getElementById('tour').offsetParent&&a.getBoundingClientRect().bottom>tabsTop()+1)fit();},500);sync();
+  document.addEventListener('input',sync);setInterval(function(){sync();var a=document.querySelector('#bars .row.act')||bars.querySelector('.calcrow');if(a&&!bars.classList.contains('results')&&document.getElementById('scrTest').classList.contains('started')&&!document.getElementById('tour').offsetParent&&(bars.lastElementChild.getBoundingClientRect().bottom>tabsTop()+1||window.scrollY>2))fit();},500);sync();
 })();
