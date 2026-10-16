@@ -305,7 +305,7 @@ $('howModal').addEventListener('click',function(e){if(e.target===this)closeHow()
 var tourI=-1;
 function tourTargets(){return [$('box'),document.querySelector('#bars .row.act'),document.querySelector('#bars .row.locked')||$('bars'),$('tabs')];}
 function startTour(){if(run||finished)return;track('tour_start');tourI=0;$('tour').hidden=false;showTour();}
-function endTour(){$('tour').hidden=true;tourI=-1;}
+function endTour(){$('tour').hidden=true;tourI=-1;window.scrollTo({top:0,behavior:'smooth'});}  // back to the headline and step 1
 function showTour(){var el=tourTargets()[tourI];if(!el){endTour();return;}
   el.scrollIntoView({block:'nearest'});
   var r=el.getBoundingClientRect(),pad=8,hole=$('tourHole'),tip=$('tourTip');

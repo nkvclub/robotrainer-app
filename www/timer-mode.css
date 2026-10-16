@@ -30,3 +30,5 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 @keyframes beadIn{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
 /* «РАССЧИТАТЬ РЕЗУЛЬТАТ» stays one centered line, even with a big font */
 .cbtn.calc{display:block;box-sizing:border-box;width:100%;text-align:center;white-space:nowrap;padding-inline:12px;font-size:min(18px,5vw);letter-spacing:.03em}
+/* result word on the face stays inside the face on small circles */
+.ringbox.done .lbl{max-width:100px;font-size:min(13px,6.4cqw);line-height:1.15;white-space:normal}
