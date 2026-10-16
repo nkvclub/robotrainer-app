@@ -13,9 +13,14 @@ function show(url){
   var s=document.createElement('span');s.textContent=x.t;
   var a=document.createElement('a');a.className='upd-go';a.href=url;a.target='_blank';a.rel='noopener';a.textContent=x.b;
   var c=document.createElement('button');c.type='button';c.className='upd-x';c.textContent=x.l;
-  c.addEventListener('click',function(){bar.remove();});
+  c.addEventListener('click',function(){gone();});
+  function gone(){bar.remove();document.body.classList.remove('has-upd');window.dispatchEvent(new Event('resize'));}
   var row=document.createElement('div');row.className='upd-btns';row.appendChild(c);row.appendChild(a);
-  bar.appendChild(s);bar.appendChild(row);document.body.appendChild(bar);
+  bar.appendChild(s);bar.appendChild(row);
+  // a strip in place of the logo row: pushes nothing off screen and never covers the headline; gone once the test starts
+  document.body.insertBefore(bar,document.body.firstChild);document.body.classList.add('has-upd');window.dispatchEvent(new Event('resize'));
+  var scr=document.getElementById('scrTest');
+  if(scr)new MutationObserver(function(){if(scr.classList.contains('started')&&bar.parentNode)gone();}).observe(scr,{attributes:true,attributeFilter:['class']});
 }
 P.App.getInfo().then(function(i){
   var url=STORE[i.id],mine=parseInt(i.build,10);
