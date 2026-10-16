@@ -184,8 +184,8 @@ $('stepBtn').addEventListener('click',function(){if(finished)return;
   var k=lastDone();if(!k)return;track('step_again_'+k);
   delete ts[k];delete lv[k];if(k==='inhale')rest=0;rows[k].fill.style.width='0';rows[k].wd.textContent='';pick(k);});
 $('calcBtn').addEventListener('click',function(){if(run||finished)return;$('calcBtn').hidden=true;saveResult();window.scrollTo({top:0,behavior:'smooth'});summary(true);track('finished');sendTrack();});
-$('restartBtn').addEventListener('click',function(){if(run)cancelHold();track('restart');newTest();window.scrollTo({top:0,behavior:'smooth'});});
-$('againBtn').addEventListener('click',function(){track('again');newTest();window.scrollTo({top:0,behavior:'smooth'});});
+$('restartBtn').addEventListener('click',function(){if(run)cancelHold();track('restart');newTest();window.scrollTo(0,0);});
+$('againBtn').addEventListener('click',function(){track('again');newTest();window.scrollTo(0,0);});
 
 /* ---------- history ---------- */
 function renderHistory(){
@@ -305,7 +305,7 @@ $('howModal').addEventListener('click',function(e){if(e.target===this)closeHow()
 var tourI=-1;
 function tourTargets(){return [$('box'),document.querySelector('#bars .row.act'),document.querySelector('#bars .row.locked')||$('bars'),$('tabs')];}
 function startTour(){if(run||finished)return;track('tour_start');tourI=0;$('tour').hidden=false;showTour();}
-function endTour(){$('tour').hidden=true;tourI=-1;window.scrollTo({top:0,behavior:'smooth'});}  // back to the headline and step 1
+function endTour(){$('tour').hidden=true;tourI=-1;window.scrollTo(0,0);}  // back to the headline and step 1
 function showTour(){var el=tourTargets()[tourI];if(!el){endTour();return;}
   el.scrollIntoView({block:'nearest'});
   var r=el.getBoundingClientRect(),pad=8,hole=$('tourHole'),tip=$('tourTip');

@@ -40,7 +40,10 @@
     bars.classList.remove('drum');
     if(bars.classList.contains('results'))return;
     var started=document.getElementById('scrTest').classList.contains('started');
-    if(!started){if(window.scrollY>0)window.scrollTo({top:0,behavior:'smooth'});return;}  // before the test the headline stays whole
+    if(!started){  // before the test: headline whole and step 1 card with START above the menu, the circle gives way if needed
+      if(window.scrollY>0)window.scrollTo(0,0);
+      var a1=document.querySelector('#bars .row.act');if(a1){var o1=a1.getBoundingClientRect().bottom+8-tabsTop();if(o1>0)box.style.width=Math.max(150,box.getBoundingClientRect().width-o1)+'px';}
+      return;}
     var z=bars.lastElementChild;if(!z)return;
     var over=function(){return z.getBoundingClientRect().bottom+window.scrollY+12-tabsTop();};
     if(over()>0)bars.classList.add('drum');  // all 3 steps do not fit: done and next steps shrink to an edge, like a drum
