@@ -25,7 +25,12 @@
     else{if(cb.classList.contains('calc'))cb.classList.remove('calc');var cr=bars.querySelector('.calcrow');if(cr)cr.classList.remove('calcrow');}
     if(show&&!calc){if(cb.parentNode!==a)a.appendChild(cb);var t=hold?(ru?'СТОП':'STOP'):(ru?'СТАРТ':'START');if(cb.textContent!==t)cb.textContent=t;if(cb.classList.contains('stop')!==hold)cb.classList.toggle('stop',hold);}
     if(cb.hidden===show)cb.hidden=!show;
+    var key=show?step()+cb.textContent+(cb.parentNode&&cb.parentNode.className):'';
+    if(key!==lastKey){lastKey=key;if(show)setTimeout(reveal,350);}
     busy=false;}
+  // small screens / big system font: if the card button hides under the bottom menu, scroll just enough (once per state)
+  var lastKey='';
+  function reveal(){if(cb.hidden||!cb.parentNode)return;var t=document.getElementById('tabs'),lim=t&&!t.hidden&&getComputedStyle(t).display!=="none"?t.getBoundingClientRect().top:innerHeight;var r=cb.getBoundingClientRect(),d=r.bottom+14-lim;if(d>0)window.scrollBy({top:d,behavior:'smooth'});}
   cb.addEventListener('click',function(e){if(cb.classList.contains('calc')){e.stopPropagation();document.getElementById('calcBtn').click();}});  // step 3: START -> STOP -> CALCULATE on one button
   new MutationObserver(sync).observe(box,{attributes:true,attributeFilter:['class']});
   new MutationObserver(sync).observe(lbl,{childList:true,characterData:true,subtree:true});

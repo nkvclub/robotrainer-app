@@ -20,3 +20,7 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 #bars:not(.results) .row.act{animation:none;cursor:default}
 #bars:not(.results) .row.act:active{transform:none}
 .sqin input::-webkit-outer-spin-button,.sqin input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}.sqin input{-moz-appearance:textfield}
+/* circle caption scales with the circle, so short screens and big system font keep "Шаг 1 из 3" on one line */
+.ringbox{container-type:inline-size}
+#vbcap{padding:0 13%;font-size:min(26px,9.5cqw)}
+#vbcap small{font-size:min(15px,5.4cqw)}
