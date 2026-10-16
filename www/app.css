@@ -335,3 +335,5 @@ body.lock{overflow:hidden}
 .upd-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .upd-go{background:#fff;color:var(--accent);text-decoration:none;font-weight:800;padding:8px 16px;border:2px solid #fff;border-radius:999px;white-space:nowrap}
 .upd-x{all:unset;cursor:pointer;font-weight:800;padding:8px 16px;border-radius:999px;border:2px solid rgba(255,255,255,.7);white-space:nowrap}
+/* big system font: side labels go in two short lines and never reach the screen edge */
+.rbtn{white-space:normal}.rbtn span{max-width:66px;min-height:2.2em;white-space:normal}
