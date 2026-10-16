@@ -246,6 +246,7 @@ h1.words span{display:inline-block;animation:wordIn .7s cubic-bezier(.2,.8,.2,1)
 #scrTest h1{font-size:clamp(22px,6.4vw,27px)}
 #scrTest .sub{font-size:14px;line-height:1.4}
 .ringbox{width:min(290px,74vw,38vh)}
+#scrTest:not(.started):not(:has(#bars.results)) .ringbox{width:min(290px,72vw,30vh)}
 .mascot{width:min(170px,42vw,22vh)}
 .hold .mascot,.done .mascot{width:min(118px,30vw,16vh)}
 /* done steps shrink to a slim line so the current step stays on screen */
