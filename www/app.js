@@ -73,10 +73,11 @@ var mode='inhale',run=false,t0=0,raf=0,rest=0,ts={},lv={},rows={},finished=false
 var prg=$('prg'),box=$('box'),C=339.3;
 var REST=30,restT=0,restLeft=0;  // calm breathing before the exhale hold, counted down automatically
 function level(s,m){if(m==='inhale')return s>=50?2:(s>=40?1:0);if(m==='exhale')return s>70?2:(s>=25?1:0);var p=s/rest*100;return p>50?2:(p>=30?1:0);}
-function full(m){return m==='inhale'?60:(m==='exhale'?80:rest*0.6);}
+function full(m){return 50;}  // one speed on all 3 steps: a ring lap is 50 s, a bit faster than a stopwatch (Nov). Only the look; times stay real seconds
+function barFull(m){return m==='inhale'?60:(m==='exhale'?80:rest*0.6);}  // result bars keep their own scale
 function fmt(s){var t=s.toFixed(1);return lang==='ru'?t.replace('.',','):t;}
 function name(m){return D.N[m];}
-function paintRow(m,s,count){var r=rows[m],l=level(s,m),c=col(l);r.fill.style.background=c;r.fill.style.width=Math.round(Math.min(s/full(m),1)*100)+'%';r.wd.style.color=c;
+function paintRow(m,s,count){var r=rows[m],l=level(s,m),c=col(l);r.fill.style.background=c;r.fill.style.width=Math.round(Math.min(s/barFull(m),1)*100)+'%';r.wd.style.color=c;
   var txt=function(v){return Math.round(v)+' '+D.sec+' · '+D.W[m][l];};
   if(!count){r.wd.textContent=txt(s);return;}
   var a=performance.now();(function step(){var k=Math.min((performance.now()-a)/900,1);r.wd.textContent=txt(s*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(step);})();}
@@ -121,7 +122,7 @@ ORDER.forEach(function(m){var row=document.createElement('div');row.className='r
 function sqPaint(){if(mode!=='load'||run||ts.load!==undefined)return;$('sqUnit').textContent=D.sqUnit;$('sqDid').textContent=D.sqDid;
   box.classList.toggle('ready',!!sqN);$('lbl').textContent=sqN?D.start:D.sqFirst;}
 function newTest(){stopRest();sqN=0;$('sqNum').value='';ts={};lv={};rest=0;finished=false;$('bars').classList.remove('results');$('out').hidden=true;$('againBtn').hidden=true;ORDER.forEach(function(m){rows[m].fill.style.width='0';});pick('inhale');}
-function tick(){var s=(performance.now()-t0)/1000;box.style.setProperty('--puff',Math.min(s/full(mode),1).toFixed(3));prg.style.stroke=acc();prg.style.strokeDashoffset=C*(1-Math.min(s/full(mode),1));rows[mode].wd.textContent=D.going;raf=requestAnimationFrame(tick);}
+function tick(){var s=(performance.now()-t0)/1000;box.style.setProperty('--puff',Math.min(s/full(mode),1).toFixed(3));prg.style.stroke=acc();prg.style.strokeDashoffset=C*(1-(s%full(mode))/full(mode));rows[mode].wd.textContent=D.going;raf=requestAnimationFrame(tick);}
 function overall(){var a=(lv.inhale+lv.exhale+lv.load)/3;return a>=1.5?2:(a>=.6?1:0);}
 function buildResult(o){
   var out=$('out');out.innerHTML='';out.classList.remove('reveal');
@@ -209,7 +210,7 @@ function renderHistory(){
       var g=document.createElement('div');g.className='hb';
       var n=document.createElement('div');n.textContent=name(m);
       var v=document.createElement('div');v.className='v';v.textContent=Math.round(s)+' '+D.sec;v.style.color=col(l);
-      var bar=document.createElement('div');bar.className='bar';var f=document.createElement('div');f.className='fill';f.style.background=col(l);f.style.width='0';(function(f,w,d){setTimeout(function(){f.style.width=w;},250+d);})(f,Math.round(Math.min(s/full(m),1)*100)+'%',Math.min(hi,8)*70);bar.appendChild(f);
+      var bar=document.createElement('div');bar.className='bar';var f=document.createElement('div');f.className='fill';f.style.background=col(l);f.style.width='0';(function(f,w,d){setTimeout(function(){f.style.width=w;},250+d);})(f,Math.round(Math.min(s/barFull(m),1)*100)+'%',Math.min(hi,8)*70);bar.appendChild(f);
       g.appendChild(n);g.appendChild(v);g.appendChild(bar);c.appendChild(g);});
     rest=saved;wrap.appendChild(c);});
   box2.appendChild(wrap);
