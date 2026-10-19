@@ -340,7 +340,7 @@ function exStart(){EX.state='hold';EX.short=false;EX.t0=performance.now();beep(6
 function exEnd(full){clearTimeout(EX.tmo);cancelAnimationFrame(EX.raf);var s=(performance.now()-EX.t0)/1000;exBox.style.setProperty('--puff',0);
   if(EX.set===1){beep(330);if(s<5){EX.short=true;track('ex_m1_short');exReady();return;}
     track('ex_m1_done');EX.goal=Math.round(s)+5;EX.state='breathe';exCard(D.X.set+' 1 '+D.X.of,D.X.afterM,'');exRing('idle','','',X('got',{t:Math.round(s)}));
-    EX.set=2;setTimeout(function(){if(EX.on)exRest(30,D.X.restT,D.restCalm);},1500);return;}
+    EX.set=2;var rm=X('restM',{t:Math.round(s),g:EX.goal});setTimeout(function(){if(EX.on)exRest(30,rm,D.restCalm);},1500);return;}
   if(EX.set<=3){track(full?'ex_set_full':'ex_set_early');exPrg.style.strokeDashoffset=full?0:exPrg.style.strokeDashoffset;
     if(full){beep(880);setTimeout(function(){beep(880);},250);}else beep(330);
     EX.state='breathe';exCard(D.X.set+' '+EX.set+' '+D.X.of,full?D.X.afterFull:D.X.afterEarly,'');exRing('idle','','',full?D.X.done:D.X.early);
