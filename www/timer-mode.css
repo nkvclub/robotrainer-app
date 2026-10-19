@@ -73,7 +73,7 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 .excap:empty{display:none}
 #exCard{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;cursor:default;padding:14px 16px}
 .exh{font-weight:800;font-size:16px;color:var(--fg)}
-.ext{color:var(--red);font-weight:700;font-size:15px;line-height:1.35;text-wrap:balance}
+.ext{color:var(--red);font-weight:700;font-size:15px;line-height:1.35;text-wrap:balance;min-height:4.05em;display:flex;align-items:center;justify-content:center}  /* 3 lines kept, so the centred circle never moves between states */
 #exCard .cbtn{margin-top:6px}
 .exline{font-weight:800;font-size:17px;text-wrap:balance;padding:8px 14px;border-radius:12px;background:color-mix(in srgb,var(--muted) 12%,var(--card));color:var(--fg)}
 .exline.up{background:color-mix(in srgb,var(--green) 14%,var(--card));color:var(--green)}
