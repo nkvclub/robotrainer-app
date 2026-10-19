@@ -349,7 +349,7 @@ function exEnd(full){clearTimeout(EX.tmo);cancelAnimationFrame(EX.raf);var s=(pe
   beep(330);
   if(s<5){EX.short=true;track('ex_ctrl_short');exReady();return;}
   track('ex_ctrl_done');awake(false);exResult(s);}
-function exResult(s){EX.state='res';exDots();var a=Math.round(EX.base),b=Math.round(s),d=Math.round((s-EX.base)/EX.base*100),up=d>0;  // control is an inhale hold, compared with step 1 of the test, gain in percent
+function exResult(s){EX.state='res';exDots();var a=Math.round(EX.base),b=Math.round(s),up=b>a,d=Math.max(1,Math.round((b-a)/a*100));  // control is an inhale hold, compared with step 1 of the test, gain in percent
   var h=history[0];if(h&&h.d===EX.hd){h.ex=b;store.set('history',history);}
   exCard('',up?X('up',{p:d}):D.X.flat,'');
   var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=X('line',{a:a,b:b}).replace(/(\d) /g,'$1\u00a0').replace(' →','\u00a0→');r.appendChild(ln);r.hidden=false;
