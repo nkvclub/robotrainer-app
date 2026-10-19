@@ -48,3 +48,40 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 #scrTest.started #bars:not(.results) .row.locked{padding-block:4px}
 #scrTest.started #bars:not(.results) .row:not(.act):not(.calcrow) .num{width:26px;height:26px;font-size:13px}
 #scrTest.started:not(:has(#bars.results)) .note{display:none}
+/* exercise after the test: own screen without the bottom menu, same circle and step card look as the test */
+#scrEx .wrap{min-height:100dvh;box-sizing:border-box;gap:14px;padding-block:14px 16px}
+.exhead{display:flex;flex-direction:column;align-items:center;gap:8px}
+.exttl{font-weight:800;font-size:18px;color:var(--fg)}
+.exdots{display:flex;gap:6px}
+.exdots span{min-width:26px;height:26px;padding:0 8px;box-sizing:border-box;border-radius:13px;display:grid;place-items:center;font-size:12px;font-weight:800;background:color-mix(in srgb,var(--muted) 15%,transparent);color:var(--muted)}
+.exdots span.cur{background:var(--accent);color:#fff}
+.exdots span.ok{background:var(--green);color:#fff}
+#exBox{width:min(290px,calc(100vw - 60px),40dvh);margin:0 auto;transition:width .4s}
+#exBox.done{width:min(290px,calc(100vw - 60px),34dvh)}
+#scrEx.res .wrap{justify-content:center}
+#exGo{border:0;font-family:inherit}
+.exh:empty{display:none}
+#exBox .mascot{display:none}
+#exBox.lv1 .mascot,#exBox.lv2 .mascot{display:block}
+#exBox.exhold .time{display:block;font-size:min(48px,22cqw)}
+#exBox.exhold .lbl{display:inline-block;margin-top:8px;padding:4px 12px;border-radius:12px;background:#fff;color:var(--accent);font-weight:800;font-size:min(13px,6.2cqw);opacity:1}
+#exBox.ready .time,#exBox.hold .time,#exBox.ready .lbl,#exBox.hold .lbl{display:none}
+#exBox:not(.exhold):not(.rest):not(.done) .time{display:none}
+#exBox.done .lbl{display:inline-block;margin-top:4px;padding:4px 12px;border-radius:12px;background:#fff;color:var(--green);font-weight:800;font-size:min(15px,7cqw);opacity:1}
+#exBox.done .lbl:empty{display:none}
+.excap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;font-weight:800;font-size:min(24px,9.5cqw);line-height:1.2;padding:0 14%;pointer-events:none;z-index:2}
+.excap small{display:block;font-size:min(15px,5.6cqw);font-weight:600;opacity:.85;margin-top:6px}
+.excap:empty{display:none}
+#exCard{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;cursor:default;padding:14px 16px}
+.exh{font-weight:800;font-size:16px;color:var(--fg)}
+.ext{color:var(--red);font-weight:700;font-size:15px;line-height:1.35;text-wrap:balance}
+#exCard .cbtn{margin-top:6px}
+.exline{font-weight:800;font-size:17px;text-wrap:balance;padding:8px 14px;border-radius:12px;background:color-mix(in srgb,var(--muted) 12%,var(--card));color:var(--fg)}
+.exline.up{background:color-mix(in srgb,var(--green) 14%,var(--card));color:var(--green)}
+.exres{order:-1}
+#exCard:has(.exres:not([hidden])) .ext{color:var(--fg);font-weight:600}
+.exbtns{display:flex;flex-direction:column;gap:10px}
+.exquit{all:unset;cursor:pointer;align-self:center;font-size:14px;font-weight:700;color:var(--muted);padding:6px 12px;text-decoration:underline}
+#scrEx .note{margin-top:auto}
+.exbox{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.hex{font-size:13px;font-weight:700;color:var(--green)}

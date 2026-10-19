@@ -25,7 +25,7 @@ function track(e){if(EV.length<200)EV.push([e,Math.round((Date.now()-evT0)/1000)
 function sendTrack(){var url=CFG.ANALYTICS_ENDPOINT;if(!url||!EV.length)return;
   var body=JSON.stringify({key:CFG.EMAIL_KEY,v:CFG.version,lang:lang,os:(window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform())||'web',ev:EV});
   EV=[];try{fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true}).catch(function(){});}catch(e){}}
-document.addEventListener('visibilitychange',function(){if(document.hidden){sendTrack();if(!run)awake(false);if(ac)ac.suspend();}});
+document.addEventListener('visibilitychange',function(){if(document.hidden){sendTrack();if(!run&&!EX.on)awake(false);if(ac)ac.suspend();}});
 var S={lang:null,snd:true,vib:true,warned:false,rem:false,remDay:1,remTime:'09:00'};
 var history=[];
 
@@ -55,14 +55,14 @@ function awake(on){clearTimeout(awakeT);if(!P.KeepAwake)return;
 /* ---------- feedback: sound + vibration ---------- */
 var ac=null,acT=0;  // the sound chip sleeps after a quiet minute or when the app is hidden (battery); never during a hold or rest, so timer beeps always sound
 function beep(f){
-  if(S.snd){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();clearTimeout(acT);acT=setTimeout(function(){if(ac&&!run&&!restT)ac.suspend();},60000);var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.25);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.25);}catch(e){}}
+  if(S.snd){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();clearTimeout(acT);acT=setTimeout(function(){if(ac&&!run&&!restT&&!EX.on)ac.suspend();},60000);var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.25);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.25);}catch(e){}}
   if(S.vib){if(P.Haptics){P.Haptics.impact({style:'MEDIUM'}).catch(function(){});}else{try{navigator.vibrate&&navigator.vibrate(60);}catch(e){}}}
 }
 
 /* ---------- screens ---------- */
 function go(id){track('tab_'+id);if(id==='scrTest'&&S.warned&&!S.howSeen)setTimeout(openHow,300);
-  ['scrWarn','scrTest','scrHist','scrSet'].forEach(function(s){$(s).hidden=s!==id;});
-  $('tabs').hidden=id==='scrWarn';
+  ['scrWarn','scrTest','scrEx','scrHist','scrSet'].forEach(function(s){$(s).hidden=s!==id;});
+  $('tabs').hidden=id==='scrWarn'||id==='scrEx';  // the exercise has its own way out
   document.querySelectorAll('#tabs button').forEach(function(b){b.toggleAttribute('aria-current',b.dataset.go===id);if(b.dataset.go===id)b.setAttribute('aria-current','page');});
   if(id==='scrHist')renderHistory();
   window.scrollTo(0,0);
@@ -135,9 +135,11 @@ function buildResult(o){
   var b=document.createElement('div');b.className='badge';b.textContent=D.B[o];b.style.background=col(o);out.appendChild(b);
   var t=document.createElement('div');t.textContent=D.M[o];out.appendChild(t);
   if(lv.inhale>lv.exhale){var c2=document.createElement('div');c2.className='co2';c2.textContent=D.co2;out.appendChild(c2);}
+  if(ts.exhale>=5&&!EX.on){var ex=document.createElement('div');ex.className='exbox';var eb=document.createElement('button');eb.type='button';eb.className='cta';eb.textContent=D.X.btn;eb.addEventListener('click',exOpen);
+    var es=document.createElement('div');es.className='ctasub';es.textContent=D.X.btnSub;ex.appendChild(eb);ex.appendChild(es);out.appendChild(ex);}
   var bx=document.createElement('div');bx.className='ctabox';
   [['ctah',D.ctaH],['ctasub',D.ctaSub]].forEach(function(p){var e=document.createElement('div');e.className=p[0];e.textContent=p[1];bx.appendChild(e);});
-  var c=document.createElement('button');c.type='button';c.className='cta';c.textContent=D.cta;c.addEventListener('click',openEmail);bx.appendChild(c);out.appendChild(bx);
+  var c=document.createElement('button');c.type='button';c.className='again';c.textContent=D.cta;c.addEventListener('click',openEmail);bx.appendChild(c);out.appendChild(bx);
 }
 function sparks(){var n=16;for(var i=0;i<n;i++){var p=document.createElement('i');p.className='spark';
   var a=i/n*Math.PI*2+Math.random()*.3,d=58+Math.random()*16;p.style.setProperty('--x',(Math.cos(a)*d).toFixed(1)+'%');p.style.setProperty('--y',(Math.sin(a)*d).toFixed(1)+'%');
@@ -217,6 +219,7 @@ function renderHistory(){
       var v=document.createElement('div');v.className='v';v.textContent=Math.round(s)+' '+D.sec;v.style.color=col(l);
       var bar=document.createElement('div');bar.className='bar';var f=document.createElement('div');f.className='fill';f.style.background=col(l);f.style.width='0';(function(f,w,d){setTimeout(function(){f.style.width=w;},250+d);})(f,Math.round(Math.min(s/barFull(m),1)*100)+'%',Math.min(hi,8)*70);bar.appendChild(f);
       g.appendChild(n);g.appendChild(v);g.appendChild(bar);c.appendChild(g);});
+    if(h.ex>0){var xe=document.createElement('div');xe.className='hex';xe.textContent=X('hist',{b:h.ex});c.appendChild(xe);}
     rest=saved;wrap.appendChild(c);});
   box2.appendChild(wrap);
 }
@@ -294,9 +297,65 @@ if(P.App&&P.App.addListener){P.App.addListener('backButton',function(){
   if(!$('tour').hidden){endTour();return;}
   if(!$('howModal').hidden){closeHow();return;}
   if(!$('emailModal').hidden){closeEmail();return;}
+  if(!$('scrEx').hidden){exClose();return;}
   if($('scrTest').hidden&&S.warned){go('scrTest');return;}
   P.App.minimizeApp();
 });}
+
+
+/* ---------- exercise after the test: 3 exhale holds of (test exhale + 5 s) with 30 s rest, 60 s rest, one control exhale hold, then before -> after ----------
+   Numbers are fine during the sets (it is not the test); the control hold shows no numbers until it ends, like the test */
+var EX={on:false,base:0,goal:0,set:0,state:'',t0:0,raf:0,restT:0,end:0};
+var exPrg=$('exPrg'),exBox=$('exBox');
+(function(){var m=box.querySelector('.mascot');if(m)$('exFace').insertBefore(m.cloneNode(true),$('exFace').firstChild);})();
+function X(k,o){var t=D.X[k];for(var n in o)t=t.replace('{'+n+'}',o[n]);return t;}
+function exDots(){var d=$('exDots');d.innerHTML='';for(var i=1;i<=4;i++){var e=document.createElement('span');e.textContent=i<4?String(i):D.X.ctrlShort;
+  var cur=EX.state==='res'?5:(EX.set||1);e.className=i<cur?'ok':(i===cur?'cur':'');if(i<cur)e.textContent='✓';d.appendChild(e);}}
+function exCard(h,t,btn){$('exH').textContent=h;$('exT').textContent=t;var g=$('exGo');g.hidden=!btn;if(btn){g.textContent=btn;g.classList.toggle('stop',btn===D.X.stopW);}}
+function exRing(cls,time,lbl,cap){exBox.className='ringbox '+cls;$('exTime').textContent=time||'';$('exLbl').textContent=lbl||'';$('exCap').innerHTML=cap||'';}
+function exStopTimers(){cancelAnimationFrame(EX.raf);clearInterval(EX.restT);EX.restT=0;}
+function exReady(){exStopTimers();EX.state='ready';exDots();exPrg.style.transition='';exPrg.style.stroke=acc();exPrg.style.strokeDashoffset=C;
+  if(EX.set<=3){exCard(D.X.set+' '+EX.set+' '+D.X.of,X('setT',{t:EX.goal}),D.start);exRing('idle ready','','',D.X.set+' '+EX.set+' '+D.X.of+'<small>'+X('goal',{t:EX.goal})+'</small>');}
+  else{exCard(D.X.ctrl,EX.short?D.X.short:D.X.ctrlT,D.start);exRing('idle ready','','',EX.short?D.X.shortCap+'<small>'+D.X.shortSub+'</small>':D.X.ctrl+'<small>'+D.X.readyCap+'</small>');}}
+function exRest(sec,txt,pill){exStopTimers();EX.state='rest';exDots();exCard(EX.set<=3?D.X.set+' '+EX.set+' '+D.X.of:D.X.ctrl,txt,'');
+  var end=Date.now()+sec*1000,warned=false;exPrg.style.stroke=acc();
+  var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),left>10?pill:(left>0?D.restSoon:D.restGo),'');exPrg.style.strokeDashoffset=C*(1-left/sec);
+    if(left<=10&&!warned){warned=true;beep(520);}
+    if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);setTimeout(function(){beep(880);},250);exReady();}};
+  paint();EX.restT=setInterval(paint,250);}
+function exHoldTick(){var s=(performance.now()-EX.t0)/1000;
+  if(EX.set<=3){exPrg.style.strokeDashoffset=C*(1-Math.min(s/EX.goal,1));$('exTime').textContent=Math.floor(s);
+    if(s>=EX.goal){exEnd(true);return;}}
+  else{exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));exBox.style.setProperty('--puff',Math.min(s/50,1).toFixed(3));}
+  EX.raf=requestAnimationFrame(exHoldTick);}
+function exStart(){EX.state='hold';EX.short=false;EX.t0=performance.now();beep(660);awake(true);exPrg.style.stroke=acc();
+  if(EX.set<=3){exCard(D.X.set+' '+EX.set+' '+D.X.of,D.X.holdT,D.X.stopW);exRing('exhold','0',X('goal',{t:EX.goal}),'');}
+  else{exCard(D.X.ctrl,D.holdT,D.X.stopW);exRing('hold','','',D.X.going);}
+  EX.raf=requestAnimationFrame(exHoldTick);
+  if(EX.set<=3)EX.tmo=setTimeout(function(){if(EX.state==='hold'&&EX.set<=3)exEnd(true);},EX.goal*1000+400);}  // the goal is reached even if frames pause
+function exEnd(full){clearTimeout(EX.tmo);cancelAnimationFrame(EX.raf);var s=(performance.now()-EX.t0)/1000;exBox.style.setProperty('--puff',0);
+  if(EX.set<=3){track(full?'ex_set_full':'ex_set_early');exPrg.style.strokeDashoffset=full?0:exPrg.style.strokeDashoffset;
+    if(full){beep(880);setTimeout(function(){beep(880);},250);}else beep(330);
+    EX.state='breathe';exCard(D.X.set+' '+EX.set+' '+D.X.of,full?D.X.afterFull:D.X.afterEarly,'');exRing('idle','','',full?D.X.done:D.X.early);
+    EX.set++;setTimeout(function(){if(!EX.on)return;if(EX.set<=3)exRest(30,D.X.restT,D.restCalm);else exRest(60,D.X.restLongT,D.X.restLong);},1500);return;}
+  beep(330);
+  if(s<5){EX.short=true;track('ex_ctrl_short');exReady();return;}
+  track('ex_ctrl_done');awake(false);exResult(s);}
+function exResult(s){EX.state='res';exDots();var a=Math.round(EX.base),b=Math.round(s),d=b-a,up=d>0;
+  var h=history[0];if(h&&h.d===EX.hd){h.ex=b;store.set('history',history);}
+  exCard('',up?D.X.up:D.X.flat,'');
+  var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=(X('line',{a:a,b:b})+(up?' (+'+d+' '+D.sec+')':'')).replace(/(\d) /g,'$1\u00a0').replace(' →','\u00a0→');r.appendChild(ln);r.hidden=false;
+  exRing('idle done '+(up?'lv2':'lv1'),'',up?'+'+d+' '+D.sec:'','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):acc();exPrg.style.strokeDashoffset=0;
+  $('exBtns').hidden=false;$('exQuit').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');}
+function exOpen(){if(!history[0]||!(ts.exhale>=5))return;track('ex_open');
+  EX={on:true,base:ts.exhale,goal:Math.round(ts.exhale)+5,set:1,state:'',hd:history[0].d};
+  $('exTtl').textContent=D.X.ttl;$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exMail').textContent=D.cta;$('exHome').textContent=D.X.home;
+  $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');exReady();}
+function exClose(){exStopTimers();clearTimeout(EX.tmo);EX.on=false;EX.state='';awake(false);go('scrTest');}
+$('exGo').addEventListener('click',function(){if(EX.state==='ready')exStart();else if(EX.state==='hold')exEnd(false);});
+$('exQuit').addEventListener('click',function(){track('ex_quit');exClose();});
+$('exHome').addEventListener('click',exClose);
+$('exMail').addEventListener('click',openEmail);
 
 /* ---------- start ---------- */
 $('warnOk').addEventListener('change',function(){$('warnGo').classList.toggle('off',!this.checked);$('warnOk').parentNode.classList.remove('need');});
