@@ -317,9 +317,9 @@ function exStopTimers(){cancelAnimationFrame(EX.raf);clearInterval(EX.restT);EX.
 function exReady(){exStopTimers();EX.state='ready';exDots();exPrg.style.transition='';exPrg.style.stroke=acc();exPrg.style.strokeDashoffset=C;
   if(EX.set<=3){exCard(D.X.set+' '+EX.set+' '+D.X.of,X('setT',{t:EX.goal}),D.start);exRing('idle ready','','',X('goal',{t:EX.goal}));}
   else{exCard(D.X.ctrl,EX.short?D.X.short:D.X.ctrlT,D.start);exRing('idle ready','','',EX.short?D.X.shortCap:D.X.ctrlCap+'<small>'+D.X.ctrlSub+'</small>');}}
-function exRest(sec,txt,pill){exStopTimers();EX.state='rest';exDots();exCard(EX.set<=3?D.X.set+' '+EX.set+' '+D.X.of:D.X.ctrl,txt,'');
+function exRest(sec,txt,pill,inh){exStopTimers();EX.state='rest';exDots();exCard(EX.set<=3?D.X.set+' '+EX.set+' '+D.X.of:D.X.ctrl,txt,'');
   var end=Date.now()+sec*1000,warned=false;exPrg.style.stroke=acc();
-  var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),left>10?pill:(left>0?D.restSoon:D.restGo),'');exPrg.style.strokeDashoffset=C*(1-left/sec);
+  var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),left>10?pill:(left>0?(inh?D.X.soonIn:D.restSoon):(inh?D.X.goIn:D.restGo)),'');exPrg.style.strokeDashoffset=C*(1-left/sec);
     if(left<=10&&!warned){warned=true;beep(520);}
     if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);setTimeout(function(){beep(880);},250);exReady();}};
   paint();EX.restT=setInterval(paint,250);}
@@ -337,20 +337,20 @@ function exEnd(full){clearTimeout(EX.tmo);cancelAnimationFrame(EX.raf);var s=(pe
   if(EX.set<=3){track(full?'ex_set_full':'ex_set_early');exPrg.style.strokeDashoffset=full?0:exPrg.style.strokeDashoffset;
     if(full){beep(880);setTimeout(function(){beep(880);},250);}else beep(330);
     EX.state='breathe';exCard(D.X.set+' '+EX.set+' '+D.X.of,full?D.X.afterFull:D.X.afterEarly,'');exRing('idle','','',full?D.X.done:D.X.early);
-    EX.set++;setTimeout(function(){if(!EX.on)return;if(EX.set<=3)exRest(30,D.X.restT,D.restCalm);else exRest(60,D.X.restLongT,D.X.restLong);},1500);return;}
+    EX.set++;setTimeout(function(){if(!EX.on)return;if(EX.set<=3)exRest(30,D.X.restT,D.restCalm);else exRest(30,D.X.restLongT,D.X.restLong,true);},1500);return;}
   beep(330);
   if(s<5){EX.short=true;track('ex_ctrl_short');exReady();return;}
   track('ex_ctrl_done');awake(false);exResult(s);}
-function exResult(s){EX.state='res';exDots();var a=Math.round(EX.base),b=Math.round(s),d=b-a,up=d>0;
+function exResult(s){EX.state='res';exDots();var a=Math.round(EX.base),b=Math.round(s),d=Math.round((s-EX.base)/EX.base*100),up=d>0;  // control is an inhale hold, compared with step 1 of the test, gain in percent
   var h=history[0];if(h&&h.d===EX.hd){h.ex=b;store.set('history',history);}
   exCard('',up?D.X.up:D.X.flat,'');
-  var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=(X('line',{a:a,b:b})+(up?' (+'+d+' '+D.sec+')':'')).replace(/(\d) /g,'$1\u00a0').replace(' →','\u00a0→');r.appendChild(ln);r.hidden=false;
-  exRing('idle done '+(up?'lv2':'lv1'),'',up?'+'+d+' '+D.sec:'','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):'var(--muted)';exPrg.style.strokeDashoffset=up?0:C;
+  var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=(X('line',{a:a,b:b})+(up?' (+'+d+'%)':'')).replace(/(\d) /g,'$1\u00a0').replace(' →','\u00a0→');r.appendChild(ln);r.hidden=false;
+  exRing('idle done '+(up?'lv2':'lv1'),'',up?'+'+d+'%':'','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):'var(--muted)';exPrg.style.strokeDashoffset=up?0:C;
   $('exBtns').hidden=false;$('exQuit').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');}
 function exOpen(){if(!history[0]||!(ts.exhale>=5))return;track('ex_open');
-  EX={on:true,base:ts.exhale,goal:Math.round(ts.exhale)+5,set:1,state:'',hd:history[0].d};
+  EX={on:true,base:ts.inhale,goal:Math.round(ts.exhale)+5,set:1,state:'',hd:history[0].d};  // sets: exhale + 5 s; control: inhale, like step 1
   $('exTtl').textContent=D.X.ttl;$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exMail').textContent=D.cta;$('exHome').textContent=D.X.home;
-  $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');exReady();}
+  $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');exRest(30,D.X.firstT,D.X.firstPill);}  // 30 s to catch the breath after the squats first
 function exClose(){exStopTimers();clearTimeout(EX.tmo);EX.on=false;EX.state='';awake(false);go('scrTest');}
 $('exGo').addEventListener('click',function(){if(EX.state==='ready')exStart();else if(EX.state==='hold')exEnd(false);});
 $('exQuit').addEventListener('click',function(){track('ex_quit');exClose();});
