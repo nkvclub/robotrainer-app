@@ -311,12 +311,12 @@ var exPrg=$('exPrg'),exBox=$('exBox');
 function X(k,o){var t=D.X[k];for(var n in o)t=t.replace('{'+n+'}',o[n]);return t;}
 function exDots(){var d=$('exDots');d.innerHTML='';for(var i=1;i<=4;i++){var e=document.createElement('span');e.textContent=i<4?String(i):D.X.ctrlShort;
   var cur=EX.state==='res'?5:(EX.set||1);e.className=i<cur?'ok':(i===cur?'cur':'');if(i<cur)e.textContent='✓';d.appendChild(e);}}
-function exCard(h,t,btn){$('exH').textContent=h;$('exT').textContent=t;var g=$('exGo');g.hidden=!btn;if(btn){g.textContent=btn;g.classList.toggle('stop',btn===D.X.stopW);}}
+function exCard(h,t,btn){$('exH').textContent=h;$('exT').textContent=t;var g=$('exGo');g.classList.toggle('wait',!btn);g.disabled=!btn;g.textContent=btn||D.start;g.classList.toggle('stop',btn===D.X.stopW);}  // during rest START stays in place, greyed, so nothing jumps
 function exRing(cls,time,lbl,cap){exBox.className='ringbox '+cls;$('exTime').textContent=time||'';$('exLbl').textContent=lbl||'';$('exCap').innerHTML=cap||'';}
 function exStopTimers(){cancelAnimationFrame(EX.raf);clearInterval(EX.restT);EX.restT=0;}
 function exReady(){exStopTimers();EX.state='ready';exDots();exPrg.style.transition='';exPrg.style.stroke=acc();exPrg.style.strokeDashoffset=C;
-  if(EX.set<=3){exCard(D.X.set+' '+EX.set+' '+D.X.of,X('setT',{t:EX.goal}),D.start);exRing('idle ready','','',D.X.set+' '+EX.set+' '+D.X.of+'<small>'+X('goal',{t:EX.goal})+'</small>');}
-  else{exCard(D.X.ctrl,EX.short?D.X.short:D.X.ctrlT,D.start);exRing('idle ready','','',EX.short?D.X.shortCap+'<small>'+D.X.shortSub+'</small>':D.X.ctrl+'<small>'+D.X.readyCap+'</small>');}}
+  if(EX.set<=3){exCard(D.X.set+' '+EX.set+' '+D.X.of,X('setT',{t:EX.goal}),D.start);exRing('idle ready','','',X('goal',{t:EX.goal}));}
+  else{exCard(D.X.ctrl,EX.short?D.X.short:D.X.ctrlT,D.start);exRing('idle ready','','',EX.short?D.X.shortCap:D.X.ctrlCap+'<small>'+D.X.ctrlSub+'</small>');}}
 function exRest(sec,txt,pill){exStopTimers();EX.state='rest';exDots();exCard(EX.set<=3?D.X.set+' '+EX.set+' '+D.X.of:D.X.ctrl,txt,'');
   var end=Date.now()+sec*1000,warned=false;exPrg.style.stroke=acc();
   var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),left>10?pill:(left>0?D.restSoon:D.restGo),'');exPrg.style.strokeDashoffset=C*(1-left/sec);
@@ -345,7 +345,7 @@ function exResult(s){EX.state='res';exDots();var a=Math.round(EX.base),b=Math.ro
   var h=history[0];if(h&&h.d===EX.hd){h.ex=b;store.set('history',history);}
   exCard('',up?D.X.up:D.X.flat,'');
   var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=(X('line',{a:a,b:b})+(up?' (+'+d+' '+D.sec+')':'')).replace(/(\d) /g,'$1\u00a0').replace(' →','\u00a0→');r.appendChild(ln);r.hidden=false;
-  exRing('idle done '+(up?'lv2':'lv1'),'',up?'+'+d+' '+D.sec:'','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):acc();exPrg.style.strokeDashoffset=0;
+  exRing('idle done '+(up?'lv2':'lv1'),'',up?'+'+d+' '+D.sec:'','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):'var(--muted)';exPrg.style.strokeDashoffset=up?0:C;
   $('exBtns').hidden=false;$('exQuit').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');}
 function exOpen(){if(!history[0]||!(ts.exhale>=5))return;track('ex_open');
   EX={on:true,base:ts.exhale,goal:Math.round(ts.exhale)+5,set:1,state:'',hd:history[0].d};

@@ -49,16 +49,15 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 #scrTest.started #bars:not(.results) .row:not(.act):not(.calcrow) .num{width:26px;height:26px;font-size:13px}
 #scrTest.started:not(:has(#bars.results)) .note{display:none}
 /* exercise after the test: own screen without the bottom menu, same circle and step card look as the test */
-#scrEx .wrap{min-height:100dvh;box-sizing:border-box;gap:14px;padding-block:14px 16px}
+#scrEx .wrap{min-height:100dvh;box-sizing:border-box;gap:14px;padding-block:14px 16px;justify-content:center}
 .exhead{display:flex;flex-direction:column;align-items:center;gap:8px}
 .exttl{font-weight:800;font-size:18px;color:var(--fg)}
 .exdots{display:flex;gap:6px}
 .exdots span{min-width:26px;height:26px;padding:0 8px;box-sizing:border-box;border-radius:13px;display:grid;place-items:center;font-size:12px;font-weight:800;background:color-mix(in srgb,var(--muted) 15%,transparent);color:var(--muted)}
 .exdots span.cur{background:var(--accent);color:#fff}
 .exdots span.ok{background:var(--green);color:#fff}
-#exBox{width:min(290px,calc(100vw - 60px),40dvh);margin:0 auto;transition:width .4s}
+#exBox{width:min(330px,calc(100vw - 60px),40dvh);margin:0 auto;transition:width .4s}
 #exBox.done{width:min(290px,calc(100vw - 60px),34dvh)}
-#scrEx.res .wrap{justify-content:center}
 #exGo{border:0;font-family:inherit}
 .exh:empty{display:none}
 #exBox .mascot{display:none}
@@ -82,6 +81,8 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 #exCard:has(.exres:not([hidden])) .ext{color:var(--fg);font-weight:600}
 .exbtns{display:flex;flex-direction:column;gap:10px}
 .exquit{all:unset;cursor:pointer;align-self:center;font-size:14px;font-weight:700;color:var(--muted);padding:6px 12px;text-decoration:underline}
-#scrEx .note{margin-top:auto}
 .exbox{display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .hex{font-size:13px;font-weight:700;color:var(--green)}
+/* during rest START stays greyed in the card, so the centred circle never jumps */
+#exGo.wait{background:color-mix(in srgb,var(--muted) 25%,var(--card));color:var(--muted);box-shadow:none;cursor:default}
+#scrEx.res #exCard .cbtn{display:none!important}
