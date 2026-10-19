@@ -86,3 +86,5 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 /* during rest START stays greyed in the card, so the centred circle never jumps */
 #exGo.wait{background:color-mix(in srgb,var(--muted) 25%,var(--card));color:var(--muted);box-shadow:none;cursor:default}
 #scrEx.res #exCard .cbtn{display:none!important}
+/* the exercise face has no mascot during rest, so the pill takes its width from the circle, not from the digits */
+#exBox .lbl{max-width:66cqw!important;box-sizing:border-box}

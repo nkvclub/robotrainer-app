@@ -135,7 +135,7 @@ function buildResult(o){
   var b=document.createElement('div');b.className='badge';b.textContent=D.B[o];b.style.background=col(o);out.appendChild(b);
   var t=document.createElement('div');t.textContent=D.M[o];out.appendChild(t);
   if(lv.inhale>lv.exhale){var c2=document.createElement('div');c2.className='co2';c2.textContent=D.co2;out.appendChild(c2);}
-  if(ts.exhale>=5&&!EX.on){var ex=document.createElement('div');ex.className='exbox';var eb=document.createElement('button');eb.type='button';eb.className='cta';eb.textContent=D.X.btn;eb.addEventListener('click',exOpen);
+  if(ts.exhale>=5&&!EX.on){var ex=document.createElement('div');ex.className='exbox';var eq=document.createElement('div');eq.className='ctah';eq.textContent=D.X.q;ex.appendChild(eq);var eb=document.createElement('button');eb.type='button';eb.className='cta';eb.textContent=D.X.btn;eb.addEventListener('click',exOpen);
     var es=document.createElement('div');es.className='ctasub';es.textContent=D.X.btnSub;ex.appendChild(eb);ex.appendChild(es);out.appendChild(ex);}
   var bx=document.createElement('div');bx.className='ctabox';
   [['ctah',D.ctaH],['ctasub',D.ctaSub]].forEach(function(p){var e=document.createElement('div');e.className=p[0];e.textContent=p[1];bx.appendChild(e);});
@@ -303,7 +303,8 @@ if(P.App&&P.App.addListener){P.App.addListener('backButton',function(){
 });}
 
 
-/* ---------- exercise after the test: 3 exhale holds of (test exhale + 5 s) with 30 s rest, 60 s rest, one control exhale hold, then before -> after ----------
+/* ---------- exercise after the test, like on the site (Nov 2026-10-19): 30 s to catch the breath, set 1 = exhale hold as long as you can (the measure),
+   set 2 = measure + 5 s, set 3 = + 5 s more, 30 s rest before each, then a control INHALE hold compared with step 1 of the test, gain in percent.
    Numbers are fine during the sets (it is not the test); the control hold shows no numbers until it ends, like the test */
 var EX={on:false,base:0,goal:0,set:0,state:'',t0:0,raf:0,restT:0,end:0};
 var exPrg=$('exPrg'),exBox=$('exBox');
@@ -315,42 +316,49 @@ function exCard(h,t,btn){$('exH').textContent=h;$('exT').textContent=t;var g=$('
 function exRing(cls,time,lbl,cap){exBox.className='ringbox '+cls;$('exTime').textContent=time||'';$('exLbl').textContent=lbl||'';$('exCap').innerHTML=cap||'';}
 function exStopTimers(){cancelAnimationFrame(EX.raf);clearInterval(EX.restT);EX.restT=0;}
 function exReady(){exStopTimers();EX.state='ready';exDots();exPrg.style.transition='';exPrg.style.stroke=acc();exPrg.style.strokeDashoffset=C;
-  if(EX.set<=3){exCard(D.X.set+' '+EX.set+' '+D.X.of,X('setT',{t:EX.goal}),D.start);exRing('idle ready','','',X('goal',{t:EX.goal}));}
+  if(EX.set===1){exCard(D.X.set+' 1 '+D.X.of,EX.short?D.X.short:D.X.m1T,D.start);exRing('idle ready','','',EX.short?D.X.shortCap:D.X.m1+'<small>'+D.X.m1Sub+'</small>');}
+  else if(EX.set<=3){exCard(D.X.set+' '+EX.set+' '+D.X.of,X('setT',{t:EX.goal}),D.start);exRing('idle ready','','',X('goal',{t:EX.goal}));}
   else{exCard(D.X.ctrl,EX.short?D.X.short:D.X.ctrlT,D.start);exRing('idle ready','','',EX.short?D.X.shortCap:D.X.ctrlCap+'<small>'+D.X.ctrlSub+'</small>');}}
-function exRest(sec,txt,pill,inh){exStopTimers();EX.state='rest';exDots();exCard(EX.set<=3?D.X.set+' '+EX.set+' '+D.X.of:D.X.ctrl,txt,'');
+function exRest(sec,txt,pill,inh,head){exStopTimers();EX.state='rest';exDots();exCard(head||(EX.set<=3?D.X.set+' '+EX.set+' '+D.X.of:D.X.ctrl),txt,'');
   var end=Date.now()+sec*1000,warned=false;exPrg.style.stroke=acc();
   var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),left>10?pill:(left>0?(inh?D.X.soonIn:D.restSoon):(inh?D.X.goIn:D.restGo)),'');exPrg.style.strokeDashoffset=C*(1-left/sec);
     if(left<=10&&!warned){warned=true;beep(520);}
     if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);setTimeout(function(){beep(880);},250);exReady();}};
   paint();EX.restT=setInterval(paint,250);}
 function exHoldTick(){var s=(performance.now()-EX.t0)/1000;
-  if(EX.set<=3){exPrg.style.strokeDashoffset=C*(1-Math.min(s/EX.goal,1));$('exTime').textContent=Math.floor(s);
+  if(EX.set===1){exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));$('exTime').textContent=Math.floor(s);}
+  else if(EX.set<=3){exPrg.style.strokeDashoffset=C*(1-Math.min(s/EX.goal,1));$('exTime').textContent=Math.floor(s);
     if(s>=EX.goal){exEnd(true);return;}}
   else{exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));exBox.style.setProperty('--puff',Math.min(s/50,1).toFixed(3));}
   EX.raf=requestAnimationFrame(exHoldTick);}
 function exStart(){EX.state='hold';EX.short=false;EX.t0=performance.now();beep(660);awake(true);exPrg.style.stroke=acc();
-  if(EX.set<=3){exCard(D.X.set+' '+EX.set+' '+D.X.of,D.X.holdT,D.X.stopW);exRing('exhold','0',X('goal',{t:EX.goal}),'');}
+  if(EX.set===1){exCard(D.X.set+' 1 '+D.X.of,D.holdT,D.X.stopW);exRing('exhold','0',D.X.m1Pill,'');}
+  else if(EX.set<=3){exCard(D.X.set+' '+EX.set+' '+D.X.of,D.X.holdT,D.X.stopW);exRing('exhold','0',X('goal',{t:EX.goal}),'');}
   else{exCard(D.X.ctrl,D.holdT,D.X.stopW);exRing('hold','','',D.X.going);}
   EX.raf=requestAnimationFrame(exHoldTick);
-  if(EX.set<=3)EX.tmo=setTimeout(function(){if(EX.state==='hold'&&EX.set<=3)exEnd(true);},EX.goal*1000+400);}  // the goal is reached even if frames pause
+  if(EX.set>1&&EX.set<=3)EX.tmo=setTimeout(function(){if(EX.state==='hold'&&EX.set>1&&EX.set<=3)exEnd(true);},EX.goal*1000+400);}  // the goal is reached even if frames pause
 function exEnd(full){clearTimeout(EX.tmo);cancelAnimationFrame(EX.raf);var s=(performance.now()-EX.t0)/1000;exBox.style.setProperty('--puff',0);
+  if(EX.set===1){beep(330);if(s<5){EX.short=true;track('ex_m1_short');exReady();return;}
+    track('ex_m1_done');EX.goal=Math.round(s)+5;EX.state='breathe';exCard(D.X.set+' 1 '+D.X.of,D.X.afterM,'');exRing('idle','','',X('got',{t:Math.round(s)}));
+    EX.set=2;setTimeout(function(){if(EX.on)exRest(30,D.X.restT,D.restCalm);},1500);return;}
   if(EX.set<=3){track(full?'ex_set_full':'ex_set_early');exPrg.style.strokeDashoffset=full?0:exPrg.style.strokeDashoffset;
     if(full){beep(880);setTimeout(function(){beep(880);},250);}else beep(330);
     EX.state='breathe';exCard(D.X.set+' '+EX.set+' '+D.X.of,full?D.X.afterFull:D.X.afterEarly,'');exRing('idle','','',full?D.X.done:D.X.early);
-    EX.set++;setTimeout(function(){if(!EX.on)return;if(EX.set<=3)exRest(30,D.X.restT,D.restCalm);else exRest(30,D.X.restLongT,D.X.restLong,true);},1500);return;}
+    EX.set++;if(EX.set===3)EX.goal+=5;  // ladder: +5 s more on the norm, whether or not set 2 reached it
+    setTimeout(function(){if(!EX.on)return;if(EX.set<=3)exRest(30,D.X.restT,D.restCalm);else exRest(30,D.X.restLongT,D.X.restLong,true);},1500);return;}
   beep(330);
   if(s<5){EX.short=true;track('ex_ctrl_short');exReady();return;}
   track('ex_ctrl_done');awake(false);exResult(s);}
 function exResult(s){EX.state='res';exDots();var a=Math.round(EX.base),b=Math.round(s),d=Math.round((s-EX.base)/EX.base*100),up=d>0;  // control is an inhale hold, compared with step 1 of the test, gain in percent
   var h=history[0];if(h&&h.d===EX.hd){h.ex=b;store.set('history',history);}
-  exCard('',up?D.X.up:D.X.flat,'');
-  var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=(X('line',{a:a,b:b})+(up?' (+'+d+'%)':'')).replace(/(\d) /g,'$1\u00a0').replace(' →','\u00a0→');r.appendChild(ln);r.hidden=false;
-  exRing('idle done '+(up?'lv2':'lv1'),'',up?'+'+d+'%':'','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):'var(--muted)';exPrg.style.strokeDashoffset=up?0:C;
+  exCard('',up?X('up',{p:d}):D.X.flat,'');
+  var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=X('line',{a:a,b:b}).replace(/(\d) /g,'$1\u00a0').replace(' →','\u00a0→');r.appendChild(ln);r.hidden=false;
+  exRing('idle done '+(up?'lv2':'lv1'),'',up?D.X.win:'','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):'var(--muted)';exPrg.style.strokeDashoffset=up?0:C;
   $('exBtns').hidden=false;$('exQuit').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');}
 function exOpen(){if(!history[0]||!(ts.exhale>=5))return;track('ex_open');
-  EX={on:true,base:ts.inhale,goal:Math.round(ts.exhale)+5,set:1,state:'',hd:history[0].d};  // sets: exhale + 5 s; control: inhale, like step 1
+  EX={on:true,base:ts.inhale,goal:0,set:1,state:'',hd:history[0].d};  // goal comes from set 1; control is an inhale, like step 1
   $('exTtl').textContent=D.X.ttl;$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exMail').textContent=D.cta;$('exHome').textContent=D.X.home;
-  $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');exRest(30,D.X.firstT,D.X.firstPill);}  // 30 s to catch the breath after the squats first
+  $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');exRest(30,D.X.howT,D.X.firstPill,false,D.X.howH);}  // 30 s to catch the breath after the squats, with what comes next
 function exClose(){exStopTimers();clearTimeout(EX.tmo);EX.on=false;EX.state='';awake(false);go('scrTest');}
 $('exGo').addEventListener('click',function(){if(EX.state==='ready')exStart();else if(EX.state==='hold')exEnd(false);});
 $('exQuit').addEventListener('click',function(){track('ex_quit');exClose();});
