@@ -88,3 +88,13 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 #scrEx.res #exCard .cbtn{display:none!important}
 /* the exercise face has no mascot during rest, so the pill takes its width from the circle, not from the digits */
 #exBox .lbl{max-width:66cqw!important;box-sizing:border-box}
+/* «Уровень 1» subscription sheet */
+.paysheet{text-align:center;gap:14px}
+.paylist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;text-align:left}
+.paylist li{position:relative;padding-left:28px;font-size:16px;line-height:1.35}
+.paylist li::before{content:"✓";position:absolute;left:0;top:0;width:20px;height:20px;border-radius:50%;background:color-mix(in srgb,var(--green) 18%,var(--card));color:var(--green);font-weight:800;font-size:13px;display:grid;place-items:center}
+.payprice{font-size:22px;font-weight:800;color:var(--ink,inherit)}
+.payrenew{line-height:1.35}
+.paylinks{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font-size:14px}
+.paylinks .link{all:unset;cursor:pointer;color:var(--accent);text-decoration:underline;font-weight:600}
+#payGo:disabled{opacity:.7}

@@ -89,7 +89,7 @@
       <div class="excap" id="exCap"></div>
     </div>
     <div class="row act excard" id="exCard"><div class="exh" id="exH"></div><div class="ext" id="exT"></div><div class="exres" id="exRes" hidden></div><button class="cbtn" type="button" id="exGo"></button></div>
-    <div class="exbtns" id="exBtns" hidden><button class="cta" type="button" id="exMail"></button><button class="again" type="button" id="exHome"></button></div>
+    <div class="exbtns" id="exBtns" hidden><button class="cta" type="button" id="exPay" hidden></button><button class="cta" type="button" id="exMail"></button><button class="again" type="button" id="exHome"></button></div>
     <p class="note" id="exNote"></p>
     <button class="exquit" type="button" id="exQuit"></button>
   </div>
@@ -143,6 +143,20 @@
   <div class="tour-tip" id="tourTip"><div id="tourText"></div><div class="tour-nav"><button type="button" class="tour-skip" id="tourSkip" data-t="tourSkip"></button><button type="button" class="tour-next" id="tourNext"></button></div></div>
 </div>
 
+<!-- Level 1 subscription sheet (Google Play build only) -->
+<div class="modal" id="payModal" hidden>
+  <div class="sheet paysheet">
+    <button class="close" type="button" id="payClose" data-t="close"></button>
+    <div class="ctah" id="payH"></div>
+    <ul class="paylist" id="payList"></ul>
+    <div class="payprice" id="payPrice"></div>
+    <button class="cta" type="button" id="payGo"></button>
+    <div class="small payrenew" id="payRenew"></div>
+    <div class="msg" id="payMsg"></div>
+    <div class="paylinks"><button class="link" type="button" id="payRestore"></button><a class="link" id="payManage" href="https://play.google.com/store/account/subscriptions?package=com.robotrainerpro.app" target="_blank" rel="noopener"></a><a class="link" id="payPriv" href="#" target="_blank" rel="noopener" data-t="privacy"></a></div>
+  </div>
+</div>
+
 <!-- Email sheet -->
 <div class="modal" id="emailModal" hidden>
   <form class="sheet" id="emailForm" novalidate>
@@ -164,6 +178,7 @@
 
 <script src="config.js"></script>
 <script src="i18n.js"></script>
+<script src="billing.js"></script>
 <script src="app.js"></script>
 <script src="timer-mode.js"></script>
 <script src="update-check.js"></script>
