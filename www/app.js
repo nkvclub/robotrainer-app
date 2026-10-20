@@ -350,7 +350,7 @@ function exEnd(full){clearTimeout(EX.tmo);cancelAnimationFrame(EX.raf);var s=(pe
   beep(330);
   if(s<5){EX.short=true;track('ex_ctrl_short');exReady();return;}
   track('ex_ctrl_done');awake(false);exResult(s);}
-function exResult(s){if(EX.l1){l1Done(s);return;}EX.state='res';exDots();var a=Math.round(EX.base),b=Math.round(s),up=b>a,d=Math.max(1,Math.round((b-a)/a*100));  // control is an inhale hold, compared with step 1 of the test, gain in percent
+function exResult(s){if(EX.l1){l1Done(s);return;}EX.state='res';exDots();var a=Math.round(EX.base),b=Math.round(s),up=EX.up=b>a,d=Math.max(1,Math.round((b-a)/a*100));  // control is an inhale hold, compared with step 1 of the test, gain in percent
   var h=history[0];if(h&&h.d===EX.hd){h.ex=b;store.set('history',history);}
   exCard('',up?X('up',{p:d}):D.X.flat,'');
   var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=X('line',{a:a,b:b}).replace(/(\d) /g,'$1\u00a0').replace(' →','\u00a0→');r.appendChild(ln);r.hidden=false;
@@ -370,7 +370,7 @@ $('exMail').addEventListener('click',openEmail);
 /* ---------- «Уровень 1»: yearly subscription (billing.js), Google Play build only ---------- */
 var PAY=window.RT_PAY,payAsk='';
 function payPrice(){return PAY.price||'$3.99';}
-function payRender(){var T=D.PAY,show=PAY.available&&!PAY.owned&&EX.state==='res'&&!EX.l1;
+function payRender(){var T=D.PAY,show=PAY.available&&!PAY.owned&&EX.state==='res'&&!EX.l1&&EX.up;  // offer only after a gain, never right after «no gain today»
   $('exPay').hidden=!show;$('exPay').textContent=T.btn.replace('{p}',payPrice());if(EX.l1)return payRenderSheet(T);$('exMail').className=show?'again':'cta';$('exHome').className=show?'exquit':'again';  // three buttons do not fit a small screen, home becomes a link
   payRenderSheet(T);}
 function payRenderSheet(T){
@@ -411,7 +411,7 @@ function l1Chart(){var el=$('l1Chart');el.innerHTML='';
   svg+='<text x="'+l+'" y="'+(H-6)+'" class="ax">1</text><text x="'+(W-r)+'" y="'+(H-6)+'" class="ax" text-anchor="end">'+n+'</text></svg>';
   el.innerHTML=svg;}
 function l1Render(){if(!$('l1H'))return;var T=D.L1,n=l1DayN(),k=l1Today(),days=l1Days().length;
-  $('l1H').textContent=T.h;$('l1Day').textContent=days>=21&&k?T.fin:T1('day',{n:Math.min(n,21)});
+  $('l1H').textContent=T.h;$('l1Day').textContent=days>=21?T.fin:T1('day',{n:n});
   var g=$('l1Grid');g.innerHTML='';for(var i=1;i<=21;i++){var e=document.createElement('span');e.textContent=i;e.className=i<=days?'ok':(i===n?'cur':'');if(i%7===0)e.classList.add('wk');g.appendChild(e);}
   var p=l1Plan(n),b=$('l1Go');b.hidden=k>=3;b.textContent=k?T.goMore:T.go;
   $('l1Sub').textContent=k>=3?T.full:(k?T1('done',{k:k}):T1('sub',{k:p.last,c:p.ctrl?T.subC:''})+' '+T.when);
@@ -422,9 +422,9 @@ function l1Render(){if(!$('l1H'))return;var T=D.L1,n=l1DayN(),k=l1Today(),days=l
 function l1Open(){if(l1Today()>=3)return;track('l1_open');var n=l1DayN(),p=l1Plan(n);
   if(!L1.start){L1.start=Date.now();L1.base=history[0]&&history[0].ts?history[0].ts.inhale:0;}
   EX={on:true,base:L1.base,goal:0,set:1,state:'',hd:0,last:p.last,ctrl:p.ctrl&&L1.base>0,maxAdd:p.maxAdd,l1:n,m:0};
-  $('exTtl').textContent=T1('howH',{n:Math.min(n,21)});$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHome').textContent=D.L1.back;$('exMail').hidden=true;$('exPay').hidden=true;
+  $('exTtl').textContent=T1('howH',{n:n});$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHome').textContent=D.L1.back;$('exMail').hidden=true;$('exPay').hidden=true;
   $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');
-  exRest(30,T1('howT',{x:p.last>3?D.L1.howX:''})+(EX.ctrl?D.L1.howC:''),D.X.firstPill,false,T1('howH',{n:Math.min(n,21)}));}
+  exRest(30,T1('howT',{x:p.last>3?D.L1.howX:''})+(EX.ctrl?D.L1.howC:''),D.X.firstPill,false,D.X.howH);}
 function l1Done(ctrlS){var first=L1.s.length?L1.s[0].m:0,rec={d:Date.now(),m:EX.m};if(ctrlS)rec.c=Math.round(ctrlS);L1.s.push(rec);store.set('l1',L1);track('l1_done');awake(false);
   EX.state='res';exDots();var k=l1Today(),up,line,txt;
   if(ctrlS){var a=Math.round(EX.base),b=Math.round(ctrlS);up=b>a;line=X('line',{a:a,b:b});txt=(up?T1('ctrlUp',{p:Math.max(1,Math.round((b-a)/a*100))})+' ':'')+T1('resT',{k:k});}
@@ -437,7 +437,7 @@ function l1Remind(){var LN=P.LocalNotifications;if(!LN)return;var t=new Date(Dat
   LN.cancel({notifications:[{id:2}]}).catch(function(){}).then(function(){return LN.requestPermissions();}).then(function(p){if(!p||p.display!=='granted')return;
     return LN.schedule({notifications:[{id:2,title:D.L1.h,body:D.L1.remB,schedule:{at:t,allowWhileIdle:true}}]});}).catch(function(){});}
 function l1Tab(){var on=PAY.owned;$('tabL1').hidden=!on;}
-PAY.on(l1Tab);
+PAY.on(l1Tab);l1Tab();  // a bought level shows at once, even if Play does not answer on this start
 $('l1Go').addEventListener('click',l1Open);
 store.get('l1').then(function(v){if(v&&v.s)L1=v;l1Render();});
 /* ---------- start ---------- */
