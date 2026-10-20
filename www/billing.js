@@ -10,6 +10,7 @@ var PAY=window.RT_PAY={available:false,owned:false,price:'',busy:false,err:'',
   on:function(f){subs.push(f);},
   buy:function(){},restore:function(){}};
 function emit(){subs.forEach(function(f){try{f(PAY);}catch(e){}});}
+PAY._emit=emit;
 try{PAY.owned=localStorage.getItem('rt_l1')==='1';}catch(e){}
 function setOwned(v){if(PAY.owned===v)return;PAY.owned=v;try{localStorage.setItem('rt_l1',v?'1':'0');}catch(e){}emit();}
 

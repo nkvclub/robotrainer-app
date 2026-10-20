@@ -96,6 +96,17 @@
 </section>
 
 <!-- History -->
+<section class="screen" id="scrL1" hidden>
+  <div class="wrap">
+    <h2 class="h2" id="l1H"></h2>
+    <div class="card l1day"><div class="l1dayh" id="l1Day"></div><div class="l1grid" id="l1Grid"></div></div>
+    <div class="l1act"><button class="cta" type="button" id="l1Go"></button><div class="small" id="l1Sub"></div></div>
+    <div class="hsum" id="l1Sum"></div>
+    <div class="card l1chart"><div class="l1charth" id="l1ChartH"></div><div id="l1Chart"></div></div>
+    <p class="note" id="l1Note"></p>
+  </div>
+</section>
+
 <section class="screen" id="scrHist" hidden>
   <div class="wrap">
     <h2 class="h2" data-t="histH"></h2>
@@ -172,6 +183,7 @@
 
 <nav class="tabs" id="tabs">
   <button type="button" data-go="scrTest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg><span data-t="tabTest"></span></button>
+  <button type="button" data-go="scrL1" id="tabL1" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg><span data-t="tabL1"></span></button>
   <button type="button" data-go="scrHist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span data-t="tabHist"></span></button>
   <button type="button" data-go="scrSet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-t="tabSet"></span></button>
 </nav>
