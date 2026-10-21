@@ -311,7 +311,7 @@ var EX={on:false,base:0,goal:0,set:0,state:'',t0:0,raf:0,restT:0,end:0,last:3,ct
 var exPrg=$('exPrg'),exBox=$('exBox');
 (function(){var m=box.querySelector('.mascot');if(m)$('exFace').insertBefore(m.cloneNode(true),$('exFace').firstChild);})();
 function X(k,o){var t=D.X[k];for(var n in o)t=t.replace('{'+n+'}',o[n]);return t;}
-function exDots(){var d=$('exDots');d.innerHTML='';var n=EX.last+(EX.ctrl?1:0);for(var i=1;i<=n;i++){var e=document.createElement('span');e.textContent=i<=EX.last?String(i):D.X.ctrlShort;
+function exDots(){var d=$('exDots');d.innerHTML='';var n=EX.last+(EX.ctrl?1:0);for(var i=1;i<=n;i++){var e=document.createElement('span');e.textContent=i<=EX.last?'':D.X.ctrlShort;
   var cur=EX.state==='res'?n+1:(EX.set||1);e.className=i<cur?'ok':(i===cur?'cur':'');if(i<cur)e.textContent='✓';d.appendChild(e);}}
 function exCard(h,t,btn){$('exH').textContent=h;$('exT').textContent=t;var g=$('exGo');g.classList.toggle('wait',!btn);g.disabled=!btn;g.textContent=btn||D.start;g.classList.toggle('stop',btn===D.X.stopW);}  // during rest START stays in place, greyed, so nothing jumps
 function exRing(cls,time,lbl,cap){exBox.className='ringbox '+cls;$('exTime').textContent=time||'';$('exLbl').textContent=lbl||'';$('exCap').innerHTML=cap||'';}
