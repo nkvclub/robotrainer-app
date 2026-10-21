@@ -308,9 +308,9 @@ if(P.App&&P.App.addListener){P.App.addListener('backButton',function(){
 
 /* ---------- exercise after the test, like on the site (Nov 2026-10-19): 30 s to catch the breath, set 1 = exhale hold as long as you can (the measure),
    set 2 and 3 = at least 5 s longer than the set before, 30 s rest before each, then a control INHALE hold compared with step 1 of the test, gain in percent.
-   Works like the site's trainer (Nov 2026-10-21): exhale sets start by themselves when the rest ends, you only tap STOP; the ring is red until the goal and turns green
+   Works like the site's trainer (Nov 2026-10-21): every hold starts with START, the ring is red until the goal and turns green
    when it is reached, no goal numbers to read or count */
-var EX={on:false,base:0,goal:0,state:'',t0:0,raf:0,restT:0,l1:0,m:0,steps:[],i:0,res:[],miss:[]};  // steps: 'in' = inhale hold (START by hand), 'ex' = exhale set (starts by itself after the rest); l1 = Level 1 day number
+var EX={on:false,base:0,goal:0,state:'',t0:0,raf:0,restT:0,l1:0,m:0,steps:[],i:0,res:[],miss:[]};  // steps: 'in' = inhale hold, 'ex' = exhale set; l1 = Level 1 day number
 var exPrg=$('exPrg'),exBox=$('exBox');
 (function(){var m=box.querySelector('.mascot');if(m)$('exFace').insertBefore(m.cloneNode(true),$('exFace').firstChild);})();
 function X(k,o){var t=D.X[k];for(var n in o)t=t.replace('{'+n+'}',o[n]);return t;}
@@ -325,13 +325,13 @@ function exNo(){var n=0;for(var i=0;i<=EX.i;i++)if(EX.steps[i]==='ex')n++;return
 function exHead(){if(EX.steps[EX.i]==='in')return EX.i?D.X.ctrl:D.X.ctrl0;var n=exNo();return X('setH',{n:n})+(EX.goal?' '+D.X.plus5:'');}
 function exGoal(){var p=0;for(var i=0;i<EX.i;i++)if(EX.steps[i]==='ex')p=EX.res[i];return EX.steps[EX.i]==='ex'&&p?p+5:0;}  // site rule: each set at least 5 s longer than the one before; the first one is as long as you can
 function exReady(){exStopTimers();EX.state='ready';EX.goal=exGoal();exDots();exPrg.style.transition='';exPrg.style.stroke=acc();exPrg.style.strokeDashoffset=C;
-  var inh=EX.steps[EX.i]==='in';exCard(exHead(),EX.short?D.X.short:(inh?D.X.inT:D.X.exT),D.start);
+  var inh=EX.steps[EX.i]==='in';exCard(exHead(),EX.short?D.X.short:(inh?D.X.inT:(EX.goal?D.X.exT2:D.X.exT)),D.start);
   exRing('idle ready','','',EX.short?D.X.shortCap:(inh?D.X.ctrlCap+'<small>'+D.X.ctrlSub+'</small>':D.X.m1+'<small>'+D.X.m1Sub+'</small>'));}
-function exRest(sec,txt,head){exStopTimers();EX.state='rest';exDots();var inh=EX.steps[EX.i]==='in',hd=head||D.X.restH,wt=inh?D.start:D.X.stopW;exCard(hd,txt,'',wt);var soon=false;
+function exRest(sec,txt,head){exStopTimers();EX.state='rest';exDots();var inh=EX.steps[EX.i]==='in',hd=head||D.X.restH,wt=D.start;exCard(hd,txt,'',wt);var soon=false;
   var end=Date.now()+sec*1000;exPrg.style.stroke=acc();
   var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),left>10?D.X.firstPill:(inh?D.X.soonIn:D.X.soonOut),'');exPrg.style.strokeDashoffset=C*(1-left/sec);
     if(left<=10&&left>0&&!soon){soon=true;exCard(hd,inh?D.X.soonInT:D.X.soonEx,'',wt);}  // read what comes next before it comes
-    if(left<=0){clearInterval(EX.restT);EX.restT=0;if(inh){beep(880);exReady();}else{EX.short=false;exStart();}}};  // exhale sets start by themselves, like on the site: you only tap STOP
+    if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);exReady();}};  // every hold starts with your own START tap, like the site's red button (Nov 2026-10-21)
   paint();EX.restT=setInterval(paint,250);}
 function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';
   if(inh){exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));exBox.style.setProperty('--puff',Math.min(s/50,1).toFixed(3));}
@@ -400,7 +400,7 @@ $('payRestore').addEventListener('click',function(){if(PAY.busy)return;track('pa
 
 /* ---------- «Уровень 1» (paid), taken from the site's level I trainer (Nov 2026-10-21): inhale hold before -> 30 s rest -> 4 exhale sets
    (the first as long as you can, each next one at least 5 s longer than the one before) with 30 s rest between -> inhale hold after.
-   The chart shows the inhale hold before and after every session, like the site's «Результаты I уровня». Up to 3 sessions a day, 21 days. ---------- */
+   Every hold starts with START. The chart shows the inhale hold before and after every session, like the site's «Результаты I уровня». Up to 3 sessions a day, 21 days. ---------- */
 var L1={start:0,base:0,s:[]};
 function dkey(t){var d=new Date(t);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
 function l1Days(){var k=[];L1.s.forEach(function(x){var q=dkey(x.d);if(k.indexOf(q)<0)k.push(q);});return k;}
