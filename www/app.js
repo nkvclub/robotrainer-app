@@ -318,7 +318,7 @@ function exDots(){var d=$('exDots');d.innerHTML='';EX.steps.forEach(function(k,i
   e.textContent=k==='in'?D.X.ctrlShort:'';var done=EX.state==='res'||i<EX.i;
   e.className=done?(EX.miss[i]?'miss':'ok'):(i===EX.i?'cur':'');if(done&&!EX.miss[i]&&k!=='in')e.textContent='✓';d.appendChild(e);});}
 function exCard(h,t,btn,wait){$('exH').textContent=h;$('exT').textContent=t;var g=$('exGo');g.classList.toggle('wait',!btn);g.disabled=!btn;g.textContent=btn||wait||D.start;g.classList.toggle('stop',btn===D.X.stopW);}  // during rest the button stays in place, greyed, so nothing jumps
-function exRing(cls,time,lbl,cap){exBox.className='ringbox '+cls;$('exTime').textContent=time||'';$('exLbl').textContent=lbl||'';$('exCap').innerHTML=cap||'';$('exTap').textContent=/ready/.test(cls)?D.X.tapGo:(/hold/.test(cls)?D.X.tapStop:'');}  // the circle is a button too, like the site's big red one
+function exRing(cls,time,lbl,cap){exBox.className='ringbox '+cls;$('exTime').textContent=time||'';$('exLbl').textContent=lbl||'';$('exCap').innerHTML=cap||'';$('exTap').textContent=/ready/.test(cls)?(EX.short?D.X.tapGo:''):(/hold| rest$/.test(cls)?D.X.tapStop:'');}  // the circle is a button too, like the site's big red one
 function exStopTimers(){cancelAnimationFrame(EX.raf);clearInterval(EX.restT);EX.restT=0;}
 /* step head, as the site's cards: «Замер на вдохе», «Подход 1», «Подход 2 (+5 сек)» */
 function exNo(){var n=0;for(var i=0;i<=EX.i;i++)if(EX.steps[i]==='ex')n++;return n;}
@@ -330,10 +330,13 @@ function exStepT(){var k=EX.steps[EX.i];return k==='in'?D.X.inT:(exGoal()?D.X.ex
 function exReady(){exStopTimers();EX.state='ready';EX.goal=exGoal();exDots();exPrg.style.transition='';exPrg.style.stroke=EX.goal?col(0):acc();exPrg.style.strokeDashoffset=C;
   exCard(exHead(),exStepT(),'');
   exRing('idle ready'+(EX.goal?' goal':''),'','',EX.short?D.X.shortCap+'<small>'+D.X.shortSub+'</small>':D.X.readyQ);}  // the circle never repeats the card's head
-function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(D.X.restH,!EX.l1&&!EX.i?D.X.restT0:D.X.restT,'');var last=EX.res[EX.i-1];  // like the site: the card is the step that runs NOW; nothing starts by itself after the rest
-  var end=Date.now()+sec*1000;exPrg.style.transition='none';exPrg.style.stroke=acc();exPrg.getBoundingClientRect();exPrg.style.transition='';  // blue at once, no green/red fading into it
-  var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),D.X.restPill,'');if(last)$('exTap').textContent=X('was',{t:last});  // own time of the last hold, so the next goal makes senseexPrg.style.strokeDashoffset=C*(1-left/sec);
-    if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);exReady();}};  // one buzz: the next step's card is up, tap the circle when ready
+function exRest(sec){exStopTimers();EX.state='restwait';EX.restS=sec;exDots();exCard(D.X.restH,D.X.restT,'');  // Nov 2026-10-21: nothing runs by itself, the rest starts with СТАРТ on the circle too
+  exPrg.style.transition='none';exPrg.style.stroke=acc();exPrg.style.strokeDashoffset=0;exPrg.getBoundingClientRect();exPrg.style.transition='';
+  exRing('idle restwait','','',D.X.readyQ);}
+function exRestGo(){var sec=EX.restS,last=EX.res[EX.i-1],end=Date.now()+sec*1000;EX.state='rest';
+  var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),last?X('was',{t:last}):D.X.restPill,'');  // own time of the last hold, so the next goal makes sense
+    exPrg.style.strokeDashoffset=C*(1-left/sec);
+    if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);exReady();}};  // one buzz: the next step's card is up, the circle waits for СТАРТ
   paint();EX.restT=setInterval(paint,250);}
 function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';
   $('exTime').textContent=Math.floor(s);
@@ -369,8 +372,8 @@ var exIntroGo=null;
 $('exIntroGo').addEventListener('click',function(){$('exIntro').hidden=true;document.body.classList.remove('lock');var g=exIntroGo;exIntroGo=null;if(g)g();});
 $('exHow').addEventListener('click',function(){track('ex_how');exIntro(EX.intro||D.X.introL,null);});
 function exClose(){exStopTimers();clearTimeout(EX.tmo);var l=EX.l1;EX.on=false;EX.state='';awake(false);go(l?'scrL1':'scrTest');if(l)l1Render();}
-function exTapGo(){if(EX.state==='ready')exStart();else if(EX.state==='hold'&&performance.now()-EX.t0>1000)exEnd();}  // a double tap (circle + button) must not stop the hold it just started
-$('exGo').addEventListener('click',exTapGo);exBox.addEventListener('click',function(){if(!$('exTap').textContent)return;exTapGo();});
+function exTapGo(){if(EX.state==='restwait')exRestGo();else if(EX.state==='rest')exReady();else if(EX.state==='ready')exStart();else if(EX.state==='hold'&&performance.now()-EX.t0>1000)exEnd();}  // a double tap (circle + button) must not stop the hold it just started
+$('exGo').addEventListener('click',exTapGo);exBox.addEventListener('click',exTapGo);
 $('exQuit').addEventListener('click',function(){track('ex_quit');exClose();});
 $('exHome').addEventListener('click',exClose);
 $('exMail').addEventListener('click',openEmail);
