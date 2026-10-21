@@ -424,7 +424,7 @@ function l1Chart(){var el=$('l1Chart');el.innerHTML='';
   el.innerHTML=svg;}
 function l1Render(){if(!$('l1H'))return;var T=D.L1,n=l1DayN(),k=l1Today(),days=l1Days().length;
   $('l1H').textContent=T.h;$('l1Day').textContent=days>=21?T.fin:T1('day',{n:n});
-  var g=$('l1Grid');g.innerHTML='';for(var i=1;i<=21;i++){var e=document.createElement('span');e.textContent=i;e.className=i<=days?'ok':(i===n?'cur':'');if(i%7===0)e.classList.add('wk');g.appendChild(e);}
+  var g=$('l1Grid');g.innerHTML='';for(var i=1;i<=21;i++){var e=document.createElement('span');e.textContent=i;e.className=i<=days?'ok':(i===n?'cur':'');g.appendChild(e);}
   var b=$('l1Go');b.hidden=k>=3;b.textContent=k?T.goMore:T.go;
   $('l1Sub').textContent=k>=3?T.full:(k?T1('done',{k:k}):T.sub+' '+T.when);
   var sm=$('l1Sum');sm.innerHTML='';var cell=function(t,v,c){var d=document.createElement('div');d.className='hs';var bb=document.createElement('b');bb.textContent=v;if(c)bb.style.color=c;var s=document.createElement('span');s.textContent=t;d.appendChild(bb);d.appendChild(s);sm.appendChild(d);};
