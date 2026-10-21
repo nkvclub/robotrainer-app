@@ -138,3 +138,8 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 .extap{position:absolute;left:18%;right:18%;bottom:21%;white-space:nowrap;overflow:hidden;text-align:center;color:#fff;font-size:min(12px,4.6cqw);font-weight:800;text-transform:uppercase;letter-spacing:.04em;opacity:.9;pointer-events:none;z-index:3}
 .extap:empty{display:none}
 #exBox:has(.extap:not(:empty)){cursor:pointer}
+/* calm screen like the site's trainer: the step card on top, the circle under it is the only button */
+#scrEx #exGo{display:none}
+#scrEx:not(.res) .exhead{order:0}#scrEx:not(.res) #exCard{order:1}#scrEx:not(.res) #exBox{order:2}#scrEx:not(.res) #exNote,#scrEx:not(.res) .exlinks{order:3}
+#exBox.ready .excap{font-size:min(22px,8.5cqw)}
+#exBox.ready.goal .face{background:radial-gradient(circle at 35% 30%,#ff6f6b,var(--red) 70%)}

@@ -324,37 +324,35 @@ function exStopTimers(){cancelAnimationFrame(EX.raf);clearInterval(EX.restT);EX.
 function exNo(){var n=0;for(var i=0;i<=EX.i;i++)if(EX.steps[i]==='ex')n++;return n;}
 function exHead(){if(EX.steps[EX.i]==='in')return EX.i?D.X.ctrl:D.X.ctrl0;var n=exNo();return X('setH',{n:n})+(EX.goal?' '+D.X.plus5:'');}
 function exGoal(){var p=0;for(var i=0;i<EX.i;i++)if(EX.steps[i]==='ex')p=EX.res[i];return EX.steps[EX.i]==='ex'&&p?p+5:0;}  // site rule: each set at least 5 s longer than the one before; the first one is as long as you can
-function exReady(){exStopTimers();EX.state='ready';EX.goal=exGoal();exDots();exPrg.style.transition='';exPrg.style.stroke=acc();exPrg.style.strokeDashoffset=C;
-  var inh=EX.steps[EX.i]==='in';exCard(exHead(),EX.short?D.X.short:(inh?D.X.inT:(EX.goal?D.X.exT2:D.X.exT)),D.start);
-  exRing('idle ready','','',EX.short?D.X.shortCap:(inh?D.X.ctrlCap+'<small>'+D.X.ctrlSub+'</small>':D.X.m1+'<small>'+D.X.m1Sub+'</small>'));}
-function exRest(sec,txt,head){exStopTimers();EX.state='rest';exDots();var inh=EX.steps[EX.i]==='in',hd=head||D.X.restH,wt=D.start;exCard(hd,txt,'',wt);var soon=false;
+/* a calm screen like the site's trainer (Nov 2026-10-21): one card per step on top, its text never changes while the step runs;
+   the circle is the only button («жми — старт / стоп»); a hold goes straight into the 30 s ventilation, no messages in between */
+function exStepT(){var k=EX.steps[EX.i];return k==='in'?D.X.inT:(exGoal()?D.X.exT2:D.X.exT);}
+function exReady(){exStopTimers();EX.state='ready';EX.goal=exGoal();exDots();exPrg.style.transition='';exPrg.style.stroke=EX.goal?col(0):acc();exPrg.style.strokeDashoffset=C;
+  exCard(exHead(),exStepT(),'');
+  exRing('idle ready'+(EX.goal?' goal':''),'','',EX.short?D.X.shortCap+'<small>'+D.X.shortSub+'</small>':exHead());}
+function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(D.X.restH,D.X.restT,'');
   var end=Date.now()+sec*1000;exPrg.style.stroke=acc();
-  var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),left>10?D.X.firstPill:(inh?D.X.soonIn:D.X.soonOut),'');exPrg.style.strokeDashoffset=C*(1-left/sec);
-    if(left<=10&&left>0&&!soon){soon=true;exCard(hd,inh?D.X.soonInT:D.X.soonEx,'',wt);}  // read what comes next before it comes
-    if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);exReady();}};  // every hold starts with your own START tap, like the site's red button (Nov 2026-10-21)
+  var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),D.X.firstPill,'');exPrg.style.strokeDashoffset=C*(1-left/sec);
+    if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);exReady();}};  // one buzz: the next step's card is up, tap the circle when ready
   paint();EX.restT=setInterval(paint,250);}
 function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';
-  if(inh){exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));exBox.style.setProperty('--puff',Math.min(s/50,1).toFixed(3));}
-  else{$('exTime').textContent=Math.floor(s);
-    if(EX.goal){exPrg.style.strokeDashoffset=C*(1-Math.min(s/EX.goal,1));
-      if(s>=EX.goal&&!EX.hit){EX.hit=true;beep(880);exPrg.style.stroke=col(2);exBox.classList.add('hit');$('exLbl').textContent=D.X.hitPill;$('exT').textContent=D.X.hitT;}}  // red until the goal, green after, like the site's button
-    else exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));}
+  $('exTime').textContent=Math.floor(s);
+  if(inh){exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));}
+  else if(EX.goal){exPrg.style.strokeDashoffset=C*(1-Math.min(s/EX.goal,1));
+    if(s>=EX.goal&&!EX.hit){EX.hit=true;beep(880);exPrg.style.stroke=col(2);exBox.classList.add('hit');$('exLbl').textContent=D.X.hitPill;}}  // red until the goal, green after, like the site's button
+  else exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));
   EX.raf=requestAnimationFrame(exHoldTick);}
 function exStart(){EX.state='hold';EX.hit=false;EX.short=false;EX.goal=exGoal();EX.t0=performance.now();beep(880);awake(true);exDots();
-  if(EX.steps[EX.i]==='in'){exPrg.style.stroke=acc();exCard(exHead(),D.holdT,D.X.stopW);exRing('hold','','',D.X.going);}
-  else{exPrg.style.stroke=EX.goal?col(0):acc();exCard(exHead(),EX.goal?D.X.goT:D.X.holdT,D.X.stopW);exRing('exhold'+(EX.goal?' goal':''),'0',EX.goal?D.X.redPill:D.X.m1Pill,'');}
+  exPrg.style.stroke=EX.goal?col(0):acc();exRing('exhold'+(EX.goal?' goal':''),'0',EX.goal?D.X.redPill:D.X.m1Pill,'');
   EX.raf=requestAnimationFrame(exHoldTick);}
-function exEnd(){cancelAnimationFrame(EX.raf);var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';exBox.style.setProperty('--puff',0);beep(330);
+function exEnd(){cancelAnimationFrame(EX.raf);var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';beep(330);
   if(s<5){EX.short=true;track('ex_short');exReady();return;}
   var r=Math.round(s);EX.res[EX.i]=r;
   if(EX.goal&&!EX.hit)EX.miss[EX.i]=true;
   track(inh?'ex_ctrl_done':(EX.goal?(EX.hit?'ex_set_full':'ex_set_early'):'ex_m1_done'));
   if(inh&&EX.i===EX.steps.length-1){awake(false);EX.i++;exResult(s);return;}
   if(!inh)EX.m=Math.max(EX.m,r);
-  EX.state='breathe';var hd=exHead(),txt=inh?D.X.afterIn:(!EX.goal?D.X.afterM:(EX.hit?D.X.afterFull:D.X.afterEarly));
-  exCard(hd,txt,'');exRing('idle'+(EX.hit?' hit':''),'','',X('got',{t:r}));exPrg.style.stroke=EX.goal?(EX.hit?col(2):getComputedStyle(document.documentElement).getPropertyValue('--muted').trim()):acc();
-  EX.i++;
-  setTimeout(function(){if(!EX.on)return;exRest(30,EX.steps[EX.i]==='in'?D.X.restLongT:D.X.restT);},2500);}
+  EX.i++;exRest(30);}
 function exResult(s){if(EX.l1){l1Done(s);return;}EX.state='res';exDots();var a=Math.round(EX.base),b=Math.round(s),up=EX.up=b>a,d=Math.max(1,Math.round((b-a)/a*100));  // control is an inhale hold, compared with step 1 of the test, gain in percent
   var h=history[0];if(h&&h.d===EX.hd){h.ex=b;store.set('history',history);}
   exCard('',up?X('up',{p:d}):D.X.flat,'');
@@ -364,7 +362,7 @@ function exResult(s){if(EX.l1){l1Done(s);return;}EX.state='res';exDots();var a=M
 function exOpen(){if(!history[0]||!(ts.exhale>=5))return;track('ex_open');
   EX={on:true,base:ts.inhale,goal:0,state:'',hd:history[0].d,l1:0,m:0,steps:['ex','ex','ex','in'],i:0,res:[],miss:[]};  // control is an inhale, like step 1 of the test
   $('exTtl').textContent=D.X.ttl;$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHow').textContent=D.X.howLink;$('exMail').textContent=D.cta;$('exHome').textContent=D.X.home;$('exMail').hidden=false;
-  $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exHow').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');exRing('idle ready','','','');exCard(D.X.howH,'','');exIntro(D.X.introL,function(){exRest(30,D.X.howT,D.X.howH);});}  // the how-to is read before any timer runs  // 30 s to catch the breath after the squats, with what comes next
+  $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exHow').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');exRing('idle ready','','','');exCard(D.X.restH,'','');exIntro(D.X.introL,function(){exRest(30);});}  // the how-to is read before any timer runs  // 30 s to catch the breath after the squats, with what comes next
 function exIntro(list,go){var T=D.X;EX.intro=list;$('exIntroH').textContent=T.introH;var l=$('exIntroL');l.innerHTML='';list.forEach(function(t){var li=document.createElement('li');li.textContent=t;l.appendChild(li);});
   $('exIntroEnd').textContent=T.introEnd;$('exIntroGo').textContent=go?T.introGo:D.close;exIntroGo=go;$('exIntro').hidden=false;document.body.classList.add('lock');}
 var exIntroGo=null;
