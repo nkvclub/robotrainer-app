@@ -380,7 +380,7 @@ $('exMail').addEventListener('click',openEmail);
 /* ---------- «Уровень 1»: yearly subscription (billing.js), Google Play build only ---------- */
 var PAY=window.RT_PAY,payAsk='';
 function payPrice(){return PAY.price||'$3.99';}
-function payRender(){var T=D.PAY,show=PAY.available&&!PAY.owned&&EX.state==='res'&&!EX.l1&&EX.up;  // offer only after a gain, never right after «no gain today»
+function payRender(){var T=D.PAY,show=PAY.available&&!PAY.owned&&EX.state==='res'&&!EX.l1;  // Nov 2026-10-21: both outcomes lead to Level 1 (gain: «what about a year?», no gain: «room to grow»)
   $('exPay').hidden=!show;$('exPay').textContent=T.btn.replace('{p}',payPrice());if(EX.l1)return payRenderSheet(T);$('exMail').className=show?'again':'cta';$('exHome').className=show?'exquit':'again';  // three buttons do not fit a small screen, home becomes a link
   payRenderSheet(T);}
 function payRenderSheet(T){
