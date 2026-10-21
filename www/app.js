@@ -329,7 +329,7 @@ function exGoal(){var p=0;for(var i=0;i<EX.i;i++)if(EX.steps[i]==='ex')p=EX.res[
 function exStepT(){var k=EX.steps[EX.i];return k==='in'?D.X.inT:(exGoal()?D.X.exT2:D.X.exT);}
 function exReady(){exStopTimers();EX.state='ready';EX.goal=exGoal();exDots();exPrg.style.transition='';exPrg.style.stroke=EX.goal?col(0):acc();exPrg.style.strokeDashoffset=C;
   exCard(exHead(),exStepT(),'');
-  exRing('idle ready'+(EX.goal?' goal':''),'','',EX.short?D.X.shortCap+'<small>'+D.X.shortSub+'</small>':exHead());}
+  exRing('idle ready'+(EX.goal?' goal':''),'','',EX.short?D.X.shortCap+'<small>'+D.X.shortSub+'</small>':D.X.readyQ);}  // the circle never repeats the card's head
 function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(exHead(),exStepT(),'');  // the card already shows the NEXT step, so it is read during the 30 s, not while a timer waits (Nov 2026-10-21)
   var end=Date.now()+sec*1000;exPrg.style.stroke=acc();
   var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),D.X.restPill,'');exPrg.style.strokeDashoffset=C*(1-left/sec);
