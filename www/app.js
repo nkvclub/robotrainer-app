@@ -327,7 +327,7 @@ function exGoal(){var p=0;for(var i=0;i<EX.i;i++)if(EX.steps[i]==='ex')p=EX.res[
 /* a calm screen like the site's trainer (Nov 2026-10-21): one short card for the step that runs now, unchanged until it ends;
    the circle is the only button («жми — старт / стоп»); a hold goes straight into the 30 s ventilation, no messages in between */
 function exStepT(){var k=EX.steps[EX.i];return k==='in'?D.X.inT:(exGoal()?D.X.exT2:D.X.exT);}
-function exReady(){exStopTimers();EX.state='ready';EX.goal=exGoal();exDots();exPrg.style.transition='';exPrg.style.stroke=EX.goal?col(0):acc();exPrg.style.strokeDashoffset=C;
+function exReady(){exStopTimers();EX.state='ready';EX.tReady=performance.now();EX.goal=exGoal();exDots();exPrg.style.transition='';exPrg.style.stroke=EX.goal?col(0):acc();exPrg.style.strokeDashoffset=C;
   exCard(exHead(),exStepT(),'');
   exRing('idle ready'+(EX.goal?' goal':''),'','',EX.short?D.X.shortCap+'<small>'+D.X.shortSub+'</small>':D.X.readyQ);}  // the circle never repeats the card's head
 function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(D.X.restH,D.X.restT,'');var last=EX.res[EX.i-1],end=Date.now()+sec*1000;  // Nov 2026-10-21: the rest runs by itself right after СТОП (or «Понятно, начинаем»); only holds need СТАРТ/СТОП
@@ -370,7 +370,7 @@ var exIntroGo=null;
 $('exIntroGo').addEventListener('click',function(){$('exIntro').hidden=true;document.body.classList.remove('lock');var g=exIntroGo;exIntroGo=null;if(g)g();});
 $('exHow').addEventListener('click',function(){track('ex_how');exIntro(EX.intro||D.X.introL,null);});
 function exClose(){exStopTimers();clearTimeout(EX.tmo);var l=EX.l1;EX.on=false;EX.state='';awake(false);go(l?'scrL1':'scrTest');if(l)l1Render();}
-function exTapGo(){if(EX.state==='ready')exStart();else if(EX.state==='hold'&&performance.now()-EX.t0>1000)exEnd();}  // a double tap (circle + button) must not stop the hold it just started
+function exTapGo(){if(EX.state==='ready'&&performance.now()-(EX.tReady||0)>700)exStart();else if(EX.state==='hold'&&performance.now()-EX.t0>1000)exEnd();}  // a double tap (circle + button) must not stop the hold it just started
 $('exGo').addEventListener('click',exTapGo);exBox.addEventListener('click',exTapGo);
 $('exQuit').addEventListener('click',function(){track('ex_quit');exClose();});
 $('exHome').addEventListener('click',exClose);

@@ -145,3 +145,5 @@ body.vbcap-on #box .lbl{display:none!important}
 #exBox.ready.goal .face{background:radial-gradient(circle at 35% 30%,#ff6f6b,var(--red) 70%)}
 
 #exBox.ready .excap{font-size:min(34px,13cqw);font-weight:900;letter-spacing:.06em}  /* СТАРТ on the circle, like the test */
+#scrEx:not(.res) #exT{line-height:1.3;min-height:5.2em}  /* room for 4 lines, so the circle never jumps between steps */
+.sheet>*{flex-shrink:0}  /* a long how-to scrolls; the button keeps its full height */
