@@ -158,3 +158,6 @@ body.vbcap-on #box .lbl{display:none!important}
 .ofrow b{font-size:15px;font-weight:800;color:var(--muted)}
 .exoffer .oftxt{margin:2px 0 0;font-size:14px;font-weight:700;color:var(--fg);text-wrap:balance}
 .paynote{text-align:center;line-height:1.35}
+.ofrow figure{padding:6px 8px;border-radius:14px;border:2px solid transparent}
+.ofrow .ofwin{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent);cursor:pointer}  /* the medal is the picked choice and a button */
+.ofrow figure:not(.ofwin){opacity:.7}
