@@ -122,3 +122,15 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 .exlinks{display:flex;justify-content:center;gap:4px;flex-wrap:wrap}
 .exlinks[hidden],.exlinks:has(.exquit[hidden]+.exquit[hidden]){display:none}
 .exlinks .exquit{padding:6px 8px}
+/* exercise like the site's trainer: red ring until the goal, green once it is reached; a missed set's dot goes grey */
+.exdots span.miss{background:color-mix(in srgb,var(--muted) 45%,transparent);color:#fff}
+#exBox.exhold.goal .lbl{color:var(--red)}
+#exBox.hit .lbl{color:var(--green)}
+.l1svg .ln2{stroke:var(--orange)}.l1svg .pt2{stroke:var(--orange)}.l1svg .lbv{fill:var(--orange)}
+.l1leg{display:flex;gap:14px;justify-content:center;font-size:12px;color:var(--muted);margin-top:4px}
+.l1leg i{display:inline-block;width:10px;height:10px;border-radius:5px;background:var(--accent);margin-right:5px;vertical-align:-1px}.l1leg i.o{background:var(--orange)}
+/* the whole circle is red while the goal is ahead and turns green when it is reached, like the site's big button */
+#exBox.goal .face{background:radial-gradient(circle at 35% 30%,#ff6f6b,var(--red) 70%);box-shadow:0 12px 40px rgba(229,57,53,.35),inset 0 -6px 18px rgba(0,0,0,.18)}
+#exBox.hit .face{background:radial-gradient(circle at 35% 30%,#7bd27f,var(--green) 70%);box-shadow:0 12px 40px rgba(67,160,71,.35),inset 0 -6px 18px rgba(0,0,0,.18)}
+#exBox.exhold.goal.hit .lbl{color:var(--green)}
+#exBox .face{transition:background .3s,transform .15s}
