@@ -119,3 +119,6 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 .l1svg .lbv{fill:var(--accent);font-size:12px;font-weight:800}
 #l1Sum{grid-template-columns:repeat(3,minmax(0,1fr))}
 #l1Sum .hs span{overflow-wrap:anywhere}
+.exlinks{display:flex;justify-content:center;gap:4px;flex-wrap:wrap}
+.exlinks[hidden],.exlinks:has(.exquit[hidden]+.exquit[hidden]){display:none}
+.exlinks .exquit{padding:6px 8px}
