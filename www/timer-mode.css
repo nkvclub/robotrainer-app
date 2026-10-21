@@ -148,3 +148,13 @@ body.vbcap-on #box .lbl{display:none!important}
 #scrEx:not(.res) #exT{line-height:1.3;min-height:5.2em}  /* room for 4 lines, so the circle never jumps between steps */
 .sheet>*{flex-shrink:0}  /* a long how-to scrolls; the button keeps its full height */
 #scrEx.res:has(#exPay:not([hidden])) #exBox.done{width:min(290px,calc(100vw - 60px),29dvh)}  /* with the Level 1 offer there are 3 buttons; a smaller face keeps them all on a small screen */
+
+.exoffer{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.exoffer .ofh{margin:0;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.ofrow{display:flex;align-items:center;justify-content:center;gap:14px}
+.ofrow figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:1px}
+.ofrow svg{width:58px;height:52px}
+.ofrow figcaption{font-size:12px;font-weight:700;color:var(--fg)}
+.ofrow b{font-size:15px;font-weight:800;color:var(--muted)}
+.exoffer .oftxt{margin:2px 0 0;font-size:14px;font-weight:700;color:var(--fg);text-wrap:balance}
+.paynote{text-align:center;line-height:1.35}
