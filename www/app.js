@@ -330,7 +330,7 @@ function exStepT(){var k=EX.steps[EX.i];return k==='in'?D.X.inT:(exGoal()?D.X.ex
 function exReady(){exStopTimers();EX.state='ready';EX.goal=exGoal();exDots();exPrg.style.transition='';exPrg.style.stroke=EX.goal?col(0):acc();exPrg.style.strokeDashoffset=C;
   exCard(exHead(),exStepT(),'');
   exRing('idle ready'+(EX.goal?' goal':''),'','',EX.short?D.X.shortCap+'<small>'+D.X.shortSub+'</small>':D.X.readyQ);}  // the circle never repeats the card's head
-function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(D.X.restH,D.X.restT,'');var last=EX.res[EX.i-1];  // like the site: the card is the step that runs NOW; nothing starts by itself after the rest
+function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(D.X.restH,!EX.l1&&!EX.i?D.X.restT0:D.X.restT,'');var last=EX.res[EX.i-1];  // like the site: the card is the step that runs NOW; nothing starts by itself after the rest
   var end=Date.now()+sec*1000;exPrg.style.transition='none';exPrg.style.stroke=acc();exPrg.getBoundingClientRect();exPrg.style.transition='';  // blue at once, no green/red fading into it
   var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),D.X.restPill,'');if(last)$('exTap').textContent=X('was',{t:last});  // own time of the last hold, so the next goal makes senseexPrg.style.strokeDashoffset=C*(1-left/sec);
     if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);exReady();}};  // one buzz: the next step's card is up, tap the circle when ready
