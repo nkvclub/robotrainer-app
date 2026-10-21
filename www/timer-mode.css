@@ -134,3 +134,7 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 #exBox.hit .face{background:radial-gradient(circle at 35% 30%,#7bd27f,var(--green) 70%);box-shadow:0 12px 40px rgba(67,160,71,.35),inset 0 -6px 18px rgba(0,0,0,.18)}
 #exBox.exhold.goal.hit .lbl{color:var(--green)}
 #exBox .face{transition:background .3s,transform .15s}
+/* «жми, чтобы начать / остановить» at the bottom of the circle, like the site's button; the whole circle can be tapped */
+.extap{position:absolute;left:18%;right:18%;bottom:21%;white-space:nowrap;overflow:hidden;text-align:center;color:#fff;font-size:min(12px,4.6cqw);font-weight:800;text-transform:uppercase;letter-spacing:.04em;opacity:.9;pointer-events:none;z-index:3}
+.extap:empty{display:none}
+#exBox:has(.extap:not(:empty)){cursor:pointer}
