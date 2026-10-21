@@ -56,9 +56,9 @@ function awake(on){clearTimeout(awakeT);if(!P.KeepAwake)return;
 var ac=null,acT=0;  // the sound chip sleeps after a quiet minute or when the app is hidden (battery); never during a hold or rest, so timer beeps always sound
 function beep(f){
   if(S.snd){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();clearTimeout(acT);acT=setTimeout(function(){if(ac&&!run&&!restT&&!EX.on)ac.suspend();},60000);var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.25);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.25);}catch(e){}}
-  // in the exercise the phone tells what to do by feel: long buzz = breathe / go, short = 10 s left, tick = start/stop
-  var ms=EX.on?({880:450,520:180}[f]||90):0;
-  if(S.vib){if(ms&&P.Haptics&&P.Haptics.vibrate){P.Haptics.vibrate({duration:ms}).catch(function(){});}else if(P.Haptics){P.Haptics.impact({style:'MEDIUM'}).catch(function(){});}else{try{navigator.vibrate&&navigator.vibrate(ms||60);}catch(e){}}}
+  // in the exercise there is one kind of buzz, only when something must be done now (breathe, or tap START); no codes to learn
+  if(EX.on&&f!==880)f=0;var ms=EX.on?400:0;
+  if(S.vib&&f){if(ms&&P.Haptics&&P.Haptics.vibrate){P.Haptics.vibrate({duration:ms}).catch(function(){});}else if(P.Haptics){P.Haptics.impact({style:'MEDIUM'}).catch(function(){});}else{try{navigator.vibrate&&navigator.vibrate(ms||60);}catch(e){}}}
 }
 
 /* ---------- screens ---------- */
