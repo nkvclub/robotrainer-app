@@ -318,7 +318,7 @@ function exDots(){var d=$('exDots');d.innerHTML='';EX.steps.forEach(function(k,i
   e.textContent=k==='in'?D.X.ctrlShort:'';var done=EX.state==='res'||i<EX.i;
   e.className=done?(EX.miss[i]?'miss':'ok'):(i===EX.i?'cur':'');if(done&&!EX.miss[i]&&k!=='in')e.textContent='✓';d.appendChild(e);});}
 function exCard(h,t,btn,wait){$('exH').textContent=h;$('exT').textContent=t;var g=$('exGo');g.classList.toggle('wait',!btn);g.disabled=!btn;g.textContent=btn||wait||D.start;g.classList.toggle('stop',btn===D.X.stopW);}  // during rest the button stays in place, greyed, so nothing jumps
-function exRing(cls,time,lbl,cap){exBox.className='ringbox '+cls;$('exTime').textContent=time||'';$('exLbl').textContent=lbl||'';$('exCap').innerHTML=cap||'';$('exTap').textContent=/ready/.test(cls)?(EX.short?D.X.tapGo:''):(/hold/.test(cls)?D.X.tapStop:'');}  // the circle is a button too, like the site's big red one
+function exRing(cls,time,lbl,cap){exBox.className='ringbox '+cls;$('exTime').textContent=time||'';$('exLbl').textContent=lbl||'';$('exCap').innerHTML=cap||'';$('exTap').textContent=/ready/.test(cls)?'':(/hold/.test(cls)?D.X.tapStop:'');}  // the circle is a button too, like the site's big red one
 function exStopTimers(){cancelAnimationFrame(EX.raf);clearInterval(EX.restT);EX.restT=0;}
 /* step head, as the site's cards: «Замер на вдохе», «Подход 1», «Подход 2 (+5 сек)» */
 function exNo(){var n=0;for(var i=0;i<=EX.i;i++)if(EX.steps[i]==='ex')n++;return n;}
@@ -329,7 +329,7 @@ function exGoal(){var p=0;for(var i=0;i<EX.i;i++)if(EX.steps[i]==='ex')p=EX.res[
 function exStepT(){var k=EX.steps[EX.i];return k==='in'?D.X.inT:(exGoal()?D.X.exT2:D.X.exT);}
 function exReady(){exStopTimers();EX.state='ready';EX.tReady=performance.now();EX.goal=exGoal();exDots();exPrg.style.transition='';exPrg.style.stroke=EX.goal?col(0):acc();exPrg.style.strokeDashoffset=C;
   exCard(exHead(),exStepT(),'');
-  exRing('idle ready'+(EX.goal?' goal':''),'','',EX.short?D.X.shortCap+'<small>'+D.X.shortSub+'</small>':D.X.readyQ);}  // the circle never repeats the card's head
+  exRing('idle ready'+(EX.goal?' goal':''),'','',D.X.readyQ);}  // the circle never repeats the card's head
 function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(D.X.restH,D.X.restT,'');var last=EX.res[EX.i-1],end=Date.now()+sec*1000;  // Nov 2026-10-21: the rest runs by itself right after СТОП (or «Понятно, начинаем»); only holds need СТАРТ/СТОП
   exPrg.style.transition='none';exPrg.style.stroke=acc();exPrg.getBoundingClientRect();exPrg.style.transition='';  // blue at once, no green/red fading into it
   var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),last?X('was',{t:last}):D.X.restPill,'');  // own time of the last hold, so the next goal makes sense
@@ -343,12 +343,12 @@ function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]===
     if(s>=EX.goal&&!EX.hit){EX.hit=true;beep(880);exPrg.style.stroke=col(2);exBox.classList.add('hit');$('exLbl').textContent=D.X.hitPill;}}  // red until the goal, green after, like the site's button
   else exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));
   EX.raf=requestAnimationFrame(exHoldTick);}
-function exStart(){EX.state='hold';EX.hit=false;EX.short=false;EX.goal=exGoal();EX.t0=performance.now();beep(880);awake(true);exDots();
+function exStart(){EX.state='hold';EX.hit=false;EX.goal=exGoal();EX.t0=performance.now();beep(880);awake(true);exDots();
   exPrg.style.stroke=EX.goal?col(0):acc();exRing('exhold'+(EX.goal?' goal':''),'0',EX.goal?D.X.redPill:D.X.m1Pill,'');
   EX.raf=requestAnimationFrame(exHoldTick);}
 function exEnd(){cancelAnimationFrame(EX.raf);var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';beep(330);
-  if(s<5){EX.short=true;track('ex_short');exReady();return;}
-  var r=Math.round(s);EX.res[EX.i]=r;
+  var r=Math.max(1,Math.round(s));EX.res[EX.i]=r;  // Nov: no step is ever repeated, a short hold counts as it is
+
   if(EX.goal&&!EX.hit)EX.miss[EX.i]=true;
   track(inh?'ex_ctrl_done':(EX.goal?(EX.hit?'ex_set_full':'ex_set_early'):'ex_m1_done'));
   if(inh&&EX.i===EX.steps.length-1){awake(false);EX.i++;exResult(s);return;}
