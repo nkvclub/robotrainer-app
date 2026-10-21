@@ -15,7 +15,7 @@
 #calcBtn{display:none!important}
 #scrTest.started #bars:not(.results) .row.calcrow{opacity:1;padding-block:14px}
 .cbtn.calc{animation:callpill 1.2s ease-in-out infinite}
-body.vbcap-on .ringbox .lbl{display:none!important}
+body.vbcap-on #box .lbl{display:none!important}
 /* the step card stays still and the same width as the others; only its button invites a tap */
 #bars:not(.results) .row.act{animation:none;cursor:default}
 #bars:not(.results) .row.act:active{transform:none}
