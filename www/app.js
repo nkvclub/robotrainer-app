@@ -340,7 +340,7 @@ function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]===
       if(s>=EX.goal&&!EX.hit){EX.hit=true;beep(880);exPrg.style.stroke=col(2);exBox.classList.add('hit');$('exLbl').textContent=D.X.hitPill;$('exT').textContent=D.X.hitT;}}  // red until the goal, green after, like the site's button
     else exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));}
   EX.raf=requestAnimationFrame(exHoldTick);}
-function exStart(){EX.state='hold';EX.hit=false;EX.goal=exGoal();EX.t0=performance.now();beep(880);awake(true);exDots();
+function exStart(){EX.state='hold';EX.hit=false;EX.short=false;EX.goal=exGoal();EX.t0=performance.now();beep(880);awake(true);exDots();
   if(EX.steps[EX.i]==='in'){exPrg.style.stroke=acc();exCard(exHead(),D.holdT,D.X.stopW);exRing('hold','','',D.X.going);}
   else{exPrg.style.stroke=EX.goal?col(0):acc();exCard(exHead(),EX.goal?D.X.goT:D.X.holdT,D.X.stopW);exRing('exhold'+(EX.goal?' goal':''),'0',EX.goal?D.X.redPill:D.X.m1Pill,'');}
   EX.raf=requestAnimationFrame(exHoldTick);}
@@ -352,7 +352,7 @@ function exEnd(){cancelAnimationFrame(EX.raf);var s=(performance.now()-EX.t0)/10
   if(inh&&EX.i===EX.steps.length-1){awake(false);EX.i++;exResult(s);return;}
   if(!inh)EX.m=Math.max(EX.m,r);
   EX.state='breathe';var hd=exHead(),txt=inh?D.X.afterIn:(!EX.goal?D.X.afterM:(EX.hit?D.X.afterFull:D.X.afterEarly));
-  exCard(hd,txt,'');exRing('idle'+(EX.hit?' hit':''),'','',X('got',{t:r}));exPrg.style.stroke=EX.goal?(EX.hit?col(2):'var(--muted)'):acc();
+  exCard(hd,txt,'');exRing('idle'+(EX.hit?' hit':''),'','',X('got',{t:r}));exPrg.style.stroke=EX.goal?(EX.hit?col(2):getComputedStyle(document.documentElement).getPropertyValue('--muted').trim()):acc();
   EX.i++;
   setTimeout(function(){if(!EX.on)return;exRest(30,EX.steps[EX.i]==='in'?D.X.restLongT:D.X.restT);},2500);}
 function exResult(s){if(EX.l1){l1Done(s);return;}EX.state='res';exDots();var a=Math.round(EX.base),b=Math.round(s),up=EX.up=b>a,d=Math.max(1,Math.round((b-a)/a*100));  // control is an inhale hold, compared with step 1 of the test, gain in percent
@@ -371,7 +371,7 @@ var exIntroGo=null;
 $('exIntroGo').addEventListener('click',function(){$('exIntro').hidden=true;document.body.classList.remove('lock');var g=exIntroGo;exIntroGo=null;if(g)g();});
 $('exHow').addEventListener('click',function(){track('ex_how');exIntro(EX.intro||D.X.introL,null);});
 function exClose(){exStopTimers();clearTimeout(EX.tmo);var l=EX.l1;EX.on=false;EX.state='';awake(false);go(l?'scrL1':'scrTest');if(l)l1Render();}
-function exTapGo(){if(EX.state==='ready')exStart();else if(EX.state==='hold')exEnd();}
+function exTapGo(){if(EX.state==='ready')exStart();else if(EX.state==='hold'&&performance.now()-EX.t0>1000)exEnd();}  // a double tap (circle + button) must not stop the hold it just started
 $('exGo').addEventListener('click',exTapGo);exBox.addEventListener('click',function(){if(!$('exTap').textContent)return;exTapGo();});
 $('exQuit').addEventListener('click',function(){track('ex_quit');exClose();});
 $('exHome').addEventListener('click',exClose);
@@ -410,7 +410,7 @@ function l1DayN(){var k=l1Days();return k.length+(k.indexOf(dkey(Date.now()))<0?
 function T1(k,o){var t=D.L1[k];for(var n in o)t=t.replace('{'+n+'}',o[n]);return t;}
 function l1Chart(){var el=$('l1Chart');el.innerHTML='';
   var S1=L1.s.filter(function(x){return x.a&&x.c;});  // every session: inhale hold before (blue) and after (orange), like the site
-  if(!S1.length){var p=document.createElement('div');p.className='small';p.textContent=D.L1.chartEmpty;el.appendChild(p);return;}
+  if(!S1.length){var p=document.createElement('div');p.className='small';p.textContent=L1.s.length?D.L1.chartNew:D.L1.chartEmpty;el.appendChild(p);return;}
   var va=S1.map(function(x){return x.a;}),vc=S1.map(function(x){return x.c;}),all=va.concat(vc);
   var W=300,H=150,l=30,r=10,t=14,b=24,mx=Math.max.apply(null,all),mn=Math.min.apply(null,all),lo=Math.max(0,Math.floor((mn-5)/5)*5),hi=Math.ceil((mx+5)/5)*5;
   var n=Math.max(S1.length,7),x=function(i){return l+(W-l-r)*(n<2?0:i/(n-1));},y=function(s){return t+(H-t-b)*(1-(s-lo)/(hi-lo));};
