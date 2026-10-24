@@ -126,8 +126,8 @@ svg.ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90de
 .done.lv2 .mascot .pupil{transform:translateY(-2px)}
 /* eyes show the level: happy squint, calm, sad, sad with a tear */
 .mascot .e-calm,.mascot .e-sad,.mascot .e-happy{display:none}
-.done.lv2 .mascot .e-happy,.done.lv1 .mascot .e-calm,.done.lv0 .mascot .e-sad,.done.lvx .mascot .e-sad{display:inline}
-.done.lv2 .mascot :is(.ew,.pupil,.eyeR){display:none}
+.done.lv1 .mascot .e-calm,.done.lv0 .mascot .e-sad,.done.lvx .mascot .e-sad{display:inline}
+.done.lv2 .mascot :is(.ew,.pupil,.eyeR){clip-path:url(#cJoy)}  /* Nov 2026-10-24: one style everywhere: the same cartoon eyes, squinting with joy */
 .done.lv1 .mascot :is(.ew,.pupil,.eyeR){clip-path:url(#cCalm)}
 .done.lv0 .mascot :is(.ew,.eyeR),.done.lvx .mascot :is(.ew,.eyeR){clip-path:url(#cSad)}
 .done.lv0 .mascot .pupil,.done.lvx .mascot .pupil{clip-path:url(#cSad)}

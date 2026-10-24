@@ -362,9 +362,9 @@ function exResult(s){if(EX.l1){l1Done(s);return;}EX.state='res';exDots();var a=M
   var h=history[0];if(h&&h.d===EX.hd){h.ex=b;store.set('history',history);}
   EX.d=d;exResTxt();
   var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=X('line',{a:a,b:b}).replace(/(\d) /g,'$1\u00a0').replace(' →','\u00a0→');r.appendChild(ln);r.hidden=false;
-  exRing('idle done '+(up?'lv2':'lv1'),'','','');exPrg.style.transition='stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):'var(--muted)';exPrg.style.strokeDashoffset=up?0:C;
+  exRing('idle done '+(up?'lv2':(b<a?'lv0':'lv1')),'','','');exPrg.style.transition='stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):'var(--muted)';exPrg.style.strokeDashoffset=up?0:C;
   $('exBtns').hidden=false;payRender();$('exQuit').hidden=true;$('exHow').hidden=true;$('exAgain').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');}
-function exResTxt(){if(EX.l1||EX.state!=='res')return;exCard('',(EX.up?X('up',{p:EX.d})+' ':'')+D.X.good+(payShow()?' '+D.X.offer:''),'');}  // Nov 2026-10-24: praise, then the offer right on this screen
+function exResTxt(){if(EX.l1||EX.state!=='res')return;exCard('',(EX.up?X('up',{p:EX.d})+' '+D.X.good:D.X.flat)+(payShow()?' '+D.X.offer:''),'');}  // Nov: praise only when the hold grew; otherwise his «не получилось, но ты старался» text  // Nov 2026-10-24: praise, then the offer right on this screen
 function exOpen(skip){skip=skip===true;$('exPlan').hidden=true;if(!history[0]||!(ts.exhale>=5))return;track('ex_open');
   EX={on:true,base:ts.inhale,goal:0,state:'',hd:history[0].d,l1:0,m:0,steps:['ex','ex','ex','in'],i:0,res:[],miss:[]};  // control is an inhale, like step 1 of the test
   $('exTtl').textContent=D.X.ttl;$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHow').textContent=D.X.howLink;$('exAgain').textContent=D.X.againLink;$('exMail').textContent=D.cta;$('exHome').textContent=D.X.home;$('exHome').className='again';$('exMail').hidden=true;
@@ -455,7 +455,7 @@ function l1Done(ctrlS){var a=EX.res[0]||0,b=Math.round(ctrlS),rec={d:Date.now(),
   EX.state='res';exDots();var k=l1Today(),up=b>a;
   var txt=(up?T1('ctrlUp',{p:Math.max(1,Math.round((b-a)/a*100))})+' ':'')+T1('resT',{k:k});
   exCard('',txt,'');var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=T1('lineIn',{a:a,b:b}).replace(/(\d) /g,'$1 ').replace(' →',' →');r.appendChild(ln);r.hidden=false;
-  exRing('idle done '+(up?'lv2':'lv1'),'','','');exPrg.style.transition='stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=col(2);exPrg.style.strokeDashoffset=0;
+  exRing('idle done '+(up?'lv2':(b<a?'lv0':'lv1')),'','','');exPrg.style.transition='stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=col(2);exPrg.style.strokeDashoffset=0;
   $('exBtns').hidden=false;$('exMail').hidden=true;$('exPay').hidden=true;$('exHome').className='again';$('exHome').hidden=false;$('exPlan').hidden=false;$('exPlan').textContent=D.L1.plan;/* Nov 2026-10-24: plan the next training right here, results below */$('exQuit').hidden=true;$('exHow').hidden=true;$('exAgain').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');
   l1Remind();}
 /* Nov 2026-10-24: after a week of Level 1 trainings, offer the full test again to check the result */
