@@ -15,8 +15,8 @@ KEY_ID, ISSUER = os.environ['ASC_KEY_ID'], os.environ['ASC_ISSUER_ID']
 KEY = open(os.environ['ASC_KEY_PATH']).read()
 SHOT = os.path.join(os.path.dirname(__file__), 'review.png')
 LOC = {
-    'en-US': ('Level 1', 'A year of Level 1 breath training with stats and charts.'),
-    'ru': ('Уровень 1', 'Год тренировок первого уровня со статистикой и графиками.'),
+    'en-US': ('Level 1', 'A year of Level 1 breath training, stats and charts'),
+    'ru': ('Уровень 1', 'Год тренировок Уровня 1, статистика и графики'),
 }
 
 
