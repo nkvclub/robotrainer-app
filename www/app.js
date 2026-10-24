@@ -442,6 +442,7 @@ function l1Render(){if(!$('l1H'))return;var T=D.L1,n=l1DayN(),k=l1Today(),days=l
   $('l1Now').hidden=!k||k>=3;$('l1Now').textContent=T.now;
   $('l1Sub').textContent=k>=3?T.full:'';
   var cs=L1.s.map(function(x){return x.c||0;}),best=cs.length?Math.max.apply(null,cs):0;$('l1Best').hidden=!best;$('l1BestL').textContent=T.best;$('l1BestV').textContent=best+' '+D.sec;  // Nov: one number, the best control hold at the end of a training
+  $('l1Chk').hidden=!l1CheckDue();$('l1ChkT').textContent=T.chkT;$('l1ChkGo').textContent=T.chkGo;
   $('l1ChartH').textContent=T.chartH;$('l1Note').textContent=T.note;l1Chart();}
 function l1Open(skip){skip=skip===true;if(l1Today()>=3)return;track('l1_open');var n=l1DayN();
   if(!L1.start){L1.start=Date.now();L1.base=history[0]&&history[0].ts?history[0].ts.inhale:0;}
@@ -457,7 +458,14 @@ function l1Done(ctrlS){var a=EX.res[0]||0,b=Math.round(ctrlS),rec={d:Date.now(),
   exRing('idle done '+(up?'lv2':'lv1'),'','','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=col(2);exPrg.style.strokeDashoffset=0;
   $('exBtns').hidden=false;$('exMail').hidden=true;$('exPay').hidden=true;$('exHome').className='cta';$('exQuit').hidden=true;$('exHow').hidden=true;$('exAgain').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');
   l1Remind();}
-function l1Remind(){var LN=P.LocalNotifications;if(!LN||(L1.plan&&L1.plan.at>Date.now()))return;  // a planned training keeps its own reminder
+/* Nov 2026-10-24: after a week of Level 1 trainings, offer the full test again to check the result */
+function l1CheckAt(){var t=Math.max(L1.start||0,history[0]?history[0].d:0);return L1.start?t+7*864e5:0;}
+function l1CheckDue(){return L1.s.length>0&&l1CheckAt()&&Date.now()>=l1CheckAt();}
+function l1CheckRemind(){var LN=P.LocalNotifications,at=l1CheckAt();if(!LN||!at)return;if(at<Date.now()+60e3)at=Date.now()+3600e3;
+  LN.cancel({notifications:[{id:3}]}).catch(function(){}).then(function(){return LN.requestPermissions();}).then(function(p){if(!p||p.display!=='granted')return;
+    return LN.schedule({notifications:[{id:3,title:D.L1.h,body:D.L1.chkT,schedule:{at:new Date(at),allowWhileIdle:true}}]});}).catch(function(){});}
+$('l1ChkGo').addEventListener('click',function(){track('l1_check');newTest();go('scrTest');window.scrollTo(0,0);});
+function l1Remind(){l1CheckRemind();var LN=P.LocalNotifications;if(!LN||(L1.plan&&L1.plan.at>Date.now()))return;  // a planned training keeps its own reminder
   var t=new Date(Date.now()+24*3600*1000);  // tomorrow at the same time, replaced by each new session
   LN.cancel({notifications:[{id:2}]}).catch(function(){}).then(function(){return LN.requestPermissions();}).then(function(p){if(!p||p.display!=='granted')return;
     return LN.schedule({notifications:[{id:2,title:D.L1.h,body:D.L1.remB,schedule:{at:t,allowWhileIdle:true}}]});}).catch(function(){});}
