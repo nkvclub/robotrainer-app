@@ -461,7 +461,7 @@ function l1Done(ctrlS){var a=EX.res[0]||0,b=Math.round(ctrlS),rec={d:Date.now(),
 /* Nov 2026-10-24: after a week of Level 1 trainings, offer the full test again to check the result */
 function l1CheckAt(){var t=Math.max(L1.start||0,history[0]?history[0].d:0);return L1.start?t+7*864e5:0;}
 function l1CheckDue(){return L1.s.length>=3&&l1CheckAt()&&Date.now()>=l1CheckAt();}
-function l1CheckRemind(){var LN=P.LocalNotifications,at=l1CheckAt();if(!LN||!at||at<Date.now()+60e3)return;  // once the day has come the card on the Level 1 screen does the job, no repeated pings
+function l1CheckRemind(){var LN=P.LocalNotifications,at=l1CheckAt();if(!LN||!at||L1.s.length<3||at<Date.now()+60e3)return;  // once the day has come the card on the Level 1 screen does the job, no repeated pings
   LN.cancel({notifications:[{id:3}]}).catch(function(){}).then(function(){return LN.requestPermissions();}).then(function(p){if(!p||p.display!=='granted')return;
     return LN.schedule({notifications:[{id:3,title:D.L1.h,body:D.L1.chkT,schedule:{at:new Date(at),allowWhileIdle:true}}]});}).catch(function(){});}
 $('l1ChkGo').addEventListener('click',function(){track('l1_check');newTest();go('scrTest');window.scrollTo(0,0);});
