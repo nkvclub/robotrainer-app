@@ -58,7 +58,7 @@ function beep(f){
   if(S.snd){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();clearTimeout(acT);acT=setTimeout(function(){if(ac&&!run&&!restT&&!EX.on)ac.suspend();},60000);var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.25);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.25);}catch(e){}}
   // in the exercise there is one kind of buzz, only when something must be done now (breathe, or tap START); no codes to learn
   if(EX.on&&f!==880)f=0;var ms=EX.on?400:0;
-  if(S.vib&&f){if(ms&&P.Haptics&&P.Haptics.vibrate){P.Haptics.vibrate({duration:ms}).catch(function(){});}else if(P.Haptics){P.Haptics.impact({style:'MEDIUM'}).catch(function(){});}else{try{navigator.vibrate&&navigator.vibrate(ms||60);}catch(e){}}}
+  if(S.vib&&f&&!(EX.on&&wOn)){if(ms&&P.Haptics&&P.Haptics.vibrate){P.Haptics.vibrate({duration:ms}).catch(function(){});}else if(P.Haptics){P.Haptics.impact({style:'MEDIUM'}).catch(function(){});}else{try{navigator.vibrate&&navigator.vibrate(ms||60);}catch(e){}}}
 }
 
 /* ---------- screens ---------- */
@@ -329,8 +329,8 @@ function exGoal(){var p=0;for(var i=0;i<EX.i;i++)if(EX.steps[i]==='ex')p=EX.res[
 function exStepT(){var k=EX.steps[EX.i];return k==='in'?D.X.inT:(exGoal()?D.X.exT2:D.X.exT);}
 function exReady(){exStopTimers();EX.state='ready';EX.tReady=performance.now();EX.goal=exGoal();exDots();exPrg.style.transition='';exPrg.style.stroke=EX.goal?col(0):acc();exPrg.style.strokeDashoffset=C;
   exCard(exHead(),exStepT(),'');
-  exRing('idle ready'+(EX.goal?' goal':''),'','',D.X.readyQ);}  // the circle never repeats the card's head
-function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(D.X.restH,D.X.restT,'');var last=EX.res[EX.i-1],end=Date.now()+sec*1000;  // Nov 2026-10-21: the rest runs by itself right after СТОП (or «Понятно, начинаем»); only holds need СТАРТ/СТОП
+  exRing('idle ready'+(EX.goal?' goal':''),'','',D.X.readyQ);wSync();}  // the circle never repeats the card's head
+function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(D.X.restH,D.X.restT,'');var last=EX.res[EX.i-1],end=EX.wEnd=Date.now()+sec*1000;wSync();  // Nov 2026-10-21: the rest runs by itself right after СТОП (or «Понятно, начинаем»); only holds need СТАРТ/СТОП
   exPrg.style.transition='none';exPrg.style.stroke=acc();exPrg.getBoundingClientRect();exPrg.style.transition='';  // blue at once, no green/red fading into it
   var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),last?X('was',{t:last}):D.X.restPill,'');  // own time of the last hold, so the next goal makes sense
     exPrg.style.strokeDashoffset=C*(1-left/sec);
@@ -343,10 +343,10 @@ function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]===
     if(s>=EX.goal&&!EX.hit){EX.hit=true;beep(880);exPrg.style.stroke=col(2);exBox.classList.add('hit');$('exLbl').textContent=D.X.hitPill;}}  // red until the goal, green after, like the site's button
   else exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));
   EX.raf=requestAnimationFrame(exHoldTick);}
-function exStart(){EX.state='hold';EX.hit=false;EX.goal=exGoal();EX.t0=performance.now();beep(880);awake(true);exDots();
+function exStart(lag){lag=lag||0;EX.state='hold';EX.hit=false;EX.goal=exGoal();EX.t0=performance.now()-lag;EX.wT0=Date.now()-lag;wSync();beep(880);awake(true);exDots();
   exPrg.style.stroke=EX.goal?col(0):acc();exRing('exhold'+(EX.goal?' goal':''),'0',EX.goal?D.X.redPill:D.X.m1Pill,'');
   EX.raf=requestAnimationFrame(exHoldTick);}
-function exEnd(){cancelAnimationFrame(EX.raf);var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';beep(330);
+function exEnd(lag){cancelAnimationFrame(EX.raf);var s=(performance.now()-(lag||0)-EX.t0)/1000,inh=EX.steps[EX.i]==='in';beep(330);
   var r=Math.max(1,Math.round(s));EX.res[EX.i]=r;  // Nov: no step is ever repeated, a short hold counts as it is
 
   if(EX.goal&&!EX.hit)EX.miss[EX.i]=true;
@@ -359,7 +359,7 @@ function exResult(s){if(EX.l1){l1Done(s);return;}EX.state='res';exDots();var a=M
   exCard('',up?X('up',{p:d}):D.X.flat,'');
   var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=X('line',{a:a,b:b}).replace(/(\d) /g,'$1\u00a0').replace(' →','\u00a0→');r.appendChild(ln);r.hidden=false;
   exRing('idle done '+(up?'lv2':'lv1'),'',up?D.X.win:'','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):'var(--muted)';exPrg.style.strokeDashoffset=up?0:C;
-  $('exBtns').hidden=false;payRender();$('exQuit').hidden=true;$('exHow').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');}
+  $('exBtns').hidden=false;wSync();payRender();$('exQuit').hidden=true;$('exHow').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');}
 function exOpen(){if(!history[0]||!(ts.exhale>=5))return;track('ex_open');
   EX={on:true,base:ts.inhale,goal:0,state:'',hd:history[0].d,l1:0,m:0,steps:['ex','ex','ex','in'],i:0,res:[],miss:[]};  // control is an inhale, like step 1 of the test
   $('exTtl').textContent=D.X.ttl;$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHow').textContent=D.X.howLink;$('exMail').textContent=D.cta;$('exHome').textContent=D.X.home;$('exMail').hidden=false;
@@ -369,7 +369,17 @@ function exIntro(list,go){var T=D.X;EX.intro=list;$('exIntroH').textContent=T.in
 var exIntroGo=null;
 $('exIntroGo').addEventListener('click',function(){$('exIntro').hidden=true;document.body.classList.remove('lock');var g=exIntroGo;exIntroGo=null;if(g)g();});
 $('exHow').addEventListener('click',function(){track('ex_how');exIntro(EX.intro||D.X.introL,null);});
-function exClose(){exStopTimers();clearTimeout(EX.tmo);var l=EX.l1;EX.on=false;EX.state='';awake(false);go(l?'scrL1':'scrTest');if(l)l1Render();}
+function exClose(){exStopTimers();clearTimeout(EX.tmo);var l=EX.l1;EX.on=false;EX.state='';awake(false);wSync();go(l?'scrL1':'scrTest');if(l)l1Render();}
+/* ---------- watch remote (Wear OS, Nov 2026-10-24): the phone runs the exercise and keeps the texts; the watch shows the circle
+   with START/STOP and gives the one buzz itself (end of the rest, ring turned green), so the phone stays quiet while a watch is near ---------- */
+var WT=P.Watch,wOn=false;
+function wSync(){if(!WT)return;
+  if(EX.on&&!EX.id){EX.id=Date.now();WT.watches().then(function(r){wOn=r.n>0;if(wOn)WT.open().catch(function(){});}).catch(function(){});}  // a new exercise: open the app on the watch
+  var st=!EX.on?'idle':EX.state==='res'?'done':(EX.state||'intro');
+  var dots=EX.on?EX.steps.map(function(k,i){return (EX.state==='res'||i<EX.i)?(EX.miss[i]?'miss':'ok'):(i===EX.i?'cur':'');}):[];
+  WT.send({s:JSON.stringify({st:st,id:EX.id||0,i:EX.i,end:EX.wEnd||0,t0:EX.wT0||0,goal:EX.goal||0,inh:EX.steps[EX.i]==='in'?1:0,dots:dots,lang:lang,at:Date.now()})}).catch(function(){});}
+if(WT)WT.addListener('tap',function(e){if(!EX.on)return;var lag=Math.min(3000,Math.max(0,Date.now()-(e.at||Date.now())));  // the hold counts from the tap on the wrist, not from when it reached the phone
+  if(EX.state==='ready')exStart(lag);else if(EX.state==='hold'&&performance.now()-EX.t0>1000)exEnd(lag);});
 function exTapGo(){if(EX.state==='ready'&&performance.now()-(EX.tReady||0)>700)exStart();else if(EX.state==='hold'&&performance.now()-EX.t0>1000)exEnd();}  // a double tap (circle + button) must not stop the hold it just started
 $('exGo').addEventListener('click',exTapGo);exBox.addEventListener('click',exTapGo);
 $('exQuit').addEventListener('click',function(){track('ex_quit');exClose();});
