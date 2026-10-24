@@ -184,6 +184,7 @@ body.vbcap-on #box .lbl{display:none!important}
 .exdots span.set.miss{background:var(--red);color:#fff}
 .exdots span.cur{background:var(--red);color:#fff;box-shadow:0 0 0 3px color-mix(in srgb,currentColor 0%,transparent),0 0 0 3px color-mix(in srgb,var(--fg) 25%,transparent)}
 .exdots span.rst.cur{background:var(--accent)}
+.exdots span.set.cur,.exdots span.inh.cur{background:var(--card);color:var(--accent);box-shadow:inset 0 0 0 3px var(--accent);transform:scale(1.2)}  /* the step that runs now: blue ring; red only means a missed goal */
 #exBox .lbl:empty{display:none!important}  /* Nov 2026-10-24: no words inside the circle, only the time */
 /* Nov 2026-10-24: no grey dots: rests are always blue, a set not done yet is an empty ring until it turns green or red */
 .exdots span.rst{background:var(--accent)}
@@ -203,3 +204,4 @@ body.vbcap-on #box .lbl{display:none!important}
 .l1best b{font-size:24px;font-weight:900;color:var(--green);white-space:nowrap}
 .l1chk{display:flex;flex-direction:column;gap:12px;text-align:center;box-shadow:inset 0 0 0 2px var(--accent)}
 .l1chkt{font-weight:700;font-size:16px;line-height:1.35;color:var(--fg);text-wrap:balance}
+.plerr{color:var(--red);font-weight:700;text-align:center}
