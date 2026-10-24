@@ -147,7 +147,7 @@ function buildResult(o){
 function sparks(){var n=16;for(var i=0;i<n;i++){var p=document.createElement('i');p.className='spark';
   var a=i/n*Math.PI*2+Math.random()*.3,d=58+Math.random()*16;p.style.setProperty('--x',(Math.cos(a)*d).toFixed(1)+'%');p.style.setProperty('--y',(Math.sin(a)*d).toFixed(1)+'%');
   p.style.animationDelay=Math.round(Math.random()*160)+'ms';if(i%3===0)p.classList.add('gold');box.appendChild(p);setTimeout(function(p){p.remove();}.bind(null,p),1700);}}
-function ringReveal(o){if(o===2)setTimeout(sparks,500);box.className='ringbox idle done lv'+o;prg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';prg.style.stroke=col(o);prg.style.strokeDashoffset=0;$('lbl').textContent=D.B[o];}
+function ringReveal(o){if(o===2)setTimeout(sparks,500);box.className='ringbox idle done lv'+o;prg.style.transition='none';prg.style.stroke=col(o);prg.getBoundingClientRect();prg.style.transition='stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';prg.style.stroke=col(o);prg.style.strokeDashoffset=0;$('lbl').textContent=D.B[o];}
 function summary(anim){
   var o=overall();finished=true;$('restartBtn').hidden=true;$('stepBtn').hidden=true;rows.load.sq.hidden=true;$('scrTest').classList.remove('started');$('bars').classList.add('results');
   ORDER.forEach(function(k,i){var r=rows[k];r.row.classList.remove('act','ok','locked');r.rl.textContent=name(k);r.num.textContent=String(i+1);r.rd.textContent='';
@@ -362,10 +362,10 @@ function exResult(s){if(EX.l1){l1Done(s);return;}EX.state='res';exDots();var a=M
   var h=history[0];if(h&&h.d===EX.hd){h.ex=b;store.set('history',history);}
   EX.d=d;exResTxt();
   var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=X('line',{a:a,b:b}).replace(/(\d) /g,'$1\u00a0').replace(' →','\u00a0→');r.appendChild(ln);r.hidden=false;
-  exRing('idle done '+(up?'lv2':'lv1'),'','','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):'var(--muted)';exPrg.style.strokeDashoffset=up?0:C;
+  exRing('idle done '+(up?'lv2':'lv1'),'','','');exPrg.style.transition='stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):'var(--muted)';exPrg.style.strokeDashoffset=up?0:C;
   $('exBtns').hidden=false;payRender();$('exQuit').hidden=true;$('exHow').hidden=true;$('exAgain').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');}
 function exResTxt(){if(EX.l1||EX.state!=='res')return;exCard('',(EX.up?X('up',{p:EX.d})+' ':'')+D.X.good+(payShow()?' '+D.X.offer:''),'');}  // Nov 2026-10-24: praise, then the offer right on this screen
-function exOpen(skip){skip=skip===true;if(!history[0]||!(ts.exhale>=5))return;track('ex_open');
+function exOpen(skip){skip=skip===true;$('exPlan').hidden=true;if(!history[0]||!(ts.exhale>=5))return;track('ex_open');
   EX={on:true,base:ts.inhale,goal:0,state:'',hd:history[0].d,l1:0,m:0,steps:['ex','ex','ex','in'],i:0,res:[],miss:[]};  // control is an inhale, like step 1 of the test
   $('exTtl').textContent=D.X.ttl;$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHow').textContent=D.X.howLink;$('exAgain').textContent=D.X.againLink;$('exMail').textContent=D.cta;$('exHome').textContent=D.X.home;$('exHome').className='again';$('exMail').hidden=true;
   $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exHow').hidden=false;$('exAgain').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');exRing('idle ready','','','');exCard(D.X.restH,'','');if(skip)exRest(30);else exIntro(D.X.introL,function(){exRest(30);});}  // the how-to is read before any timer runs  // 30 s to catch the breath after the squats, with what comes next
@@ -379,16 +379,16 @@ function exTapGo(){if(EX.state==='ready'&&performance.now()-(EX.tReady||0)>700)e
 $('exGo').addEventListener('click',exTapGo);exBox.addEventListener('click',exTapGo);
 $('exQuit').addEventListener('click',function(){track('ex_quit');exClose();});
 $('exAgain').addEventListener('click',function(){track('ex_again');exStopTimers();clearTimeout(EX.tmo);if(EX.l1)l1Open(true);else exOpen(true);});  // Nov: «Начать заново» goes straight to the first rest
-$('exHome').addEventListener('click',exClose);
+$('exHome').addEventListener('click',function(){if(!EX.l1&&PAY.owned){exClose();go('scrL1');l1Render();}else exClose();});
 $('exMail').addEventListener('click',openEmail);
 
 
 /* ---------- «Уровень 1»: yearly subscription (billing.js), Google Play build only ---------- */
 var PAY=window.RT_PAY,payAsk='';
 function payPrice(){return PAY.price||'$3.99';}
-function payShow(){return PAY.available&&!PAY.owned&&EX.state==='res'&&!EX.l1;}
+function payShow(){return PAY.store&&!PAY.owned&&EX.state==='res'&&!EX.l1;}  // Nov 2026-10-24: the result screen sells Level 1, it does not wait for the store's price
 function payRender(){var T=D.PAY,show=payShow();$('exPayBox').hidden=!show;exResTxt();  // Nov 2026-10-21: both outcomes lead to Level 1 (gain: «what about a year?», no gain: «room to grow»)
-  $('exPay').hidden=true;$('exPay').textContent=T.btn.replace('{p}',payPrice());if(EX.l1)return payRenderSheet(T);$('exMail').className=show?'again':'cta';$('exHome').className=show?'exquit':'again';  // three buttons do not fit a small screen, home becomes a link
+  $('exPay').hidden=true;$('exPay').textContent=T.btn.replace('{p}',payPrice());if(EX.l1)return payRenderSheet(T);$('exMail').className=show?'again':'cta';$('exHome').className=show?'exquit':'again';$('exHome').hidden=false;$('exHome').textContent=PAY.owned?D.L1.back:D.X.home;  // Nov 2026-10-24: with the offer «На главную» is only a small link at the very bottom; a subscriber goes to his results
   payRenderSheet(T);}
 function payRenderSheet(T){
   $('payH').textContent=T.h;$('ofH').textContent=T.ofH;$('ofCup').textContent=T.ofCup;$('ofOr').textContent=T.ofOr;$('ofWin').textContent=T.ofWin;$('ofTxt').textContent=T.ofTxt;$('payNote').textContent=T.note.replace('{p}',payPrice());  // Nov: a latte or a gold medal, same price; promo footnote
@@ -404,7 +404,7 @@ $('exPay').addEventListener('click',openPay);
 ['payH','payList','exOffer','payPrice','payGo','payRenew','payNote','payMsg'].forEach(function(id){$('exPayBox').appendChild($(id));});$('exPayBox').appendChild(document.querySelector('.paylinks'));  // Nov: the offer sits under the result, scroll down to «Оформить подписку»
 $('payClose').addEventListener('click',closePay);
 $('payModal').addEventListener('click',function(e){if(e.target===this)closePay();});
-$('payGo').addEventListener('click',function(){if(PAY.busy||PAY.owned)return;track('pay_buy');payAsk='buy';PAY.buy();});
+$('payGo').addEventListener('click',function(){if(PAY.busy||PAY.owned)return;track('pay_buy');if(!PAY.available){var m=$('payMsg');m.textContent=D.PAY.wait;m.className='msg err';return;}payAsk='buy';PAY.buy();});  // the store has not answered yet (no network)
 $('ofWinBtn').addEventListener('click',function(){$('payGo').click();});  // the medal is the choice: tapping it buys, like «Оформить подписку»
 $('payRestore').addEventListener('click',function(){if(PAY.busy)return;track('pay_restore');payAsk='restore';PAY.err='';PAY.restore();});
 
@@ -444,7 +444,7 @@ function l1Render(){if(!$('l1H'))return;var T=D.L1,n=l1DayN(),k=l1Today(),days=l
   var cs=L1.s.map(function(x){return x.c||0;}),best=cs.length?Math.max.apply(null,cs):0;$('l1Best').hidden=!best;$('l1BestL').textContent=T.best;$('l1BestV').textContent=T1('bestV',{t:best});  // Nov: one number, the best control hold at the end of a training
   $('l1Chk').hidden=!l1CheckDue();$('l1ChkT').textContent=T.chkT;$('l1ChkGo').textContent=T.chkGo;
   $('l1ChartH').textContent=T.chartH;$('l1Note').textContent=T.note;l1Chart();}
-function l1Open(skip){skip=skip===true;if(l1Today()>=3)return;track('l1_open');var n=l1DayN();
+function l1Open(skip){skip=skip===true;$('exPlan').hidden=true;if(l1Today()>=3)return;track('l1_open');var n=l1DayN();
   if(!L1.start){L1.start=Date.now();L1.base=history[0]&&history[0].ts?history[0].ts.inhale:0;}
   EX={on:true,base:0,goal:0,state:'',hd:0,l1:n,m:0,steps:['in','ex','ex','ex','in'],i:0,res:[],miss:[]};
   $('exTtl').textContent=T1('howH',{n:n});$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHow').textContent=D.X.howLink;$('exAgain').textContent=D.X.againLink;$('exHome').textContent=D.L1.back;$('exMail').hidden=true;$('exPay').hidden=true;
@@ -455,8 +455,8 @@ function l1Done(ctrlS){var a=EX.res[0]||0,b=Math.round(ctrlS),rec={d:Date.now(),
   EX.state='res';exDots();var k=l1Today(),up=b>a;
   var txt=(up?T1('ctrlUp',{p:Math.max(1,Math.round((b-a)/a*100))})+' ':'')+T1('resT',{k:k});
   exCard('',txt,'');var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=T1('lineIn',{a:a,b:b}).replace(/(\d) /g,'$1 ').replace(' →',' →');r.appendChild(ln);r.hidden=false;
-  exRing('idle done '+(up?'lv2':'lv1'),'','','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=col(2);exPrg.style.strokeDashoffset=0;
-  $('exBtns').hidden=false;$('exMail').hidden=true;$('exPay').hidden=true;$('exHome').className='cta';$('exQuit').hidden=true;$('exHow').hidden=true;$('exAgain').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');
+  exRing('idle done '+(up?'lv2':'lv1'),'','','');exPrg.style.transition='stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=col(2);exPrg.style.strokeDashoffset=0;
+  $('exBtns').hidden=false;$('exMail').hidden=true;$('exPay').hidden=true;$('exHome').className='again';$('exHome').hidden=false;$('exPlan').hidden=false;$('exPlan').textContent=D.L1.plan;/* Nov 2026-10-24: plan the next training right here, results below */$('exQuit').hidden=true;$('exHow').hidden=true;$('exAgain').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');
   l1Remind();}
 /* Nov 2026-10-24: after a week of Level 1 trainings, offer the full test again to check the result */
 function l1CheckAt(){var t=Math.max(L1.start||0,history[0]?history[0].d:0);return L1.start?t+7*864e5:0;}
@@ -487,9 +487,10 @@ function plOpen(){var T=D.L1,d=new Date(Date.now()+3*3600e3);d.setMinutes(d.getM
   $('l1Plan').hidden=false;document.body.classList.add('lock');}
 function plClose(){$('l1Plan').hidden=true;document.body.classList.remove('lock');}
 $('plCancel').addEventListener('click',plClose);
+$('exPlan').addEventListener('click',plOpen);
 $('plSave').addEventListener('click',function(){var v=($('plDay').value||'').split('-'),t=($('plTime').value||'').split(':');if(v.length<3||t.length<2)return;
   var at=new Date(+v[0],+v[1]-1,+v[2],+t[0],+t[1]).getTime();if(!(at>Date.now())){$('plErr').textContent=D.L1.plErr;$('plErr').hidden=false;return;}
-  var rep=$('plRep').checked;L1.plan={at:at,rem:plRem,rep:rep?1:0};store.set('l1',L1);track('l1_plan');plClose();l1Render();
+  var rep=$('plRep').checked;L1.plan={at:at,rem:plRem,rep:rep?1:0};store.set('l1',L1);track('l1_plan');plClose();l1Render();if(!$('exPlan').hidden)$('exPlan').textContent=T1('next',{t:plWhen(at)});
   var LN=P.LocalNotifications;if(!LN)return;LN.cancel({notifications:[{id:2}]}).catch(function(){}).then(function(){if(!plRem)return;return LN.requestPermissions().then(function(p){if(!p||p.display!=='granted')return;
     return LN.schedule({notifications:[{id:2,title:D.L1.h,body:rep?T1('remB',{}):T1('remB2',{t:plWhen(at)}),schedule:rep?(function(){var w=new Date(at-plRem*60e3);return {on:{hour:w.getHours(),minute:w.getMinutes()},allowWhileIdle:true};})():{at:new Date(at-plRem*60e3),allowWhileIdle:true}}]});});}).catch(function(){});});
 store.get('l1').then(function(v){if(v&&v.s)L1=v;l1Render();});
