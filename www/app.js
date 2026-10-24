@@ -327,7 +327,7 @@ function exHead(){if(EX.steps[EX.i]==='in')return EX.i?D.X.ctrl:D.X.ctrl0;var n=
 function exGoal(){var p=0;for(var i=0;i<EX.i;i++)if(EX.steps[i]==='ex')p=EX.res[i];return EX.steps[EX.i]==='ex'&&p?p+5:0;}  // site rule: each set at least 5 s longer than the one before; the first one is as long as you can
 /* a calm screen like the site's trainer (Nov 2026-10-21): one short card for the step that runs now, unchanged until it ends;
    the circle is the only button («жми — старт / стоп»); a hold goes straight into the 30 s ventilation, no messages in between */
-function exStepT(){var k=EX.steps[EX.i];return k==='in'?D.X.inT:(exGoal()?X('exT2',{p:exNo()-1}):D.X.exT);}
+function exStepT(){var k=EX.steps[EX.i];return k==='in'?(EX.i<EX.steps.length-1?D.X.inT0:D.X.inT):(exGoal()?X('exT2',{p:exNo()-1}):D.X.exT);}
 function exReady(){exStopTimers();EX.state='ready';EX.tReady=performance.now();EX.goal=exGoal();exDots();exPrg.style.transition='';exPrg.style.stroke=col(0);exPrg.style.strokeDashoffset=C;
   exCard(exHead(),exStepT(),'');exBtn(D.X.tapGo,1,0);
   exRing('idle ready goal','0','','');}  // the circle never repeats the card's head
