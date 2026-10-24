@@ -101,8 +101,8 @@
   <div class="wrap">
     <h2 class="h2" id="l1H"></h2>
     <div class="card l1day"><div class="l1dayh" id="l1Day"></div><div class="l1grid" id="l1Grid"></div></div>
-    <div class="l1act"><button class="cta" type="button" id="l1Go"></button><div class="small" id="l1Sub"></div></div>
-    <div class="hsum" id="l1Sum"></div>
+    <div class="l1act"><button class="cta" type="button" id="l1Go"></button><div class="l1next" id="l1Next" hidden></div><button class="exquit" type="button" id="l1Now" hidden></button><div class="small" id="l1Sub"></div></div>
+    <div class="card l1best" id="l1Best" hidden><span id="l1BestL"></span><b id="l1BestV"></b></div>
     <div class="card l1chart"><div class="l1charth" id="l1ChartH"></div><div id="l1Chart"></div></div>
     <p class="note" id="l1Note"></p>
   </div>
@@ -150,6 +150,17 @@
 </div>
 
 <!-- How to do the exercise: read before any timer starts -->
+<div class="modal" id="l1Plan" hidden>
+  <div class="sheet planbox">
+    <div class="ctah" id="plH"></div>
+    <label class="pll"><span id="plDayL"></span><input type="date" id="plDay"></label>
+    <label class="pll"><span id="plTimeL"></span><input type="time" id="plTime"></label>
+    <div class="pll"><span id="plRemL"></span><div class="plchips" id="plRem"></div></div>
+    <label class="plrep"><input type="checkbox" id="plRep"><span id="plRepL"></span></label>
+    <button class="cta" type="button" id="plSave"></button>
+    <button class="exquit" type="button" id="plCancel"></button>
+  </div>
+</div>
 <div class="modal" id="exIntro" hidden>
   <div class="sheet">
     <div class="ctah" id="exIntroH"></div>

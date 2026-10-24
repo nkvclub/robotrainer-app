@@ -314,9 +314,12 @@ var EX={on:false,base:0,goal:0,state:'',t0:0,raf:0,restT:0,l1:0,m:0,steps:[],i:0
 var exPrg=$('exPrg'),exBox=$('exBox');
 (function(){var m=box.querySelector('.mascot');if(m)$('exFace').insertBefore(m.cloneNode(true),$('exFace').firstChild);})();
 function X(k,o){var t=D.X[k];for(var n in o)t=t.replace('{'+n+'}',o[n]);return t;}
-function exDots(){var d=$('exDots');d.innerHTML='';EX.steps.forEach(function(k,i){var e=document.createElement('span');
-  e.textContent=k==='in'?D.X.ctrlShort:'';var done=EX.state==='res'||i<EX.i;
-  e.className=done?(EX.miss[i]?'miss':'ok'):(i===EX.i?'cur':'');if(done&&!EX.miss[i]&&k!=='in')e.textContent='✓';d.appendChild(e);});}
+function exDots(){var d=$('exDots');d.innerHTML='';var res=EX.state==='res';  // Nov 2026-10-24: every step of the how-to has its dot: blue rests between the sets, a set turns green or red, the control hold at the end
+  var dot=function(cls,txt){var e=document.createElement('span');e.className=cls;e.textContent=txt||'';d.appendChild(e);};
+  EX.steps.forEach(function(k,i){
+    if(i||!EX.l1)dot('rst'+(res||i<EX.i||(i===EX.i&&EX.state!=='rest'&&EX.state)?' done':(i===EX.i&&EX.state==='rest'?' cur':'')));  // the rest before this step
+    var done=res||i<EX.i,cur=i===EX.i&&(EX.state==='ready'||EX.state==='hold');
+    dot((k==='in'?'inh':'set')+(done?(EX.miss[i]?' miss':' ok'):(cur?' cur':'')),k==='in'?D.X.ctrlShort:'');});}
 function exCard(h,t,btn,wait){$('exH').textContent=h;$('exT').textContent=t;var g=$('exGo');g.classList.toggle('wait',!btn);g.disabled=!btn;g.textContent=btn||wait||D.start;g.classList.toggle('stop',btn===D.X.stopW);}  // during rest the button stays in place, greyed, so nothing jumps
 function exRing(cls,time,lbl,cap){exBox.className='ringbox '+cls;$('exTime').textContent=time||'';$('exLbl').textContent=lbl||'';$('exCap').innerHTML=cap||'';$('exTap').textContent='';}  // Nov 2026-10-24: СТАРТ / СТОП live on the button under the circle, like the test; the circle still works on tap
 function exBtn(t,on,stop){var g=$('exGo');g.textContent=t;g.disabled=!on;g.classList.toggle('wait',!on);g.classList.toggle('stop',!!stop);}  // blue СТАРТ, red СТОП, grey while resting
@@ -333,7 +336,7 @@ function exReady(){exStopTimers();EX.state='ready';EX.tReady=performance.now();E
   exRing('idle ready goal','0','','');}  // the circle never repeats the card's head
 function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(D.X.restH,D.X.restT,'');exBtn(D.X.tapGo,0,0);var last=EX.res[EX.i-1],end=Date.now()+sec*1000;  // Nov 2026-10-21: the rest runs by itself right after СТОП (or «Понятно, начинаем»); only holds need СТАРТ/СТОП
   exPrg.style.transition='none';exPrg.style.stroke=acc();exPrg.getBoundingClientRect();exPrg.style.transition='';  // blue at once, no green/red fading into it
-  var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),last?X('was',{t:last}):D.X.restPill,'');  // own time of the last hold, so the next goal makes sense
+  var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),'','');  // Nov 2026-10-24: a rest circle shows only the countdown
     exPrg.style.strokeDashoffset=C*(1-left/sec);
     if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);exReady();}};  // one buzz: the next step's card is up, the circle waits for СТАРТ
   paint();EX.restT=setInterval(paint,250);}
@@ -341,11 +344,11 @@ function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]===
   $('exTime').textContent=Math.floor(s);
   if(inh){exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));}
   else if(EX.goal){exPrg.style.strokeDashoffset=C*(1-Math.min(s/EX.goal,1));
-    if(s>=EX.goal&&!EX.hit){EX.hit=true;beep(880);exPrg.style.stroke=col(2);exBox.classList.add('hit');$('exLbl').textContent=D.X.hitPill;}}  // red until the goal, green after, like the site's button
+    if(s>=EX.goal&&!EX.hit){EX.hit=true;beep(880);exPrg.style.stroke=col(2);exBox.classList.add('hit');}}  // red until the goal, green after, like the site's button
   else exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));
   EX.raf=requestAnimationFrame(exHoldTick);}
 function exStart(){EX.state='hold';EX.hit=false;EX.goal=exGoal();EX.t0=performance.now();beep(880);awake(true);exDots();
-  exPrg.style.stroke=col(0);exBtn(D.X.tapStop,1,1);exRing('exhold goal','0',EX.goal?D.X.redPill:D.X.m1Pill,'');  // Nov 2026-10-24: red in every hold, like the site's button; green only once a set's goal is reached
+  exPrg.style.stroke=col(0);exBtn(D.X.tapStop,1,1);exRing('exhold goal','0','','');  // Nov 2026-10-24: red in every hold, like the site's button; green only once a set's goal is reached
   EX.raf=requestAnimationFrame(exHoldTick);}
 function exEnd(){cancelAnimationFrame(EX.raf);var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';beep(330);
   var r=Math.max(1,Math.round(s));EX.res[EX.i]=r;  // Nov: no step is ever repeated, a short hold counts as it is
@@ -359,12 +362,12 @@ function exResult(s){if(EX.l1){l1Done(s);return;}EX.state='res';exDots();var a=M
   var h=history[0];if(h&&h.d===EX.hd){h.ex=b;store.set('history',history);}
   EX.d=d;exResTxt();
   var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=X('line',{a:a,b:b}).replace(/(\d) /g,'$1\u00a0').replace(' →','\u00a0→');r.appendChild(ln);r.hidden=false;
-  exRing('idle done '+(up?'lv2':'lv1'),'',up?D.X.win:'','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):'var(--muted)';exPrg.style.strokeDashoffset=up?0:C;
+  exRing('idle done '+(up?'lv2':'lv1'),'','','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):'var(--muted)';exPrg.style.strokeDashoffset=up?0:C;
   $('exBtns').hidden=false;payRender();$('exQuit').hidden=true;$('exHow').hidden=true;$('exAgain').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');}
 function exResTxt(){if(EX.l1||EX.state!=='res')return;exCard('',(EX.up?X('up',{p:EX.d})+' ':'')+D.X.good+(payShow()?' '+D.X.offer:''),'');}  // Nov 2026-10-24: praise, then the offer right on this screen
 function exOpen(skip){skip=skip===true;if(!history[0]||!(ts.exhale>=5))return;track('ex_open');
   EX={on:true,base:ts.inhale,goal:0,state:'',hd:history[0].d,l1:0,m:0,steps:['ex','ex','ex','in'],i:0,res:[],miss:[]};  // control is an inhale, like step 1 of the test
-  $('exTtl').textContent=D.X.ttl;$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHow').textContent=D.X.howLink;$('exAgain').textContent=D.X.againLink;$('exMail').textContent=D.cta;$('exHome').textContent=D.X.home;$('exMail').hidden=true;
+  $('exTtl').textContent=D.X.ttl;$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHow').textContent=D.X.howLink;$('exAgain').textContent=D.X.againLink;$('exMail').textContent=D.cta;$('exHome').textContent=D.X.home;$('exHome').className='again';$('exMail').hidden=true;
   $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exHow').hidden=false;$('exAgain').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');exRing('idle ready','','','');exCard(D.X.restH,'','');if(skip)exRest(30);else exIntro(D.X.introL,function(){exRest(30);});}  // the how-to is read before any timer runs  // 30 s to catch the breath after the squats, with what comes next
 function exIntro(list,go){var T=D.X;EX.intro=list;$('exIntroH').textContent=T.introH;var l=$('exIntroL');l.innerHTML='';list.forEach(function(t){var li=document.createElement('li');li.textContent=t;l.appendChild(li);});
   $('exIntroEnd').textContent=T.introEnd;$('exIntroGo').textContent=go?T.introGo:D.close;exIntroGo=go;$('exIntro').hidden=false;document.body.classList.add('lock');}
@@ -431,32 +434,55 @@ function l1Chart(){var el=$('l1Chart');el.innerHTML='';
   el.innerHTML=svg;}
 function l1Render(){if(!$('l1H'))return;var T=D.L1,n=l1DayN(),k=l1Today(),days=l1Days().length;
   $('l1H').textContent=T.h;$('l1Day').textContent=days>=21?T.fin:T1('day',{n:n});
-  var g=$('l1Grid');g.innerHTML='';for(var i=1;i<=21;i++){var e=document.createElement('span');e.textContent=i;e.className=i<=days?'ok':(i===n?'cur':'');g.appendChild(e);}
-  var b=$('l1Go');b.hidden=k>=3;b.textContent=k?T.goMore:T.go;
-  $('l1Sub').textContent=k>=3?T.full:(k?T1('done',{k:k}):T.sub+' '+T.when);
-  var sm=$('l1Sum');sm.innerHTML='';var cell=function(t,v,c){var d=document.createElement('div');d.className='hs';var bb=document.createElement('b');bb.textContent=v;if(c)bb.style.color=c;var s=document.createElement('span');s.textContent=t;d.appendChild(bb);d.appendChild(s);sm.appendChild(d);};
-  var cs=L1.s.filter(function(x){return x.c;}).map(function(x){return x.c;}),best=cs.length?Math.max.apply(null,cs):0,last=cs.length?cs[cs.length-1]:0;
-  cell(T.best,best?best+' '+D.sec:'—');cell(T.last,last?last+' '+D.sec:'—');cell(T.cnt,String(L1.s.length));
+  var pl0=L1.plan&&(L1.plan.rep||L1.plan.at>Date.now())?L1.plan:null,pn=pl0&&dkey(pl0.at)===dkey(Date.now())?n:days+1;
+  var g=$('l1Grid');g.innerHTML='';for(var i=1;i<=21;i++){var e=document.createElement('span');e.textContent=i;e.className=i<=days?'ok':(i===n?'cur':'');if(i>days&&i!==n&&pl0&&(pl0.rep||i===pn))e.className='pl';g.appendChild(e);}  // planned days have a blue ring
+  var b=$('l1Go');b.textContent=k?T.plan:T.go;  // Nov 2026-10-24: after a training the person plans the next one; only days, this button and the chart
+  var pl=pl0;if(pl&&pl.rep&&pl.at<=Date.now()){var q=new Date(pl.at),t=new Date();t.setHours(q.getHours(),q.getMinutes(),0,0);if(t<=new Date())t.setDate(t.getDate()+1);pl={at:t.getTime(),rep:1};}  // a daily plan shows its next time
+  $('l1Next').hidden=!pl;if(pl)$('l1Next').textContent=T1('next',{t:plWhen(pl.at)});
+  $('l1Now').hidden=!k||k>=3;$('l1Now').textContent=T.now;
+  $('l1Sub').textContent=k>=3?T.full:'';
+  var cs=L1.s.map(function(x){return x.c||0;}),best=cs.length?Math.max.apply(null,cs):0;$('l1Best').hidden=!best;$('l1BestL').textContent=T.best;$('l1BestV').textContent=best+' '+D.sec;  // Nov: one number, the best control hold at the end of a training
   $('l1ChartH').textContent=T.chartH;$('l1Note').textContent=T.note;l1Chart();}
 function l1Open(skip){skip=skip===true;if(l1Today()>=3)return;track('l1_open');var n=l1DayN();
   if(!L1.start){L1.start=Date.now();L1.base=history[0]&&history[0].ts?history[0].ts.inhale:0;}
-  EX={on:true,base:0,goal:0,state:'',hd:0,l1:n,m:0,steps:['in','ex','ex','ex','ex','in'],i:0,res:[],miss:[]};
+  EX={on:true,base:0,goal:0,state:'',hd:0,l1:n,m:0,steps:['in','ex','ex','ex','in'],i:0,res:[],miss:[]};
   $('exTtl').textContent=T1('howH',{n:n});$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHow').textContent=D.X.howLink;$('exAgain').textContent=D.X.againLink;$('exHome').textContent=D.L1.back;$('exMail').hidden=true;$('exPay').hidden=true;
   $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exHow').hidden=false;$('exAgain').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');
-  EX.intro=D.L1.introL;if(!L1.s.length&&!skip){exRing('idle ready','','','');exCard(D.X.ctrl0,'','');exIntro(D.L1.introL,exReady);}else exReady();}  // starts with the inhale hold, no rest before it, like the site
+  var il=[D.X.introL[7].replace(/ [^.]+\.$/,''),D.X.introL[6]].concat(D.X.introL.slice(1));  // Nov 2026-10-24: Level 1 = the free exercise plus the same control hold at the start
+  EX.intro=il;if(!L1.s.length&&!skip){exRing('idle ready','','','');exCard(D.X.ctrl0,'','');exIntro(il,exReady);}else exReady();}  // starts with the inhale hold, no rest before it, like the site
 function l1Done(ctrlS){var a=EX.res[0]||0,b=Math.round(ctrlS),rec={d:Date.now(),m:EX.m,a:a,c:b};L1.s.push(rec);store.set('l1',L1);track('l1_done');awake(false);
   EX.state='res';exDots();var k=l1Today(),up=b>a;
   var txt=(up?T1('ctrlUp',{p:Math.max(1,Math.round((b-a)/a*100))})+' ':'')+T1('resT',{k:k});
   exCard('',txt,'');var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=T1('lineIn',{a:a,b:b}).replace(/(\d) /g,'$1 ').replace(' →',' →');r.appendChild(ln);r.hidden=false;
-  exRing('idle done '+(up?'lv2':'lv1'),'',D.L1.res,'');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=col(2);exPrg.style.strokeDashoffset=0;
+  exRing('idle done '+(up?'lv2':'lv1'),'','','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=col(2);exPrg.style.strokeDashoffset=0;
   $('exBtns').hidden=false;$('exMail').hidden=true;$('exPay').hidden=true;$('exHome').className='cta';$('exQuit').hidden=true;$('exHow').hidden=true;$('exAgain').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');
   l1Remind();}
-function l1Remind(){var LN=P.LocalNotifications;if(!LN)return;var t=new Date(Date.now()+24*3600*1000);  // tomorrow at the same time, replaced by each new session
+function l1Remind(){var LN=P.LocalNotifications;if(!LN||(L1.plan&&L1.plan.at>Date.now()))return;  // a planned training keeps its own reminder
+  var t=new Date(Date.now()+24*3600*1000);  // tomorrow at the same time, replaced by each new session
   LN.cancel({notifications:[{id:2}]}).catch(function(){}).then(function(){return LN.requestPermissions();}).then(function(p){if(!p||p.display!=='granted')return;
     return LN.schedule({notifications:[{id:2,title:D.L1.h,body:D.L1.remB,schedule:{at:t,allowWhileIdle:true}}]});}).catch(function(){});}
 function l1Tab(){var on=PAY.owned;$('tabL1').hidden=!on;}
 PAY.on(l1Tab);l1Tab();  // a bought level shows at once, even if Play does not answer on this start
-$('l1Go').addEventListener('click',function(){l1Open();});
+$('l1Go').addEventListener('click',function(){if(l1Today())plOpen();else l1Open();});
+$('l1Now').addEventListener('click',function(){l1Open();});
+/* plan the next training (Nov 2026-10-24): day, time and an optional reminder before it */
+var plRem=30;
+function pad2(n){return (n<10?'0':'')+n;}
+function plWhen(t){var d=new Date(t),n=new Date(),T=D.L1,day=dkey(t)===dkey(n.getTime())?T.today:(dkey(t)===dkey(n.getTime()+864e5)?T.tomorrow:d.toLocaleDateString(lang==='en'?'en-US':'ru-RU',{day:'numeric',month:'long'}));
+  return day+', '+d.toLocaleTimeString(lang==='en'?'en-US':'ru-RU',{hour:'2-digit',minute:'2-digit'});}
+function plOpen(){var T=D.L1,d=new Date(Date.now()+3*3600e3);d.setMinutes(d.getMinutes()<30?30:60,0,0);if(L1.plan&&L1.plan.at>Date.now())d=new Date(L1.plan.at);
+  $('plH').textContent=T.planH;$('plDayL').textContent=T.plDay;$('plTimeL').textContent=T.plTime;$('plRemL').textContent=T.plRem;$('plSave').textContent=T.plSave;$('plRepL').textContent=T.plRep;$('plRep').checked=!!(L1.plan&&L1.plan.rep);$('plCancel').textContent=D.close;
+  $('plDay').value=d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());$('plTime').value=pad2(d.getHours())+':'+pad2(d.getMinutes());
+  if(L1.plan)plRem=L1.plan.rem;var c=$('plRem');c.innerHTML='';[0,15,30,60].forEach(function(m){var e=document.createElement('button');e.type='button';e.textContent=m?T1('remM',{m:m===60?T.hour:m+' '+T.min}):T.remNo;e.className=m===plRem?'on':'';
+    e.addEventListener('click',function(){plRem=m;[].forEach.call(c.children,function(x){x.className='';});e.className='on';});c.appendChild(e);});
+  $('l1Plan').hidden=false;document.body.classList.add('lock');}
+function plClose(){$('l1Plan').hidden=true;document.body.classList.remove('lock');}
+$('plCancel').addEventListener('click',plClose);
+$('plSave').addEventListener('click',function(){var v=($('plDay').value||'').split('-'),t=($('plTime').value||'').split(':');if(v.length<3||t.length<2)return;
+  var at=new Date(+v[0],+v[1]-1,+v[2],+t[0],+t[1]).getTime();if(!(at>Date.now()))return;
+  var rep=$('plRep').checked;L1.plan={at:at,rem:plRem,rep:rep?1:0};store.set('l1',L1);track('l1_plan');plClose();l1Render();
+  var LN=P.LocalNotifications;if(!LN)return;LN.cancel({notifications:[{id:2}]}).catch(function(){}).then(function(){if(!plRem)return;return LN.requestPermissions().then(function(p){if(!p||p.display!=='granted')return;
+    return LN.schedule({notifications:[{id:2,title:D.L1.h,body:rep?T1('remB',{}):T1('remB2',{t:plWhen(at)}),schedule:rep?(function(){var w=new Date(at-plRem*60e3);return {on:{hour:w.getHours(),minute:w.getMinutes()},allowWhileIdle:true};})():{at:new Date(at-plRem*60e3),allowWhileIdle:true}}]});});}).catch(function(){});});
 store.get('l1').then(function(v){if(v&&v.s)L1=v;l1Render();});
 /* ---------- start ---------- */
 $('warnOk').addEventListener('change',function(){$('warnGo').classList.toggle('off',!this.checked);$('warnOk').parentNode.classList.remove('need');});
