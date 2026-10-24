@@ -4,6 +4,10 @@ name: iOS subscription (App Store Connect)
 # Safe to run again: it only adds what is missing.
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - .github/asc/**
+      - .github/workflows/ios-subscription.yml
 
 jobs:
   subscription:
