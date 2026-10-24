@@ -1,6 +1,6 @@
-/* «Уровень 1»: yearly auto-renewing subscription through Google Play Billing (cordova-plugin-purchase).
-   Only in the Google Play build (com.robotrainerpro.app). In RuStore, iOS and a browser it stays off and the app shows no pay button.
-   No server: the purchase is checked by Google Play on the phone, the app keeps a local "owned" flag and re-reads it from Play on start. */
+/* «Уровень 1»: yearly auto-renewing subscription (cordova-plugin-purchase): Google Play Billing on Android, App Store on iOS.
+   Only in the store builds with id com.robotrainerpro.app. In RuStore and a browser it stays off and the app shows no pay button.
+   No server: the purchase is checked by the store on the phone, the app keeps a local "owned" flag and re-reads it from the store on start. */
 (function(){
 'use strict';
 var PRODUCT='level1_year', PLAY_ID='com.robotrainerpro.app';
@@ -16,7 +16,7 @@ function setOwned(v){if(PAY.owned===v)return;PAY.owned=v;try{localStorage.setIte
 
 function start(){
   var C=window.CdvPurchase;if(!C||!C.store)return;
-  var st=C.store,G=C.Platform.GOOGLE_PLAY;
+  var st=C.store,G=Cap.getPlatform()==='ios'?C.Platform.APPLE_APPSTORE:C.Platform.GOOGLE_PLAY;
   st.verbosity=C.LogLevel.WARNING;
   st.register([{id:PRODUCT,type:C.ProductType.PAID_SUBSCRIPTION,platform:G}]);
   st.when()
@@ -33,7 +33,7 @@ function start(){
   PAY.restore=function(){PAY.busy=true;emit();st.restorePurchases().then(function(){check();});};
 }
 
-if(!(Cap&&Cap.getPlatform&&Cap.getPlatform()==='android'))return;
+var plat=Cap&&Cap.getPlatform&&Cap.getPlatform();if(plat!=='android'&&plat!=='ios')return;
 var appInfo=P.App&&P.App.getInfo?P.App.getInfo():Promise.resolve({});
 appInfo.then(function(i){if(i.id!==PLAY_ID)return;  // RuStore build has its own id and no Google billing
   if(window.CdvPurchase)start();else document.addEventListener('deviceready',start,false);}).catch(function(){});

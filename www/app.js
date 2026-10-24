@@ -386,7 +386,7 @@ function payRender(){var T=D.PAY,show=PAY.available&&!PAY.owned&&EX.state==='res
 function payRenderSheet(T){
   $('payH').textContent=T.h;$('ofH').textContent=T.ofH;$('ofCup').textContent=T.ofCup;$('ofOr').textContent=T.ofOr;$('ofWin').textContent=T.ofWin;$('ofTxt').textContent=T.ofTxt;$('payNote').textContent=T.note.replace('{p}',payPrice());  // Nov: a latte or a gold medal, same price; promo footnote
   $('payList').innerHTML='';T.list.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('payList').appendChild(li);});
-  $('payPrice').textContent=T.price.replace('{p}',payPrice());$('payRenew').textContent=T.renew;$('payRestore').textContent=T.restore;$('payManage').textContent=T.manage;
+  $('payPrice').textContent=T.price.replace('{p}',payPrice());var ios=window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform()==='ios';$('payRenew').textContent=ios?T.renew.replace('Google Play','App Store'):T.renew;if(ios)$('payManage').href='https://apps.apple.com/account/subscriptions';$('payRestore').textContent=T.restore;$('payManage').textContent=T.manage;
   var g=$('payGo');g.textContent=PAY.busy?T.busy:T.go;g.disabled=PAY.busy;g.hidden=PAY.owned;
   var m=$('payMsg');m.textContent=PAY.owned?T.ok:(PAY.err?T.err:(payAsk==='restore'&&!PAY.busy?T.none:''));m.className='msg'+(PAY.owned?' ok':(m.textContent?' err':''));}
 window.payRender=payRender;
