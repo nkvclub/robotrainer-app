@@ -318,7 +318,8 @@ function exDots(){var d=$('exDots');d.innerHTML='';EX.steps.forEach(function(k,i
   e.textContent=k==='in'?D.X.ctrlShort:'';var done=EX.state==='res'||i<EX.i;
   e.className=done?(EX.miss[i]?'miss':'ok'):(i===EX.i?'cur':'');if(done&&!EX.miss[i]&&k!=='in')e.textContent='✓';d.appendChild(e);});}
 function exCard(h,t,btn,wait){$('exH').textContent=h;$('exT').textContent=t;var g=$('exGo');g.classList.toggle('wait',!btn);g.disabled=!btn;g.textContent=btn||wait||D.start;g.classList.toggle('stop',btn===D.X.stopW);}  // during rest the button stays in place, greyed, so nothing jumps
-function exRing(cls,time,lbl,cap){exBox.className='ringbox '+cls;$('exTime').textContent=time||'';$('exLbl').textContent=lbl||'';$('exCap').innerHTML=cap||'';$('exTap').textContent=/ready/.test(cls)?'':(/hold/.test(cls)?D.X.tapStop:'');}  // the circle is a button too, like the site's big red one
+function exRing(cls,time,lbl,cap){exBox.className='ringbox '+cls;$('exTime').textContent=time||'';$('exLbl').textContent=lbl||'';$('exCap').innerHTML=cap||'';$('exTap').textContent='';}  // Nov 2026-10-24: СТАРТ / СТОП live on the button under the circle, like the test; the circle still works on tap
+function exBtn(t,on,stop){var g=$('exGo');g.textContent=t;g.disabled=!on;g.classList.toggle('wait',!on);g.classList.toggle('stop',!!stop);}  // blue СТАРТ, red СТОП, grey while resting
 function exStopTimers(){cancelAnimationFrame(EX.raf);clearInterval(EX.restT);EX.restT=0;}
 /* step head, as the site's cards: «Замер на вдохе», «Подход 1», «Подход 2 (+5 сек)» */
 function exNo(){var n=0;for(var i=0;i<=EX.i;i++)if(EX.steps[i]==='ex')n++;return n;}
@@ -328,9 +329,9 @@ function exGoal(){var p=0;for(var i=0;i<EX.i;i++)if(EX.steps[i]==='ex')p=EX.res[
    the circle is the only button («жми — старт / стоп»); a hold goes straight into the 30 s ventilation, no messages in between */
 function exStepT(){var k=EX.steps[EX.i];return k==='in'?D.X.inT:(exGoal()?X('exT2',{p:exNo()-1}):D.X.exT);}
 function exReady(){exStopTimers();EX.state='ready';EX.tReady=performance.now();EX.goal=exGoal();exDots();exPrg.style.transition='';exPrg.style.stroke=col(0);exPrg.style.strokeDashoffset=C;
-  exCard(exHead(),exStepT(),'');
-  exRing('idle ready goal','','',D.X.readyQ);}  // the circle never repeats the card's head
-function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(D.X.restH,D.X.restT,'');var last=EX.res[EX.i-1],end=Date.now()+sec*1000;  // Nov 2026-10-21: the rest runs by itself right after СТОП (or «Понятно, начинаем»); only holds need СТАРТ/СТОП
+  exCard(exHead(),exStepT(),'');exBtn(D.X.tapGo,1,0);
+  exRing('idle ready goal','0','','');}  // the circle never repeats the card's head
+function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(D.X.restH,D.X.restT,'');exBtn(D.X.tapGo,0,0);var last=EX.res[EX.i-1],end=Date.now()+sec*1000;  // Nov 2026-10-21: the rest runs by itself right after СТОП (or «Понятно, начинаем»); only holds need СТАРТ/СТОП
   exPrg.style.transition='none';exPrg.style.stroke=acc();exPrg.getBoundingClientRect();exPrg.style.transition='';  // blue at once, no green/red fading into it
   var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),last?X('was',{t:last}):D.X.restPill,'');  // own time of the last hold, so the next goal makes sense
     exPrg.style.strokeDashoffset=C*(1-left/sec);
@@ -344,7 +345,7 @@ function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]===
   else exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));
   EX.raf=requestAnimationFrame(exHoldTick);}
 function exStart(){EX.state='hold';EX.hit=false;EX.goal=exGoal();EX.t0=performance.now();beep(880);awake(true);exDots();
-  exPrg.style.stroke=col(0);exRing('exhold goal','0',EX.goal?D.X.redPill:D.X.m1Pill,'');  // Nov 2026-10-24: red in every hold, like the site's button; green only once a set's goal is reached
+  exPrg.style.stroke=col(0);exBtn(D.X.tapStop,1,1);exRing('exhold goal','0',EX.goal?D.X.redPill:D.X.m1Pill,'');  // Nov 2026-10-24: red in every hold, like the site's button; green only once a set's goal is reached
   EX.raf=requestAnimationFrame(exHoldTick);}
 function exEnd(){cancelAnimationFrame(EX.raf);var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';beep(330);
   var r=Math.max(1,Math.round(s));EX.res[EX.i]=r;  // Nov: no step is ever repeated, a short hold counts as it is

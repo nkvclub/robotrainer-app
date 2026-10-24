@@ -139,7 +139,7 @@ body.vbcap-on #box .lbl{display:none!important}
 .extap:empty{display:none}
 #exBox.ready,#exBox.exhold{cursor:pointer}
 /* calm screen like the site's trainer: the step card on top, the circle under it is the only button */
-#scrEx #exGo{display:none}
+#scrEx.res #exGo{display:none}
 #scrEx:not(.res) .exhead{order:0}#scrEx:not(.res) #exCard{order:1}#scrEx:not(.res) #exBox{order:2}#scrEx:not(.res) #exNote,#scrEx:not(.res) .exlinks{order:3}
 #exBox.ready .excap{font-size:min(22px,8.5cqw)}
 #exBox.ready.goal .face{background:radial-gradient(circle at 35% 30%,#ff6f6b,var(--red) 70%)}
@@ -168,6 +168,10 @@ body.vbcap-on #box .lbl{display:none!important}
 #scrEx:not(.res) #exH{font-size:15px;line-height:1.25;min-height:2.5em;display:flex;align-items:center;justify-content:center}
 #scrEx:not(.res) #exT{font-size:14px;font-weight:600;line-height:1.3;min-height:7.8em}
 #scrEx:not(.res) #exNote{display:none}
-#scrEx:not(.res) #exBox{width:min(330px,calc(100vw - 60px),35dvh)}
+#scrEx:not(.res) #exBox{width:min(330px,calc(100vw - 60px),31dvh)}
 .exlinks .exquit{font-size:14px}
 .expaybox #payGo{font-size:16px;line-height:1.3}
+
+/* Nov 2026-10-24: СТАРТ / СТОП as a big button under the circle, like the test; the circle shows only the time */
+#scrEx:not(.res) #exGo{order:2;margin-top:-4px;align-self:center;min-width:150px}
+#scrEx #exBox.ready .time{display:block;font-size:min(48px,22cqw)}
