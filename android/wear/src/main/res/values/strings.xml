@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RoboTrainer</string>
+    <string name="wait">Start the exercise\non your phone</string>
+    <string name="nophone">No connection\nwith the phone</string>
+    <string name="look">Look at\nyour phone</string>
+    <string name="rest">Breathe</string>
+    <string name="start">START</string>
+    <string name="stop">STOP</string>
+    <string name="exhale_go">Breathe out and tap</string>
+    <string name="inhale_go">Breathe in and tap</string>
+    <string name="hold">Don\'t breathe</string>
+    <string name="can_breathe">You can breathe</string>
+    <string name="done">Done!\nYour result\nis on the phone</string>
+</resources>

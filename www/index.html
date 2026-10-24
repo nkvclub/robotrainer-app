@@ -86,16 +86,27 @@
     <div class="ringbox idle" id="exBox">
       <svg class="ring" viewBox="0 0 120 120" aria-hidden="true"><circle class="trk" cx="60" cy="60" r="54"/><circle class="prg" id="exPrg" cx="60" cy="60" r="54" stroke-dasharray="339.3" stroke-dashoffset="339.3"/></svg>
       <div class="face"><div id="exFace"><div class="time" id="exTime"></div><div class="lbl" id="exLbl"></div></div></div>
-      <div class="excap" id="exCap"></div>
+      <div class="excap" id="exCap"></div><div class="extap" id="exTap"></div>
     </div>
     <div class="row act excard" id="exCard"><div class="exh" id="exH"></div><div class="ext" id="exT"></div><div class="exres" id="exRes" hidden></div><button class="cbtn" type="button" id="exGo"></button></div>
-    <div class="exbtns" id="exBtns" hidden><button class="cta" type="button" id="exMail"></button><button class="again" type="button" id="exHome"></button></div>
+    <div class="exbtns" id="exBtns" hidden><button class="cta" type="button" id="exPay" hidden></button><button class="cta" type="button" id="exMail"></button><button class="again" type="button" id="exHome"></button></div>
     <p class="note" id="exNote"></p>
-    <button class="exquit" type="button" id="exQuit"></button>
+    <div class="exlinks"><button class="exquit" type="button" id="exHow"></button><button class="exquit" type="button" id="exQuit"></button></div>
   </div>
 </section>
 
 <!-- History -->
+<section class="screen" id="scrL1" hidden>
+  <div class="wrap">
+    <h2 class="h2" id="l1H"></h2>
+    <div class="card l1day"><div class="l1dayh" id="l1Day"></div><div class="l1grid" id="l1Grid"></div></div>
+    <div class="l1act"><button class="cta" type="button" id="l1Go"></button><div class="small" id="l1Sub"></div></div>
+    <div class="hsum" id="l1Sum"></div>
+    <div class="card l1chart"><div class="l1charth" id="l1ChartH"></div><div id="l1Chart"></div></div>
+    <p class="note" id="l1Note"></p>
+  </div>
+</section>
+
 <section class="screen" id="scrHist" hidden>
   <div class="wrap">
     <h2 class="h2" data-t="histH"></h2>
@@ -137,10 +148,36 @@
   </div>
 </div>
 
+<!-- How to do the exercise: read before any timer starts -->
+<div class="modal" id="exIntro" hidden>
+  <div class="sheet">
+    <div class="ctah" id="exIntroH"></div>
+    <ol class="howlist" id="exIntroL"></ol>
+    <div class="small" id="exIntroEnd"></div>
+    <button class="cta" type="button" id="exIntroGo"></button>
+  </div>
+</div>
+
 <!-- Button tour after the overview: one highlighted button at a time -->
 <div class="tour" id="tour" hidden>
   <div class="tour-hole" id="tourHole"></div>
   <div class="tour-tip" id="tourTip"><div id="tourText"></div><div class="tour-nav"><button type="button" class="tour-skip" id="tourSkip" data-t="tourSkip"></button><button type="button" class="tour-next" id="tourNext"></button></div></div>
+</div>
+
+<!-- Level 1 subscription sheet (Google Play build only) -->
+<div class="modal" id="payModal" hidden>
+  <div class="sheet paysheet">
+    <button class="close" type="button" id="payClose" data-t="close"></button>
+    <div class="ctah" id="payH"></div>
+    <ul class="paylist" id="payList"></ul>
+    <div class="exoffer" id="exOffer"><p class="ofh" id="ofH"></p><div class="ofrow"><figure><svg viewBox="0 0 72 64" aria-hidden="true"><path d="M27 14c-3-4 3-6 0-10M37 14c-3-4 3-6 0-10M47 14c-3-4 3-6 0-10" fill="none" stroke="#9fc3f0" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="36" cy="57" rx="27" ry="5" fill="#d9e7f8"/><path d="M52 27h4a9 9 0 0 1 0 18h-5" fill="none" stroke="#0a6fe0" stroke-width="4"/><path d="M14 20h44l-4 30a6 6 0 0 1-6 5H24a6 6 0 0 1-6-5z" fill="#fff" stroke="#0a6fe0" stroke-width="3" stroke-linejoin="round"/><ellipse cx="36" cy="21" rx="21" ry="4" fill="#c8915a"/><path d="M36 25c-2-3-7-1-5 2l5 3 5-3c2-3-3-5-5-2z" fill="#fff" transform="translate(0 -5)"/></svg><figcaption id="ofCup"></figcaption></figure><b id="ofOr"></b><figure class="ofwin" id="ofWinBtn" role="button" tabindex="0"><svg viewBox="0 0 72 64" aria-hidden="true"><path d="M30 4l6 12 6-12" fill="none" stroke="#e53935" stroke-width="4" stroke-linejoin="round"/><circle cx="36" cy="22" r="9" fill="#f6b400" stroke="#d99400" stroke-width="2"/><path d="M36 17l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z" fill="#fff6c8"/><rect x="25" y="34" width="22" height="26" rx="3" fill="#0a6fe0"/><rect x="5" y="44" width="20" height="16" rx="3" fill="#4d9bff"/><rect x="47" y="48" width="20" height="12" rx="3" fill="#9fc3f0"/><text x="36" y="53" text-anchor="middle" font-size="14" font-weight="900" fill="#fff" font-family="Inter,Arial,sans-serif">1</text></svg><figcaption id="ofWin"></figcaption></figure></div><p class="oftxt" id="ofTxt"></p></div>
+    <div class="payprice" id="payPrice"></div>
+    <button class="cta" type="button" id="payGo"></button>
+    <div class="small payrenew" id="payRenew"></div>
+    <div class="small paynote" id="payNote"></div>
+    <div class="msg" id="payMsg"></div>
+    <div class="paylinks"><button class="link" type="button" id="payRestore"></button><a class="link" id="payManage" href="https://play.google.com/store/account/subscriptions?package=com.robotrainerpro.app" target="_blank" rel="noopener"></a><a class="link" id="payPriv" href="#" target="_blank" rel="noopener" data-t="privacy"></a></div>
+  </div>
 </div>
 
 <!-- Email sheet -->
@@ -158,12 +195,14 @@
 
 <nav class="tabs" id="tabs">
   <button type="button" data-go="scrTest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg><span data-t="tabTest"></span></button>
+  <button type="button" data-go="scrL1" id="tabL1" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg><span data-t="tabL1"></span></button>
   <button type="button" data-go="scrHist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span data-t="tabHist"></span></button>
   <button type="button" data-go="scrSet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-t="tabSet"></span></button>
 </nav>
 
 <script src="config.js"></script>
 <script src="i18n.js"></script>
+<script src="billing.js"></script>
 <script src="app.js"></script>
 <script src="timer-mode.js"></script>
 <script src="update-check.js"></script>

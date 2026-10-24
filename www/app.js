@@ -41,7 +41,7 @@ function applyTexts(){
   $('howList').innerHTML='';D.howL.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('howList').appendChild(li);});
   $('warnList').innerHTML='';D.warnL.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('warnList').appendChild(li);});
   $('lru').setAttribute('aria-pressed',lang==='ru');$('len').setAttribute('aria-pressed',lang==='en');
-  $('privLink').href=CFG.PRIVACY_URL[lang];$('consentLink').href=CFG.PRIVACY_URL[lang];$('siteLink').href=CFG.SITE_URL[lang];
+  $('privLink').href=CFG.PRIVACY_URL[lang];$('consentLink').href=CFG.PRIVACY_URL[lang];$('siteLink').href=CFG.SITE_URL[lang];$('payPriv').href=CFG.PRIVACY_URL[lang];if(window.payRender)payRender();
   $('ver').textContent=D.ver+' '+CFG.version;
   if(P.App&&P.App.getInfo&&!CFG.nativeVer)P.App.getInfo().then(function(i){CFG.version=i.version;CFG.nativeVer=true;$('ver').textContent=D.ver+' '+i.version;}).catch(function(){});  // show the store version, not the web one
   var sd=$('sDay');sd.innerHTML='';[1,2,3,4,5,6,0].forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent=D.days[d];sd.appendChild(o);});sd.value=S.remDay;
@@ -56,15 +56,18 @@ function awake(on){clearTimeout(awakeT);if(!P.KeepAwake)return;
 var ac=null,acT=0;  // the sound chip sleeps after a quiet minute or when the app is hidden (battery); never during a hold or rest, so timer beeps always sound
 function beep(f){
   if(S.snd){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();clearTimeout(acT);acT=setTimeout(function(){if(ac&&!run&&!restT&&!EX.on)ac.suspend();},60000);var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.25);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.25);}catch(e){}}
-  if(S.vib){if(P.Haptics){P.Haptics.impact({style:'MEDIUM'}).catch(function(){});}else{try{navigator.vibrate&&navigator.vibrate(60);}catch(e){}}}
+  // in the exercise there is one kind of buzz, only when something must be done now (breathe, or tap START); no codes to learn
+  if(EX.on&&f!==880)f=0;var ms=EX.on?400:0;
+  if(S.vib&&f&&!(EX.on&&wOn)){if(ms&&P.Haptics&&P.Haptics.vibrate){P.Haptics.vibrate({duration:ms}).catch(function(){});}else if(P.Haptics){P.Haptics.impact({style:'MEDIUM'}).catch(function(){});}else{try{navigator.vibrate&&navigator.vibrate(ms||60);}catch(e){}}}
 }
 
 /* ---------- screens ---------- */
 function go(id){track('tab_'+id);if(id==='scrTest'&&S.warned&&!S.howSeen)setTimeout(openHow,300);
-  ['scrWarn','scrTest','scrEx','scrHist','scrSet'].forEach(function(s){$(s).hidden=s!==id;});
+  ['scrWarn','scrTest','scrEx','scrL1','scrHist','scrSet'].forEach(function(s){$(s).hidden=s!==id;});
   $('tabs').hidden=id==='scrWarn'||id==='scrEx';  // the exercise has its own way out
   document.querySelectorAll('#tabs button').forEach(function(b){b.toggleAttribute('aria-current',b.dataset.go===id);if(b.dataset.go===id)b.setAttribute('aria-current','page');});
   if(id==='scrHist')renderHistory();
+  if(id==='scrL1')l1Render();
   window.scrollTo(0,0);
 }
 document.querySelectorAll('#tabs button').forEach(function(b){b.addEventListener('click',function(){if(run)return;go(b.dataset.go);});});
@@ -296,7 +299,7 @@ $('emailForm').addEventListener('submit',function(e){
 if(P.App&&P.App.addListener){P.App.addListener('backButton',function(){
   if(!$('tour').hidden){endTour();return;}
   if(!$('howModal').hidden){closeHow();return;}
-  if(!$('emailModal').hidden){closeEmail();return;}
+  if(!$('exIntro').hidden){$('exIntro').hidden=true;document.body.classList.remove('lock');if(exIntroGo){exIntroGo=null;exClose();}else wSync();return;}if(!$('payModal').hidden){closePay();return;}if(!$('emailModal').hidden){closeEmail();return;}
   if(!$('scrEx').hidden){exClose();return;}
   if($('scrTest').hidden&&S.warned){go('scrTest');return;}
   P.App.minimizeApp();
@@ -304,67 +307,162 @@ if(P.App&&P.App.addListener){P.App.addListener('backButton',function(){
 
 
 /* ---------- exercise after the test, like on the site (Nov 2026-10-19): 30 s to catch the breath, set 1 = exhale hold as long as you can (the measure),
-   set 2 = measure + 5 s, set 3 = + 5 s more, 30 s rest before each, then a control INHALE hold compared with step 1 of the test, gain in percent.
-   Numbers are fine during the sets (it is not the test); the control hold shows no numbers until it ends, like the test */
-var EX={on:false,base:0,goal:0,set:0,state:'',t0:0,raf:0,restT:0,end:0};
+   set 2 and 3 = at least 5 s longer than the set before, 30 s rest before each, then a control INHALE hold compared with step 1 of the test, gain in percent.
+   Works like the site's trainer (Nov 2026-10-21): every hold starts with START, the ring is red until the goal and turns green
+   when it is reached, no goal numbers to read or count */
+var EX={on:false,base:0,goal:0,state:'',t0:0,raf:0,restT:0,l1:0,m:0,steps:[],i:0,res:[],miss:[]};  // steps: 'in' = inhale hold, 'ex' = exhale set; l1 = Level 1 day number
 var exPrg=$('exPrg'),exBox=$('exBox');
 (function(){var m=box.querySelector('.mascot');if(m)$('exFace').insertBefore(m.cloneNode(true),$('exFace').firstChild);})();
 function X(k,o){var t=D.X[k];for(var n in o)t=t.replace('{'+n+'}',o[n]);return t;}
-function exDots(){var d=$('exDots');d.innerHTML='';for(var i=1;i<=4;i++){var e=document.createElement('span');e.textContent=i<4?String(i):D.X.ctrlShort;
-  var cur=EX.state==='res'?5:(EX.set||1);e.className=i<cur?'ok':(i===cur?'cur':'');if(i<cur)e.textContent='✓';d.appendChild(e);}}
-function exCard(h,t,btn){$('exH').textContent=h;$('exT').textContent=t;var g=$('exGo');g.classList.toggle('wait',!btn);g.disabled=!btn;g.textContent=btn||D.start;g.classList.toggle('stop',btn===D.X.stopW);}  // during rest START stays in place, greyed, so nothing jumps
-function exRing(cls,time,lbl,cap){exBox.className='ringbox '+cls;$('exTime').textContent=time||'';$('exLbl').textContent=lbl||'';$('exCap').innerHTML=cap||'';}
+function exDots(){var d=$('exDots');d.innerHTML='';EX.steps.forEach(function(k,i){var e=document.createElement('span');
+  e.textContent=k==='in'?D.X.ctrlShort:'';var done=EX.state==='res'||i<EX.i;
+  e.className=done?(EX.miss[i]?'miss':'ok'):(i===EX.i?'cur':'');if(done&&!EX.miss[i]&&k!=='in')e.textContent='✓';d.appendChild(e);});}
+function exCard(h,t,btn,wait){$('exH').textContent=h;$('exT').textContent=t;var g=$('exGo');g.classList.toggle('wait',!btn);g.disabled=!btn;g.textContent=btn||wait||D.start;g.classList.toggle('stop',btn===D.X.stopW);}  // during rest the button stays in place, greyed, so nothing jumps
+function exRing(cls,time,lbl,cap){exBox.className='ringbox '+cls;$('exTime').textContent=time||'';$('exLbl').textContent=lbl||'';$('exCap').innerHTML=cap||'';$('exTap').textContent=/ready/.test(cls)?'':(/hold/.test(cls)?D.X.tapStop:'');}  // the circle is a button too, like the site's big red one
 function exStopTimers(){cancelAnimationFrame(EX.raf);clearInterval(EX.restT);EX.restT=0;}
-function exReady(){exStopTimers();EX.state='ready';exDots();exPrg.style.transition='';exPrg.style.stroke=acc();exPrg.style.strokeDashoffset=C;
-  if(EX.set===1){exCard(D.X.set+' 1 '+D.X.of,EX.short?D.X.short:D.X.m1T,D.start);exRing('idle ready','','',EX.short?D.X.shortCap:D.X.m1+'<small>'+D.X.m1Sub+'</small>');}
-  else if(EX.set<=3){exCard(D.X.set+' '+EX.set+' '+D.X.of,X('setT',{t:EX.goal}),D.start);exRing('idle ready','','',X('goal',{t:EX.goal}));}
-  else{exCard(D.X.ctrl,EX.short?D.X.short:D.X.ctrlT,D.start);exRing('idle ready','','',EX.short?D.X.shortCap:D.X.ctrlCap+'<small>'+D.X.ctrlSub+'</small>');}}
-function exRest(sec,txt,pill,inh,head){exStopTimers();EX.state='rest';exDots();exCard(head||(EX.set<=3?D.X.set+' '+EX.set+' '+D.X.of:D.X.ctrl),txt,'');
-  var end=Date.now()+sec*1000,warned=false;exPrg.style.stroke=acc();
-  var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),left>10?pill:(left>0?(inh?D.X.soonIn:D.restSoon):(inh?D.X.goIn:D.restGo)),'');exPrg.style.strokeDashoffset=C*(1-left/sec);
-    if(left<=10&&!warned){warned=true;beep(520);}
-    if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);setTimeout(function(){beep(880);},250);exReady();}};
+/* step head, as the site's cards: «Замер на вдохе», «Подход 1», «Подход 2 (+5 сек)» */
+function exNo(){var n=0;for(var i=0;i<=EX.i;i++)if(EX.steps[i]==='ex')n++;return n;}
+function exHead(){if(EX.steps[EX.i]==='in')return EX.i?D.X.ctrl:D.X.ctrl0;var n=exNo();return X('setH',{n:n});}
+function exGoal(){var p=0;for(var i=0;i<EX.i;i++)if(EX.steps[i]==='ex')p=EX.res[i];return EX.steps[EX.i]==='ex'&&p?p+5:0;}  // site rule: each set at least 5 s longer than the one before; the first one is as long as you can
+/* a calm screen like the site's trainer (Nov 2026-10-21): one short card for the step that runs now, unchanged until it ends;
+   the circle is the only button («жми — старт / стоп»); a hold goes straight into the 30 s ventilation, no messages in between */
+function exStepT(){var k=EX.steps[EX.i];return k==='in'?D.X.inT:(exGoal()?D.X.exT2:D.X.exT);}
+function exReady(){exStopTimers();EX.state='ready';EX.tReady=performance.now();EX.goal=exGoal();exDots();exPrg.style.transition='';exPrg.style.stroke=EX.goal?col(0):acc();exPrg.style.strokeDashoffset=C;
+  exCard(exHead(),exStepT(),'');
+  exRing('idle ready'+(EX.goal?' goal':''),'','',D.X.readyQ);wSync();}  // the circle never repeats the card's head
+function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(D.X.restH,D.X.restT,'');var last=EX.res[EX.i-1],end=EX.wEnd=Date.now()+sec*1000;wSync();  // Nov 2026-10-21: the rest runs by itself right after СТОП (or «Понятно, начинаем»); only holds need СТАРТ/СТОП
+  exPrg.style.transition='none';exPrg.style.stroke=acc();exPrg.getBoundingClientRect();exPrg.style.transition='';  // blue at once, no green/red fading into it
+  var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),last?X('was',{t:last}):D.X.restPill,'');  // own time of the last hold, so the next goal makes sense
+    exPrg.style.strokeDashoffset=C*(1-left/sec);
+    if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);exReady();}};  // one buzz: the next step's card is up, the circle waits for СТАРТ
   paint();EX.restT=setInterval(paint,250);}
-function exHoldTick(){var s=(performance.now()-EX.t0)/1000;
-  if(EX.set===1){exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));$('exTime').textContent=Math.floor(s);}
-  else if(EX.set<=3){exPrg.style.strokeDashoffset=C*(1-Math.min(s/EX.goal,1));$('exTime').textContent=Math.floor(s);
-    if(s>=EX.goal){exEnd(true);return;}}
-  else{exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));exBox.style.setProperty('--puff',Math.min(s/50,1).toFixed(3));}
+function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';
+  $('exTime').textContent=Math.floor(s);
+  if(inh){exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));}
+  else if(EX.goal){exPrg.style.strokeDashoffset=C*(1-Math.min(s/EX.goal,1));
+    if(s>=EX.goal&&!EX.hit){EX.hit=true;beep(880);exPrg.style.stroke=col(2);exBox.classList.add('hit');$('exLbl').textContent=D.X.hitPill;}}  // red until the goal, green after, like the site's button
+  else exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));
   EX.raf=requestAnimationFrame(exHoldTick);}
-function exStart(){EX.state='hold';EX.short=false;EX.t0=performance.now();beep(660);awake(true);exPrg.style.stroke=acc();
-  if(EX.set===1){exCard(D.X.set+' 1 '+D.X.of,D.holdT,D.X.stopW);exRing('exhold','0',D.X.m1Pill,'');}
-  else if(EX.set<=3){exCard(D.X.set+' '+EX.set+' '+D.X.of,D.X.holdT,D.X.stopW);exRing('exhold','0',X('goal',{t:EX.goal}),'');}
-  else{exCard(D.X.ctrl,D.holdT,D.X.stopW);exRing('hold','','',D.X.going);}
-  EX.raf=requestAnimationFrame(exHoldTick);
-  if(EX.set>1&&EX.set<=3)EX.tmo=setTimeout(function(){if(EX.state==='hold'&&EX.set>1&&EX.set<=3)exEnd(true);},EX.goal*1000+400);}  // the goal is reached even if frames pause
-function exEnd(full){clearTimeout(EX.tmo);cancelAnimationFrame(EX.raf);var s=(performance.now()-EX.t0)/1000;exBox.style.setProperty('--puff',0);
-  if(EX.set===1){beep(330);if(s<5){EX.short=true;track('ex_m1_short');exReady();return;}
-    track('ex_m1_done');EX.goal=Math.round(s)+5;EX.state='breathe';exCard(D.X.set+' 1 '+D.X.of,D.X.afterM,'');exRing('idle','','',X('got',{t:Math.round(s)}));
-    EX.set=2;var rm=X('restM',{t:Math.round(s),g:EX.goal});setTimeout(function(){if(EX.on)exRest(30,rm,D.restCalm);},1500);return;}
-  if(EX.set<=3){track(full?'ex_set_full':'ex_set_early');exPrg.style.strokeDashoffset=full?0:exPrg.style.strokeDashoffset;
-    if(full){beep(880);setTimeout(function(){beep(880);},250);}else beep(330);
-    EX.state='breathe';exCard(D.X.set+' '+EX.set+' '+D.X.of,full?D.X.afterFull:D.X.afterEarly,'');exRing('idle','','',full?D.X.done:D.X.early);
-    EX.set++;if(EX.set===3)EX.goal+=5;  // ladder: +5 s more on the norm, whether or not set 2 reached it
-    setTimeout(function(){if(!EX.on)return;if(EX.set<=3)exRest(30,D.X.restT,D.restCalm);else exRest(30,D.X.restLongT,D.X.restLong,true);},1500);return;}
-  beep(330);
-  if(s<5){EX.short=true;track('ex_ctrl_short');exReady();return;}
-  track('ex_ctrl_done');awake(false);exResult(s);}
-function exResult(s){EX.state='res';exDots();var a=Math.round(EX.base),b=Math.round(s),up=b>a,d=Math.max(1,Math.round((b-a)/a*100));  // control is an inhale hold, compared with step 1 of the test, gain in percent
+function exStart(lag){lag=lag||0;EX.state='hold';EX.hit=false;EX.goal=exGoal();EX.t0=performance.now()-lag;EX.wT0=Date.now()-lag;wSync();beep(880);awake(true);exDots();
+  exPrg.style.stroke=EX.goal?col(0):acc();exRing('exhold'+(EX.goal?' goal':''),'0',EX.goal?D.X.redPill:D.X.m1Pill,'');
+  EX.raf=requestAnimationFrame(exHoldTick);}
+function exEnd(lag){cancelAnimationFrame(EX.raf);var s=(performance.now()-(lag||0)-EX.t0)/1000,inh=EX.steps[EX.i]==='in';beep(330);
+  var r=Math.max(1,Math.round(s));EX.res[EX.i]=r;  // Nov: no step is ever repeated, a short hold counts as it is
+
+  if(EX.goal&&!EX.hit)EX.miss[EX.i]=true;
+  track(inh?'ex_ctrl_done':(EX.goal?(EX.hit?'ex_set_full':'ex_set_early'):'ex_m1_done'));
+  if(inh&&EX.i===EX.steps.length-1){awake(false);EX.i++;exResult(s);return;}
+  if(!inh)EX.m=Math.max(EX.m,r);
+  EX.i++;exRest(30);}
+function exResult(s){if(EX.l1){l1Done(s);return;}EX.state='res';exDots();var a=Math.round(EX.base),b=Math.round(s),up=EX.up=b>a,d=Math.max(1,Math.round((b-a)/a*100));  // control is an inhale hold, compared with step 1 of the test, gain in percent
   var h=history[0];if(h&&h.d===EX.hd){h.ex=b;store.set('history',history);}
   exCard('',up?X('up',{p:d}):D.X.flat,'');
   var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=X('line',{a:a,b:b}).replace(/(\d) /g,'$1\u00a0').replace(' →','\u00a0→');r.appendChild(ln);r.hidden=false;
   exRing('idle done '+(up?'lv2':'lv1'),'',up?D.X.win:'','');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):'var(--muted)';exPrg.style.strokeDashoffset=up?0:C;
-  $('exBtns').hidden=false;$('exQuit').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');}
+  $('exBtns').hidden=false;wSync();payRender();$('exQuit').hidden=true;$('exHow').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');}
 function exOpen(){if(!history[0]||!(ts.exhale>=5))return;track('ex_open');
-  EX={on:true,base:ts.inhale,goal:0,set:1,state:'',hd:history[0].d};  // goal comes from set 1; control is an inhale, like step 1
-  $('exTtl').textContent=D.X.ttl;$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exMail').textContent=D.cta;$('exHome').textContent=D.X.home;
-  $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');exRest(30,D.X.howT,D.X.firstPill,false,D.X.howH);}  // 30 s to catch the breath after the squats, with what comes next
-function exClose(){exStopTimers();clearTimeout(EX.tmo);EX.on=false;EX.state='';awake(false);go('scrTest');}
-$('exGo').addEventListener('click',function(){if(EX.state==='ready')exStart();else if(EX.state==='hold')exEnd(false);});
+  EX={on:true,base:ts.inhale,goal:0,state:'',hd:history[0].d,l1:0,m:0,steps:['ex','ex','ex','in'],i:0,res:[],miss:[]};  // control is an inhale, like step 1 of the test
+  $('exTtl').textContent=D.X.ttl;$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHow').textContent=D.X.howLink;$('exMail').textContent=D.cta;$('exHome').textContent=D.X.home;$('exMail').hidden=false;
+  $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exHow').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');exRing('idle ready','','','');exCard(D.X.restH,'','');exIntro(D.X.introL,function(){exRest(30);});}  // the how-to is read before any timer runs  // 30 s to catch the breath after the squats, with what comes next
+function exIntro(list,go){var T=D.X;EX.intro=list;$('exIntroH').textContent=T.introH;var l=$('exIntroL');l.innerHTML='';list.forEach(function(t){var li=document.createElement('li');li.textContent=t;l.appendChild(li);});
+  $('exIntroEnd').textContent=T.introEnd;$('exIntroGo').textContent=go?T.introGo:D.close;exIntroGo=go;$('exIntro').hidden=false;document.body.classList.add('lock');wSync();}
+var exIntroGo=null;
+$('exIntroGo').addEventListener('click',function(){$('exIntro').hidden=true;document.body.classList.remove('lock');var g=exIntroGo;exIntroGo=null;if(g)g();else wSync();});
+$('exHow').addEventListener('click',function(){track('ex_how');exIntro(EX.intro||D.X.introL,null);});
+function exClose(){exStopTimers();clearTimeout(EX.tmo);var l=EX.l1;EX.on=false;EX.state='';awake(false);wSync();go(l?'scrL1':'scrTest');if(l)l1Render();}
+/* ---------- watch remote (Wear OS, Nov 2026-10-24): the phone runs the exercise and keeps the texts; the watch shows the circle
+   with START/STOP and gives the one buzz itself (end of the rest, ring turned green), so the phone stays quiet while a watch is near ---------- */
+var WT=P.Watch,wOn=false;
+function wSync(){if(!WT)return;
+  if(EX.on&&!EX.id){EX.id=Date.now();WT.watches().then(function(r){wOn=r.n>0;if(wOn)WT.open().catch(function(){});}).catch(function(){});}  // a new exercise: open the app on the watch
+  var st=!EX.on?'idle':EX.state==='res'?'done':(!$('exIntro').hidden||!EX.state)?'intro':EX.state;  // while the how-to sheet is open the watch says «look at the phone»
+  var dots=EX.on?EX.steps.map(function(k,i){return (EX.state==='res'||i<EX.i)?(EX.miss[i]?'miss':'ok'):(i===EX.i?'cur':'');}):[];
+  WT.send({s:JSON.stringify({st:st,id:EX.id||0,i:EX.i,end:EX.wEnd||0,t0:EX.wT0||0,goal:EX.goal||0,inh:EX.steps[EX.i]==='in'?1:0,dots:dots,lang:lang,at:Date.now()})}).catch(function(){});}
+if(WT)WT.addListener('tap',function(e){if(!EX.on||!$('exIntro').hidden)return;var lag=Math.min(3000,Math.max(0,Date.now()-(e.at||Date.now())));  // the hold counts from the tap on the wrist, not from when it reached the phone
+  if(EX.state==='ready')exStart(lag);else if(EX.state==='hold'&&performance.now()-EX.t0>1000)exEnd(lag);});
+function exTapGo(){if(EX.state==='ready'&&performance.now()-(EX.tReady||0)>700)exStart();else if(EX.state==='hold'&&performance.now()-EX.t0>1000)exEnd();}  // a double tap (circle + button) must not stop the hold it just started
+$('exGo').addEventListener('click',exTapGo);exBox.addEventListener('click',exTapGo);
 $('exQuit').addEventListener('click',function(){track('ex_quit');exClose();});
 $('exHome').addEventListener('click',exClose);
 $('exMail').addEventListener('click',openEmail);
 
+
+/* ---------- «Уровень 1»: yearly subscription (billing.js), Google Play build only ---------- */
+var PAY=window.RT_PAY,payAsk='';
+function payPrice(){return PAY.price||'$3.99';}
+function payRender(){var T=D.PAY,show=PAY.available&&!PAY.owned&&EX.state==='res'&&!EX.l1;  // Nov 2026-10-21: both outcomes lead to Level 1 (gain: «what about a year?», no gain: «room to grow»)
+  $('exPay').hidden=!show;$('exPay').textContent=T.btn.replace('{p}',payPrice());if(EX.l1)return payRenderSheet(T);$('exMail').className=show?'again':'cta';$('exHome').className=show?'exquit':'again';  // three buttons do not fit a small screen, home becomes a link
+  payRenderSheet(T);}
+function payRenderSheet(T){
+  $('payH').textContent=T.h;$('ofH').textContent=T.ofH;$('ofCup').textContent=T.ofCup;$('ofOr').textContent=T.ofOr;$('ofWin').textContent=T.ofWin;$('ofTxt').textContent=T.ofTxt;$('payNote').textContent=T.note.replace('{p}',payPrice());  // Nov: a latte or a gold medal, same price; promo footnote
+  $('payList').innerHTML='';T.list.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('payList').appendChild(li);});
+  $('payPrice').textContent=T.price.replace('{p}',payPrice());$('payRenew').textContent=T.renew;$('payRestore').textContent=T.restore;$('payManage').textContent=T.manage;
+  var g=$('payGo');g.textContent=PAY.busy?T.busy:T.go;g.disabled=PAY.busy;g.hidden=PAY.owned;
+  var m=$('payMsg');m.textContent=PAY.owned?T.ok:(PAY.err?T.err:(payAsk==='restore'&&!PAY.busy?T.none:''));m.className='msg'+(PAY.owned?' ok':(m.textContent?' err':''));}
+window.payRender=payRender;
+function openPay(){track('pay_open');payAsk='';PAY.err='';payRender();$('payModal').hidden=false;document.body.classList.add('lock');}
+function closePay(){$('payModal').hidden=true;document.body.classList.remove('lock');}
+var payWas=PAY.owned;PAY.on(function(){payRender();if(PAY.owned&&!payWas&&payAsk){payWas=true;setTimeout(function(){closePay();exStopTimers();EX.on=false;awake(false);go('scrL1');},1200);}payWas=PAY.owned;});
+$('exPay').addEventListener('click',openPay);
+$('payClose').addEventListener('click',closePay);
+$('payModal').addEventListener('click',function(e){if(e.target===this)closePay();});
+$('payGo').addEventListener('click',function(){if(PAY.busy||PAY.owned)return;track('pay_buy');payAsk='buy';PAY.buy();});
+$('ofWinBtn').addEventListener('click',function(){$('payGo').click();});  // the medal is the choice: tapping it buys, like «Оформить подписку»
+$('payRestore').addEventListener('click',function(){if(PAY.busy)return;track('pay_restore');payAsk='restore';PAY.err='';PAY.restore();});
+
+/* ---------- «Уровень 1» (paid), taken from the site's level I trainer (Nov 2026-10-21): inhale hold before -> 30 s rest -> 4 exhale sets
+   (the first as long as you can, each next one at least 5 s longer than the one before) with 30 s rest between -> inhale hold after.
+   Every hold starts with START. The chart shows the inhale hold before and after every session, like the site's «Результаты I уровня». Up to 3 sessions a day, 21 days. ---------- */
+var L1={start:0,base:0,s:[]};
+function dkey(t){var d=new Date(t);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function l1Days(){var k=[];L1.s.forEach(function(x){var q=dkey(x.d);if(k.indexOf(q)<0)k.push(q);});return k;}
+function l1Today(){var t=dkey(Date.now());return L1.s.filter(function(x){return dkey(x.d)===t;}).length;}
+function l1DayN(){var k=l1Days();return k.length+(k.indexOf(dkey(Date.now()))<0?1:0);}
+function T1(k,o){var t=D.L1[k];for(var n in o)t=t.replace('{'+n+'}',o[n]);return t;}
+function l1Chart(){var el=$('l1Chart');el.innerHTML='';
+  var S1=L1.s.filter(function(x){return x.a&&x.c;});  // every session: inhale hold before (blue) and after (orange), like the site
+  if(!S1.length){var p=document.createElement('div');p.className='small';p.textContent=L1.s.length?D.L1.chartNew:D.L1.chartEmpty;el.appendChild(p);return;}
+  var va=S1.map(function(x){return x.a;}),vc=S1.map(function(x){return x.c;}),all=va.concat(vc);
+  var W=300,H=150,l=30,r=10,t=14,b=24,mx=Math.max.apply(null,all),mn=Math.min.apply(null,all),lo=Math.max(0,Math.floor((mn-5)/5)*5),hi=Math.ceil((mx+5)/5)*5;
+  var n=Math.max(S1.length,7),x=function(i){return l+(W-l-r)*(n<2?0:i/(n-1));},y=function(s){return t+(H-t-b)*(1-(s-lo)/(hi-lo));};
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" class="l1svg" role="img" aria-label="'+D.L1.chartH+'">';
+  [lo,Math.round((lo+hi)/2),hi].forEach(function(g){svg+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+y(g)+'" y2="'+y(g)+'" class="gr"/><text x="'+(l-6)+'" y="'+(y(g)+4)+'" class="ax" text-anchor="end">'+g+'</text>';});
+  [[va,'ln'],[vc,'ln ln2']].forEach(function(q){var v=q[0];
+    svg+='<polyline class="'+q[1]+'" points="'+v.map(function(s,i){return x(i)+','+y(s);}).join(' ')+'"/>';
+    v.forEach(function(s,i){svg+='<circle class="pt'+(q[1]==='ln'?'':' pt2')+'" cx="'+x(i)+'" cy="'+y(s)+'" r="'+(i===v.length-1?5:3.5)+'"/>';});});
+  var lc=vc[vc.length-1];svg+='<text x="'+x(vc.length-1)+'" y="'+(y(lc)-10)+'" class="lbv" text-anchor="'+(vc.length>n-2?'end':'middle')+'">'+lc+' '+D.sec+'</text>';
+  svg+='<text x="'+l+'" y="'+(H-6)+'" class="ax">1</text><text x="'+(W-r)+'" y="'+(H-6)+'" class="ax" text-anchor="end">'+n+'</text></svg>';
+  svg+='<div class="l1leg"><span><i></i>'+D.L1.legA+'</span><span><i class="o"></i>'+D.L1.legC+'</span></div>';
+  el.innerHTML=svg;}
+function l1Render(){if(!$('l1H'))return;var T=D.L1,n=l1DayN(),k=l1Today(),days=l1Days().length;
+  $('l1H').textContent=T.h;$('l1Day').textContent=days>=21?T.fin:T1('day',{n:n});
+  var g=$('l1Grid');g.innerHTML='';for(var i=1;i<=21;i++){var e=document.createElement('span');e.textContent=i;e.className=i<=days?'ok':(i===n?'cur':'');g.appendChild(e);}
+  var b=$('l1Go');b.hidden=k>=3;b.textContent=k?T.goMore:T.go;
+  $('l1Sub').textContent=k>=3?T.full:(k?T1('done',{k:k}):T.sub+' '+T.when);
+  var sm=$('l1Sum');sm.innerHTML='';var cell=function(t,v,c){var d=document.createElement('div');d.className='hs';var bb=document.createElement('b');bb.textContent=v;if(c)bb.style.color=c;var s=document.createElement('span');s.textContent=t;d.appendChild(bb);d.appendChild(s);sm.appendChild(d);};
+  var cs=L1.s.filter(function(x){return x.c;}).map(function(x){return x.c;}),best=cs.length?Math.max.apply(null,cs):0,last=cs.length?cs[cs.length-1]:0;
+  cell(T.best,best?best+' '+D.sec:'—');cell(T.last,last?last+' '+D.sec:'—');cell(T.cnt,String(L1.s.length));
+  $('l1ChartH').textContent=T.chartH;$('l1Note').textContent=T.note;l1Chart();}
+function l1Open(){if(l1Today()>=3)return;track('l1_open');var n=l1DayN();
+  if(!L1.start){L1.start=Date.now();L1.base=history[0]&&history[0].ts?history[0].ts.inhale:0;}
+  EX={on:true,base:0,goal:0,state:'',hd:0,l1:n,m:0,steps:['in','ex','ex','ex','ex','in'],i:0,res:[],miss:[]};
+  $('exTtl').textContent=T1('howH',{n:n});$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHow').textContent=D.X.howLink;$('exHome').textContent=D.L1.back;$('exMail').hidden=true;$('exPay').hidden=true;
+  $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exHow').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');
+  EX.intro=D.L1.introL;if(!L1.s.length){exRing('idle ready','','','');exCard(D.X.ctrl0,'','');exIntro(D.L1.introL,exReady);}else exReady();}  // starts with the inhale hold, no rest before it, like the site
+function l1Done(ctrlS){var a=EX.res[0]||0,b=Math.round(ctrlS),rec={d:Date.now(),m:EX.m,a:a,c:b};L1.s.push(rec);store.set('l1',L1);track('l1_done');awake(false);
+  EX.state='res';exDots();var k=l1Today(),up=b>a;
+  var txt=(up?T1('ctrlUp',{p:Math.max(1,Math.round((b-a)/a*100))})+' ':'')+T1('resT',{k:k});
+  exCard('',txt,'');var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=T1('lineIn',{a:a,b:b}).replace(/(\d) /g,'$1 ').replace(' →',' →');r.appendChild(ln);r.hidden=false;
+  exRing('idle done '+(up?'lv2':'lv1'),'',D.L1.res,'');exPrg.style.transition='stroke .4s, stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=col(2);exPrg.style.strokeDashoffset=0;
+  $('exBtns').hidden=false;$('exMail').hidden=true;$('exPay').hidden=true;$('exHome').className='cta';$('exQuit').hidden=true;$('exHow').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');
+  wSync();l1Remind();}
+function l1Remind(){var LN=P.LocalNotifications;if(!LN)return;var t=new Date(Date.now()+24*3600*1000);  // tomorrow at the same time, replaced by each new session
+  LN.cancel({notifications:[{id:2}]}).catch(function(){}).then(function(){return LN.requestPermissions();}).then(function(p){if(!p||p.display!=='granted')return;
+    return LN.schedule({notifications:[{id:2,title:D.L1.h,body:D.L1.remB,schedule:{at:t,allowWhileIdle:true}}]});}).catch(function(){});}
+function l1Tab(){var on=PAY.owned;$('tabL1').hidden=!on;}
+PAY.on(l1Tab);l1Tab();  // a bought level shows at once, even if Play does not answer on this start
+$('l1Go').addEventListener('click',l1Open);
+store.get('l1').then(function(v){if(v&&v.s)L1=v;l1Render();});
 /* ---------- start ---------- */
 $('warnOk').addEventListener('change',function(){$('warnGo').classList.toggle('off',!this.checked);$('warnOk').parentNode.classList.remove('need');});
 $('warnGo').addEventListener('click',function(){if(!$('warnOk').checked){var c=$('warnOk').parentNode;c.classList.remove('need');void c.offsetWidth;c.classList.add('need');return;}S.warned=true;saveS();go('scrTest');});
