@@ -145,3 +145,7 @@ print('screenshot ok')
 
 state = call('GET', f'/v1/subscriptions/{sid}')['data']['attributes']['state']
 print('STATE', state)
+shot = call('GET', f'/v1/subscriptions/{sid}/appStoreReviewScreenshot').get('data') or {}
+print('screenshot state', (shot.get('attributes') or {}).get('assetDeliveryState'))
+print('group locales', [l['attributes'] for l in call('GET', f'/v1/subscriptionGroups/{group["id"]}/subscriptionGroupLocalizations')['data']])
+print('sub locales', [(l['attributes']['locale'], l['attributes'].get('state')) for l in call('GET', f'/v1/subscriptions/{sid}/subscriptionLocalizations')['data']])
