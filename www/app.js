@@ -299,7 +299,7 @@ $('emailForm').addEventListener('submit',function(e){
 if(P.App&&P.App.addListener){P.App.addListener('backButton',function(){
   if(!$('tour').hidden){endTour();return;}
   if(!$('howModal').hidden){closeHow();return;}
-  if(!$('exIntro').hidden){$('exIntro').hidden=true;document.body.classList.remove('lock');if(exIntroGo){exIntroGo=null;exClose();}return;}if(!$('payModal').hidden){closePay();return;}if(!$('emailModal').hidden){closeEmail();return;}
+  if(!$('exIntro').hidden){$('exIntro').hidden=true;document.body.classList.remove('lock');if(exIntroGo){exIntroGo=null;exClose();}else wSync();return;}if(!$('payModal').hidden){closePay();return;}if(!$('emailModal').hidden){closeEmail();return;}
   if(!$('scrEx').hidden){exClose();return;}
   if($('scrTest').hidden&&S.warned){go('scrTest');return;}
   P.App.minimizeApp();
@@ -367,7 +367,7 @@ function exOpen(){if(!history[0]||!(ts.exhale>=5))return;track('ex_open');
 function exIntro(list,go){var T=D.X;EX.intro=list;$('exIntroH').textContent=T.introH;var l=$('exIntroL');l.innerHTML='';list.forEach(function(t){var li=document.createElement('li');li.textContent=t;l.appendChild(li);});
   $('exIntroEnd').textContent=T.introEnd;$('exIntroGo').textContent=go?T.introGo:D.close;exIntroGo=go;$('exIntro').hidden=false;document.body.classList.add('lock');wSync();}
 var exIntroGo=null;
-$('exIntroGo').addEventListener('click',function(){$('exIntro').hidden=true;document.body.classList.remove('lock');var g=exIntroGo;exIntroGo=null;if(g)g();});
+$('exIntroGo').addEventListener('click',function(){$('exIntro').hidden=true;document.body.classList.remove('lock');var g=exIntroGo;exIntroGo=null;if(g)g();else wSync();});
 $('exHow').addEventListener('click',function(){track('ex_how');exIntro(EX.intro||D.X.introL,null);});
 function exClose(){exStopTimers();clearTimeout(EX.tmo);var l=EX.l1;EX.on=false;EX.state='';awake(false);wSync();go(l?'scrL1':'scrTest');if(l)l1Render();}
 /* ---------- watch remote (Wear OS, Nov 2026-10-24): the phone runs the exercise and keeps the texts; the watch shows the circle
@@ -375,10 +375,10 @@ function exClose(){exStopTimers();clearTimeout(EX.tmo);var l=EX.l1;EX.on=false;E
 var WT=P.Watch,wOn=false;
 function wSync(){if(!WT)return;
   if(EX.on&&!EX.id){EX.id=Date.now();WT.watches().then(function(r){wOn=r.n>0;if(wOn)WT.open().catch(function(){});}).catch(function(){});}  // a new exercise: open the app on the watch
-  var st=!EX.on?'idle':EX.state==='res'?'done':(EX.state||'intro');
+  var st=!EX.on?'idle':EX.state==='res'?'done':(!$('exIntro').hidden||!EX.state)?'intro':EX.state;  // while the how-to sheet is open the watch says «look at the phone»
   var dots=EX.on?EX.steps.map(function(k,i){return (EX.state==='res'||i<EX.i)?(EX.miss[i]?'miss':'ok'):(i===EX.i?'cur':'');}):[];
   WT.send({s:JSON.stringify({st:st,id:EX.id||0,i:EX.i,end:EX.wEnd||0,t0:EX.wT0||0,goal:EX.goal||0,inh:EX.steps[EX.i]==='in'?1:0,dots:dots,lang:lang,at:Date.now()})}).catch(function(){});}
-if(WT)WT.addListener('tap',function(e){if(!EX.on)return;var lag=Math.min(3000,Math.max(0,Date.now()-(e.at||Date.now())));  // the hold counts from the tap on the wrist, not from when it reached the phone
+if(WT)WT.addListener('tap',function(e){if(!EX.on||!$('exIntro').hidden)return;var lag=Math.min(3000,Math.max(0,Date.now()-(e.at||Date.now())));  // the hold counts from the tap on the wrist, not from when it reached the phone
   if(EX.state==='ready')exStart(lag);else if(EX.state==='hold'&&performance.now()-EX.t0>1000)exEnd(lag);});
 function exTapGo(){if(EX.state==='ready'&&performance.now()-(EX.tReady||0)>700)exStart();else if(EX.state==='hold'&&performance.now()-EX.t0>1000)exEnd();}  // a double tap (circle + button) must not stop the hold it just started
 $('exGo').addEventListener('click',exTapGo);exBox.addEventListener('click',exTapGo);
