@@ -362,7 +362,7 @@ function exResult(s){if(EX.l1){l1Done(s);return;}EX.state='res';exDots();var a=M
   $('exBtns').hidden=false;payRender();$('exQuit').hidden=true;$('exHow').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');}
 function exOpen(){if(!history[0]||!(ts.exhale>=5))return;track('ex_open');
   EX={on:true,base:ts.inhale,goal:0,state:'',hd:history[0].d,l1:0,m:0,steps:['ex','ex','ex','in'],i:0,res:[],miss:[]};  // control is an inhale, like step 1 of the test
-  $('exTtl').textContent=D.X.ttl;$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHow').textContent=D.X.howLink;$('exMail').textContent=D.cta;$('exHome').textContent=D.X.home;$('exMail').hidden=false;
+  $('exTtl').textContent=D.X.ttl;$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHow').textContent=D.X.howLink;$('exMail').textContent=D.cta;$('exHome').textContent=D.X.home;$('exMail').hidden=true;
   $('exRes').hidden=true;$('exBtns').hidden=true;$('exQuit').hidden=false;$('exHow').hidden=false;$('exNote').hidden=false;$('scrEx').classList.remove('res');go('scrEx');exRing('idle ready','','','');exCard(D.X.restH,'','');exIntro(D.X.introL,function(){exRest(30);});}  // the how-to is read before any timer runs  // 30 s to catch the breath after the squats, with what comes next
 function exIntro(list,go){var T=D.X;EX.intro=list;$('exIntroH').textContent=T.introH;var l=$('exIntroL');l.innerHTML='';list.forEach(function(t){var li=document.createElement('li');li.textContent=t;l.appendChild(li);});
   $('exIntroEnd').textContent=T.introEnd;$('exIntroGo').textContent=go?T.introGo:D.close;exIntroGo=go;$('exIntro').hidden=false;document.body.classList.add('lock');}
