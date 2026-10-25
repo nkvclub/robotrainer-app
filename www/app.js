@@ -262,13 +262,14 @@ function openEmail(){track('email_open');checkForm();$('emailMsg').textContent='
 function closeEmail(){$('emailModal').hidden=true;document.body.classList.remove('lock');if(document.activeElement)document.activeElement.blur();}
 $('emailClose').addEventListener('click',closeEmail);
 $('emailModal').addEventListener('click',function(e){if(e.target===this)closeEmail();});
-// Nov 2026-10-25 (legal check): in Russian two separate agreements, personal data and emails; both needed, none ticked in advance
-function consentOk(){return $('consent').checked&&(lang!=='ru'||$('consent2').checked);}
+// Nov 2026-10-25 (legal check): in Russian two separate agreements, none ticked in advance. Only personal data is needed to send;
+// tips by email are optional (marketing). EN keeps one common box, so marketing is always true there.
+function consentOk(){return $('consent').checked;}
 function checkForm(){$('emailSend').disabled=!(consentOk()&&$('email').value.trim());}
 $('consent').addEventListener('change',checkForm);$('consent2').addEventListener('change',checkForm);$('email').addEventListener('input',checkForm);
 // Fields as the site expects them (robotrainer.ru/wp-json/rt/v1/app-lead)
 function payload(email,last){var t=last.ts||{};
-  var b={key:CFG.EMAIL_KEY,email:email,consent:true,lang:lang,inhale:Math.round(t.inhale||0),exhale:Math.round(t.exhale||0),load:Math.round(t.load||0),website:''};
+  var b={key:CFG.EMAIL_KEY,email:email,consent:true,marketing:lang!=='ru'||$('consent2').checked,lang:lang,inhale:Math.round(t.inhale||0),exhale:Math.round(t.exhale||0),load:Math.round(t.load||0),website:''};
   if(last.sq>0&&last.sq<=100)b.squats=Math.round(last.sq);return b;}
 function post(url,body){
   var ac=window.AbortController?new AbortController():null;if(ac)setTimeout(function(){ac.abort();},15000);
@@ -295,7 +296,7 @@ $('emailForm').addEventListener('submit',function(e){
     if(j.ok){track('email_sent');sendTrack();say(server(j,j.repeat?D.repeat:D.sent),true);store.set('emailSent',true);setTimeout(closeEmail,3000);return;}
     $('emailSend').disabled=false;
     if(j.error==='email')say(server(j,D.badEmail));
-    else if(j.error==='consent'){$('consent').parentNode.classList.add('need');if(lang==='ru'&&!$('consent2').checked)$('consent2Row').classList.add('need');say(server(j,D.consent));}
+    else if(j.error==='consent'){$('consent').parentNode.classList.add('need');say(server(j,D.consent));}
     else if(j.error==='rate'||j.status===429)say(server(j,D.rate));
     else say(server(j,D.sendErr));
   }).catch(function(){
