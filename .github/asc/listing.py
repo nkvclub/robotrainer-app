@@ -168,7 +168,10 @@ groups = call('GET', f'/v1/apps/{app_id}/subscriptionGroups?include=subscription
 for s in groups.get('included', []):
     if s['type'] == 'subscriptions' and s['attributes']['state'] == 'READY_TO_SUBMIT':
         call('POST', '/v1/subscriptionSubmissions', {'data': {'type': 'subscriptionSubmissions',
-             'relationships': {'subscription': rel('subscriptions', s['id'])}}})
-        print('subscription submitted', s['attributes']['productId'])
+             'relationships': {'subscription': rel('subscriptions', s['id'])}}}, ok_conflict=True)
+        print('subscription submit tried', s['attributes']['productId'])
 call('PATCH', f'/v1/reviewSubmissions/{sub["id"]}', {'data': {'type': 'reviewSubmissions', 'id': sub['id'], 'attributes': {'submitted': True}}})
 print('SUBMITTED for review', sub['id'])
+for s in call('GET', f'/v1/apps/{app_id}/subscriptionGroups?include=subscriptions').get('included', []):
+    if s['type'] == 'subscriptions':
+        print('subscription state after submit:', s['attributes']['productId'], s['attributes']['state'])
