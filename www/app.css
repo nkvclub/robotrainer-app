@@ -352,3 +352,7 @@ body.has-upd #scrTest .brand{display:none}  /* the update strip takes the logo r
 
 /* battery: the big background glows stand still (they were animating all the time the app was open) */
 body::before,body::after{animation:none!important}
+/* subscription status: Settings and the Level 1 screen */
+.subrow{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.subrow #subSt{color:var(--fg);font-weight:600}
+.l1subst{text-align:center;color:var(--green-dark);font-weight:600;margin:-4px 0 10px}

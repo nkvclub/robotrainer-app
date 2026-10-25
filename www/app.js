@@ -41,7 +41,7 @@ function applyTexts(){
   $('howList').innerHTML='';D.howL.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('howList').appendChild(li);});
   $('warnList').innerHTML='';D.warnL.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('warnList').appendChild(li);});
   $('lru').setAttribute('aria-pressed',lang==='ru');$('len').setAttribute('aria-pressed',lang==='en');
-  $('privLink').href=CFG.PRIVACY_URL[lang];$('consentLink').href=CFG.PRIVACY_URL[lang];$('siteLink').href=CFG.SITE_URL[lang];$('payPriv').href=CFG.PRIVACY_URL[lang];if(window.payRender)payRender();
+  $('privLink').href=CFG.PRIVACY_URL[lang];$('consentLink').href=CFG.PRIVACY_URL[lang];$('siteLink').href=CFG.SITE_URL[lang];subRow();$('payPriv').href=CFG.PRIVACY_URL[lang];if(window.payRender)payRender();
   $('ver').textContent=D.ver+' '+CFG.version;
   if(P.App&&P.App.getInfo&&!CFG.nativeVer)P.App.getInfo().then(function(i){CFG.version=i.version;CFG.nativeVer=true;$('ver').textContent=D.ver+' '+i.version;}).catch(function(){});  // show the store version, not the web one
   var sd=$('sDay');sd.innerHTML='';[1,2,3,4,5,6,0].forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent=D.days[d];sd.appendChild(o);});sd.value=S.remDay;
@@ -503,6 +503,16 @@ function l1Remind(){l1CheckRemind();var LN=P.LocalNotifications;if(!LN||L1.plan)
   LN.cancel({notifications:[{id:2}]}).catch(function(){}).then(function(){return LN.requestPermissions();}).then(function(p){if(!p||p.display!=='granted')return;
     return LN.schedule({notifications:[{id:2,title:D.L1.h,body:D.L1.remB,schedule:{at:t,allowWhileIdle:true}}]});}).catch(function(){});}
 function l1Tab(){var on=PAY.owned;$('tabL1').hidden=!on;}
+function subDay(t){var d=new Date(t);return lang==='ru'?('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+d.getFullYear():d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});}
+function subTxt(){return PAY.owned?(PAY.until?D.subTill.replace('{d}',subDay(PAY.until)):D.subOn):D.subOff;}
+function subRow(){$('subRow').hidden=!PAY.store;$('subSt').textContent=subTxt();$('subRn').hidden=!(PAY.owned&&PAY.until);$('subRn').textContent=PAY.renew?D.subRen:D.subEnd;$('subManage').textContent=D.PAY.manage;  // Settings and the Level 1 screen show what Google Play says about the subscription
+  $('l1SubSt').hidden=!(PAY.store&&PAY.owned);$('l1SubSt').textContent=subTxt();}
+// Nov 2026-10-25: a reminder 7 days and 1 day before the paid year ends or renews
+function subRemind(){var LN=P.LocalNotifications;if(!LN||!PAY.checked)return;var key=PAY.owned&&PAY.until?PAY.until+'|'+PAY.renew+'|'+lang:'';var was='';try{was=localStorage.getItem('rt_subrem')||'';}catch(e){}if(key===was)return;
+  try{localStorage.setItem('rt_subrem',key);}catch(e){}
+  LN.cancel({notifications:[{id:4},{id:5}]}).catch(function(){}).then(function(){if(!key)return;var n=[[4,7,PAY.renew?D.sub7R:D.sub7E],[5,1,PAY.renew?D.sub1R:D.sub1E]].map(function(x){return {id:x[0],title:D.subT,body:x[2],schedule:{at:new Date(PAY.until-x[1]*864e5),allowWhileIdle:true}};}).filter(function(x){return +x.schedule.at>Date.now()+60e3;});
+    if(!n.length)return;return LN.requestPermissions().then(function(p){if(!p||p.display!=='granted')return;return LN.schedule({notifications:n});});}).catch(function(){});}
+PAY.on(subRow);PAY.on(subRemind);
 PAY.on(l1Tab);l1Tab();  // a bought level shows at once, even if Play does not answer on this start
 $('l1Go').addEventListener('click',function(){if(l1Today())plOpen();else l1Open();});
 $('l1Now').addEventListener('click',function(){l1Open();});
