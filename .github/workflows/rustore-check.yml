@@ -26,7 +26,7 @@ jobs:
           V=$(python3 -c "import re;s=open('bom.pom').read();m=re.search(r'<artifactId>pay</artifactId>\s*<version>([^<]+)',s);print(m.group(1))")
           echo "pay $V"
           curl -sf $R/pay/$V/pay-$V.aar -o pay.aar && unzip -o -q pay.aar classes.jar -d payaar
-          unzip -l payaar/classes.jar | grep -o 'ru/rustore/sdk/pay/[A-Za-z0-9_/$]*\.class' | grep -v '\$' | sort | head -400
+          unzip -l payaar/classes.jar | grep -o 'ru/rustore/sdk/pay/[A-Za-z0-9_/$]*\.class' | grep -v -e '\$' -e '/internal/' | sort | head -400
       - run: npm ci
       - run: npx cap sync android
       - name: Build RuStore APK (with RuStore Pay)

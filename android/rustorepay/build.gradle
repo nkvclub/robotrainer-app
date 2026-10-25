@@ -18,12 +18,6 @@ android {
     }
 }
 
-repositories {
-    google()
-    mavenCentral()
-    maven { url "https://nexus-external.rustore.ru/repository/maven-rustore-exposed" }
-}
-
 dependencies {
     implementation project(':capacitor-android')
     implementation platform("ru.rustore.sdk:bom:2026.08.01")
