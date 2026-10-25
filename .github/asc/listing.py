@@ -137,6 +137,9 @@ rd = call('GET', f'/v1/appStoreVersions/{vid}/appStoreReviewDetail', ok_missing=
 rd_attrs = {'contactFirstName': 'Konstantin', 'contactLastName': 'Novikov', 'contactEmail': 'nkvclub@gmail.com',
             'demoAccountRequired': False, 'notes': NOTES}
 if rd and rd.get('data'):
+    print('review contact phone set:', bool(rd['data']['attributes'].get('contactPhone')))
+    if STEP == 'submit' and not rd['data']['attributes'].get('contactPhone'):
+        print('REVIEW PHONE MISSING'); sys.exit(1)
     call('PATCH', f'/v1/appStoreReviewDetails/{rd["data"]["id"]}', {'data': {'type': 'appStoreReviewDetails', 'id': rd['data']['id'], 'attributes': rd_attrs}})
 elif os.environ.get('ASC_CONTACT_PHONE'):
     call('POST', '/v1/appStoreReviewDetails', {'data': {'type': 'appStoreReviewDetails',
