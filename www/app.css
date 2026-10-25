@@ -123,11 +123,14 @@ svg.ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90de
 @keyframes winkOff{0%,70%{transform:scaleY(1)}75%,80%{transform:scaleY(.06)}86%,100%{transform:scaleY(1)}}
 @keyframes winkOn{0%,74%{opacity:0}75%,80%{opacity:1}82%,100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.mascot .wink,.mascot .eyeR{animation:none!important}}
-.done.lv2 .mascot .pupil{transform:translateY(-2px)}
+.done.lv2 .mascot .pupil{transform:translateY(-3px)}
 /* eyes show the level: happy squint, calm, sad, sad with a tear */
 .mascot .e-calm,.mascot .e-sad,.mascot .e-happy{display:none}
 .done.lv1 .mascot .e-calm,.done.lv0 .mascot .e-sad,.done.lvx .mascot .e-sad{display:inline}
-.done.lv2 .mascot :is(.ew,.pupil,.eyeR){clip-path:url(#cJoy)}  /* Nov 2026-10-24: one style everywhere: the same cartoon eyes, squinting with joy */
+/* Nov 2026-10-25: the squint looked sly; joy = the same cartoon eyes wide open and looking up, brows raised high, pink cheeks, wide smile */
+.done.lv2 .browL,.done.lv2 .browR{transform:translateY(-4px) scale(1.08)}
+.done.lv2 .mascot :is(.ew,.pupil,.eyeR){clip-path:url(#cJoy)}  /* only the bottom edge curves up, like eyes that smile */
+.done.lv2 .mascot .cheek{opacity:.85;transform:scale(.75)}
 .done.lv1 .mascot :is(.ew,.pupil,.eyeR){clip-path:url(#cCalm)}
 .done.lv0 .mascot :is(.ew,.eyeR),.done.lvx .mascot :is(.ew,.eyeR){clip-path:url(#cSad)}
 .done.lv0 .mascot .pupil,.done.lvx .mascot .pupil{clip-path:url(#cSad)}
@@ -270,7 +273,7 @@ h1.words span{display:inline-block;animation:wordIn .7s cubic-bezier(.2,.8,.2,1)
 /* email sheet: page under it stays still, sheet sits right above the keyboard */
 body.lock{overflow:hidden}
 .modal{overscroll-behavior:contain}
-.sheet{max-height:100%;overflow-y:auto}
+.sheet{max-height:calc(100% - 32px - env(safe-area-inset-top,0px));overflow-y:auto}  /* Nov 2026-10-25: a full-height sheet showed grey corners at the top; now a band of the dim background stays above it */
 .check.need{color:var(--bad,#d33);animation:shake .4s}
 @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 
