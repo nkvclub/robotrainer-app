@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="timer-mode.css">
 </head>
 <body>
-<svg class="svgdefs" width="0" height="0" style="position:absolute;width:0;height:0" aria-hidden="true"><defs><radialGradient id="iris" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#5aa8ff"/><stop offset=".6" stop-color="#1747d6"/><stop offset="1" stop-color="#0a2484"/></radialGradient><clipPath id="cCalm" clipPathUnits="userSpaceOnUse"><rect x="0" y="17" width="100" height="60"/></clipPath><clipPath id="cSad" clipPathUnits="userSpaceOnUse"><path d="M0 24.6 L48 11.8 V80 H0Z M52 11.8 L100 24.6 V80 H52Z"/></clipPath></defs></svg>
+<svg class="svgdefs" width="0" height="0" style="position:absolute;width:0;height:0" aria-hidden="true"><defs><radialGradient id="iris" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#5aa8ff"/><stop offset=".6" stop-color="#1747d6"/><stop offset="1" stop-color="#0a2484"/></radialGradient><clipPath id="cJoy" clipPathUnits="userSpaceOnUse"><path d="M0 -10 H100 V40 H86 Q70 16 54 40 H46 Q30 16 14 40 H0Z"/></clipPath><clipPath id="cCalm" clipPathUnits="userSpaceOnUse"><rect x="0" y="17" width="100" height="60"/></clipPath><clipPath id="cSad" clipPathUnits="userSpaceOnUse"><path d="M0 24.6 L48 11.8 V80 H0Z M52 11.8 L100 24.6 V80 H52Z"/></clipPath></defs></svg>
 
 <!-- Safety screen before the first test (needed for store review) -->
 <section class="screen" id="scrWarn" hidden>
@@ -88,10 +88,11 @@
       <div class="face"><div id="exFace"><div class="time" id="exTime"></div><div class="lbl" id="exLbl"></div></div></div>
       <div class="excap" id="exCap"></div><div class="extap" id="exTap"></div>
     </div>
-    <div class="row act excard" id="exCard"><div class="exh" id="exH"></div><div class="ext" id="exT"></div><div class="exres" id="exRes" hidden></div><button class="cbtn" type="button" id="exGo"></button></div>
-    <div class="exbtns" id="exBtns" hidden><button class="cta" type="button" id="exPay" hidden></button><button class="cta" type="button" id="exMail"></button><button class="again" type="button" id="exHome"></button></div>
+    <button class="cbtn" type="button" id="exGo"></button>
+    <div class="row act excard" id="exCard"><div class="exh" id="exH"></div><div class="ext" id="exT"></div><div class="exres" id="exRes" hidden></div></div>
+    <div class="exbtns" id="exBtns" hidden><button class="cta" type="button" id="exPay" hidden></button><button class="cta" type="button" id="exMail"></button><div class="expaybox" id="exPayBox" hidden></div><button class="cta" type="button" id="exPlan" hidden></button><button class="again" type="button" id="exHome"></button></div>
     <p class="note" id="exNote"></p>
-    <div class="exlinks"><button class="exquit" type="button" id="exHow"></button><button class="exquit" type="button" id="exQuit"></button></div>
+    <div class="exlinks"><button class="exquit" type="button" id="exHow"></button><button class="exquit" type="button" id="exAgain"></button><button class="exquit" type="button" id="exQuit"></button></div>
   </div>
 </section>
 
@@ -100,8 +101,9 @@
   <div class="wrap">
     <h2 class="h2" id="l1H"></h2>
     <div class="card l1day"><div class="l1dayh" id="l1Day"></div><div class="l1grid" id="l1Grid"></div></div>
-    <div class="l1act"><button class="cta" type="button" id="l1Go"></button><div class="small" id="l1Sub"></div></div>
-    <div class="hsum" id="l1Sum"></div>
+    <div class="l1act"><button class="cta" type="button" id="l1Go"></button><div class="l1next" id="l1Next" hidden></div><button class="exquit" type="button" id="l1Now" hidden></button><div class="small" id="l1Sub"></div></div>
+    <div class="card l1chk" id="l1Chk" hidden><div class="l1chkt" id="l1ChkT"></div><button class="cta" type="button" id="l1ChkGo"></button></div>
+    <div class="card l1best" id="l1Best" hidden><span id="l1BestL"></span><b id="l1BestV"></b></div>
     <div class="card l1chart"><div class="l1charth" id="l1ChartH"></div><div id="l1Chart"></div></div>
     <p class="note" id="l1Note"></p>
   </div>
@@ -149,6 +151,18 @@
 </div>
 
 <!-- How to do the exercise: read before any timer starts -->
+<div class="modal" id="l1Plan" hidden>
+  <div class="sheet planbox">
+    <div class="ctah" id="plH"></div>
+    <label class="pll"><span id="plDayL"></span><input type="date" id="plDay"></label>
+    <label class="pll"><span id="plTimeL"></span><input type="time" id="plTime"></label>
+    <div class="pll"><span id="plRemL"></span><div class="plchips" id="plRem"></div></div>
+    <div class="small plerr" id="plErr" hidden></div>
+    <label class="plrep"><input type="checkbox" id="plRep"><span id="plRepL"></span></label>
+    <button class="cta" type="button" id="plSave"></button>
+    <button class="exquit" type="button" id="plCancel"></button>
+  </div>
+</div>
 <div class="modal" id="exIntro" hidden>
   <div class="sheet">
     <div class="ctah" id="exIntroH"></div>

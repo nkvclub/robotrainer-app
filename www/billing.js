@@ -6,7 +6,7 @@
 var PRODUCT='level1_year', PLAY_ID='com.robotrainerpro.app';
 var Cap=window.Capacitor, P=(Cap&&Cap.Plugins)||{};
 var subs=[];
-var PAY=window.RT_PAY={available:false,owned:false,price:'',busy:false,err:'',
+var PAY=window.RT_PAY={store:false,available:false,owned:false,price:'',busy:false,err:'',
   on:function(f){subs.push(f);},
   buy:function(){},restore:function(){}};
 function emit(){subs.forEach(function(f){try{f(PAY);}catch(e){}});}
@@ -36,5 +36,6 @@ function start(){
 var plat=Cap&&Cap.getPlatform&&Cap.getPlatform();if(plat!=='android'&&plat!=='ios')return;
 var appInfo=P.App&&P.App.getInfo?P.App.getInfo():Promise.resolve({});
 appInfo.then(function(i){if(i.id!==PLAY_ID)return;  // RuStore build has its own id and no Google billing
+  PAY.store=true;emit();  // the offer is shown at once, even before Play answers (no network, slow start)
   if(window.CdvPurchase)start();else document.addEventListener('deviceready',start,false);}).catch(function(){});
 })();

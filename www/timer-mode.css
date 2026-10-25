@@ -61,7 +61,7 @@ body.vbcap-on #box .lbl{display:none!important}
 #exGo{border:0;font-family:inherit}
 .exh:empty{display:none}
 #exBox .mascot{display:none}
-#exBox.lv1 .mascot,#exBox.lv2 .mascot{display:block}
+#exBox.lv0 .mascot,#exBox.lv1 .mascot,#exBox.lv2 .mascot{display:block}
 #exBox.exhold .time{display:block;font-size:min(48px,22cqw)}
 #exBox.exhold .lbl{display:inline-block;margin-top:8px;padding:4px 12px;border-radius:12px;background:#fff;color:var(--accent);font-weight:800;font-size:min(13px,6.2cqw);opacity:1}
 #exBox.ready .time,#exBox.hold .time,#exBox.ready .lbl,#exBox.hold .lbl{display:none}
@@ -139,7 +139,7 @@ body.vbcap-on #box .lbl{display:none!important}
 .extap:empty{display:none}
 #exBox.ready,#exBox.exhold{cursor:pointer}
 /* calm screen like the site's trainer: the step card on top, the circle under it is the only button */
-#scrEx #exGo{display:none}
+#scrEx.res #exGo{display:none}
 #scrEx:not(.res) .exhead{order:0}#scrEx:not(.res) #exCard{order:1}#scrEx:not(.res) #exBox{order:2}#scrEx:not(.res) #exNote,#scrEx:not(.res) .exlinks{order:3}
 #exBox.ready .excap{font-size:min(22px,8.5cqw)}
 #exBox.ready.goal .face{background:radial-gradient(circle at 35% 30%,#ff6f6b,var(--red) 70%)}
@@ -161,3 +161,48 @@ body.vbcap-on #box .lbl{display:none!important}
 .ofrow figure{padding:6px 8px;border-radius:14px;border:2px solid transparent}
 .ofrow .ofwin{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent);cursor:pointer}  /* the medal is the picked choice and a button */
 .ofrow figure:not(.ofwin){opacity:.7}
+.expaybox{display:flex;flex-direction:column;gap:14px;text-align:center;background:var(--card);border-radius:22px;padding:18px 16px;box-shadow:0 6px 24px rgba(10,111,224,.10)}  /* Level 1 offer under the exercise result */
+.expaybox[hidden]{display:none}
+.expaybox .ctah{font-size:18px}
+/* Nov 2026-10-24: full step texts on the cards; smaller type and circle so the three links stay on screen */
+#scrEx:not(.res) #exH{font-size:15px;line-height:1.25;min-height:2.5em;display:flex;align-items:center;justify-content:center}
+#scrEx:not(.res) #exT{font-size:14px;font-weight:600;line-height:1.3;min-height:7.8em}
+#scrEx:not(.res) #exNote{display:none}
+#scrEx:not(.res) #exBox{width:min(330px,calc(100vw - 60px),31dvh)}
+.exlinks .exquit{font-size:14px}
+.expaybox #payGo{font-size:16px;line-height:1.3}
+
+/* Nov 2026-10-24: СТАРТ / СТОП as a big button under the circle, like the test; the circle shows only the time */
+#scrEx:not(.res) #exGo{order:2;margin-top:-4px;align-self:center;min-width:150px}
+#scrEx #exBox.ready .time{display:block;font-size:min(48px,22cqw)}
+/* Nov 2026-10-24: 8 dots like the how-to: rest (blue) / set (green if the goal was reached, red if not) / … / control «Вдох» */
+.exdots{gap:5px;align-items:center;flex-wrap:wrap;justify-content:center}
+.exdots span{min-width:18px;height:18px;border-radius:9px;padding:0;font-size:11px}
+.exdots span.inh{padding:0 8px;height:22px;border-radius:11px}
+.exdots span.rst.done,.exdots span.rst.cur{background:var(--accent);color:#fff}
+.exdots span.set.ok,.exdots span.inh.ok{background:var(--green);color:#fff}
+.exdots span.set.miss{background:var(--red);color:#fff}
+.exdots span.cur{background:var(--red);color:#fff;box-shadow:0 0 0 3px color-mix(in srgb,currentColor 0%,transparent),0 0 0 3px color-mix(in srgb,var(--fg) 25%,transparent)}
+.exdots span.rst.cur{background:var(--accent)}
+.exdots span.set.cur,.exdots span.inh.cur{background:var(--card);color:var(--accent);box-shadow:inset 0 0 0 3px var(--accent);transform:scale(1.2)}  /* the step that runs now: blue ring; red only means a missed goal */
+#exBox .lbl:empty{display:none!important}  /* Nov 2026-10-24: no words inside the circle, only the time */
+/* Nov 2026-10-24: no grey dots: rests are always blue, a set not done yet is an empty ring until it turns green or red */
+.exdots span.rst{background:var(--accent)}
+.exdots span.set:not(.ok):not(.miss):not(.cur),.exdots span.inh:not(.ok):not(.cur){background:var(--card);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent);color:var(--accent)}
+/* plan the next training: big and simple (Nov 2026-10-24) */
+.l1grid span.pl{background:var(--card);color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+.l1next{font-weight:800;font-size:16px;color:var(--accent);text-align:center}
+.planbox{gap:14px}
+.pll{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:15px;color:var(--fg)}
+.pll input{font:inherit;font-size:20px;font-weight:700;padding:12px 14px;border-radius:14px;border:2px solid color-mix(in srgb,var(--accent) 30%,transparent);background:var(--card);color:var(--fg);width:100%;box-sizing:border-box}
+.plchips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.plchips button{all:unset;cursor:pointer;text-align:center;padding:12px 6px;border-radius:14px;font-weight:700;font-size:15px;color:var(--accent);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent)}
+.plchips button.on{background:var(--accent);color:#fff;box-shadow:none}
+.plrep{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;color:var(--fg)}
+.plrep input{width:24px;height:24px;accent-color:var(--accent);flex-shrink:0}
+.l1best{display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:700;font-size:16px;color:var(--fg)}
+.l1best b{font-size:24px;font-weight:900;color:var(--green);white-space:nowrap}
+.l1chk{display:flex;flex-direction:column;gap:12px;text-align:center;box-shadow:inset 0 0 0 2px var(--accent)}
+.l1chkt{font-weight:700;font-size:16px;line-height:1.35;color:var(--fg);text-wrap:balance}
+.plerr{color:var(--red);font-weight:700;text-align:center}
+#exBox .ring .prg{transition:none}  /* Nov 2026-10-24: the colour switches at once, red never fades through muddy olive into green */
