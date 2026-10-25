@@ -84,7 +84,12 @@ print('availability ok')
 # Version + build
 vers = call('GET', f'/v1/apps/{app_id}/appStoreVersions?filter[platform]=IOS&limit=10')['data']
 ver = next((v for v in vers if v['attributes']['appStoreState'] in
-            ('PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED', 'REJECTED', 'METADATA_REJECTED')), None)
+            ('PREPARE_FOR_SUBMISSION', 'READY_FOR_REVIEW', 'DEVELOPER_REJECTED', 'REJECTED', 'METADATA_REJECTED')), None)
+sent = next((v for v in vers if v['attributes']['versionString'] == VERSION and v['attributes']['appStoreState'] in
+             ('WAITING_FOR_REVIEW', 'IN_REVIEW', 'PENDING_DEVELOPER_RELEASE', 'READY_FOR_SALE')), None)
+if ver is None and sent:
+    print('version', VERSION, 'already', sent['attributes']['appStoreState'], '- nothing to change')
+    sys.exit(0)
 if ver is None:
     ver = call('POST', '/v1/appStoreVersions', {'data': {'type': 'appStoreVersions',
           'attributes': {'platform': 'IOS', 'versionString': VERSION},
