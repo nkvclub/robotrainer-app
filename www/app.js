@@ -383,7 +383,7 @@ $('exIntroGo').addEventListener('click',function(){$('exIntro').hidden=true;docu
 $('exHow').addEventListener('click',function(){track('ex_how');exIntro(EX.intro||D.X.introL,null);});
 function exClose(){exStopTimers();clearTimeout(EX.tmo);var l=EX.l1;EX.on=false;EX.state='';awake(false);wSync();go(l?'scrL1':'scrTest');if(l)l1Render();}
 /* ---------- watch remote (Wear OS, Nov 2026-10-24): the phone runs the exercise and keeps the texts; the watch shows the circle
-   with START/STOP and gives the one buzz itself (end of the rest, ring turned green), so the phone stays quiet while a watch is near ---------- */
+   with START/STOP and gives the one buzz itself (10 s before the rest ends; green is silent), so the phone stays quiet while a watch is near ---------- */
 var WT=P.Watch,wOn=false;
 function wSync(){if(!WT)return;
   if(EX.on&&!EX.id){EX.id=Date.now();WT.watches().then(function(r){wOn=r.n>0;if(wOn)WT.open().catch(function(){});}).catch(function(){});}  // a new exercise: open the app on the watch
