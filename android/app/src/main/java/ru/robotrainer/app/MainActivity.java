@@ -11,6 +11,7 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(WatchPlugin.class);
         super.onCreate(savedInstanceState);
         WebView wv = getBridge().getWebView();
         // Keep the designed text size: a large system font made texts overflow the circle and cards
