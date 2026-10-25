@@ -345,7 +345,7 @@ function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]===
   $('exTime').textContent=Math.floor(s);
   if(inh){exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));}
   else if(EX.goal){exPrg.style.strokeDashoffset=C*(1-Math.min(s/EX.goal,1));
-    if(s>=EX.goal&&!EX.hit){EX.hit=true;beep(880);exPrg.style.stroke=col(2);exBox.classList.add('hit');}}  // red until the goal, green after, like the site's button
+    if(s>=EX.goal&&!EX.hit){EX.hit=true;exPrg.style.stroke=col(2);exBox.classList.add('hit');}}  // red until the goal, green after, like the site's button
   else exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));
   EX.raf=requestAnimationFrame(exHoldTick);}
 function exStart(){EX.state='hold';EX.hit=false;EX.goal=exGoal();EX.t0=performance.now();beep(880);awake(true);exDots();
