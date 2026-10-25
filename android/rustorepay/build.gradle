@@ -19,7 +19,8 @@ android {
 }
 
 dependencies {
-    implementation project(':capacitor-android')
+    implementation project(":capacitor-android")
+    implementation "androidx.appcompat:appcompat:$rootProject.ext.androidxAppCompatVersion"
     implementation platform("ru.rustore.sdk:bom:2026.08.01")
     implementation "ru.rustore.sdk:pay"
 }
