@@ -238,3 +238,7 @@ body.vbcap-on #box .lbl{display:none!important}
 .l1col i{width:12px!important;align-self:center}
 .hpb .l1col{width:28px}.hpb .l1col i{width:12px!important}
 .l1col{width:auto!important;min-width:26px;padding:0 2px}
+.l1col b small{display:block;font-size:10px;font-weight:700;line-height:1}
+.l1bests{font-size:13px;color:var(--muted);font-weight:600}
+.hpt b{font-size:15px}
+.hpt span.hpbest{color:var(--ink,#0b1b3a)}

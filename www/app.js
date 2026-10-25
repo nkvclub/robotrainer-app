@@ -216,9 +216,10 @@ function renderHistory(){
     var v=hm.map(function(h){return Math.round(h.ts[m]);}),a=v[0],b=v[v.length-1],mx=Math.max.apply(null,v)||1;
     var row=document.createElement('div');row.className='hpm';var t=document.createElement('div');t.className='hpt';var nm=document.createElement('b');nm.textContent=name(m);t.appendChild(nm);
     if(v.length>1){var q=document.createElement('span');var pc=a?Math.round((b-a)/a*100):0;q.textContent=D.histFirst.replace('{a}',a).replace('{b}',b)+(pc?' ('+(pc>0?'+':'')+pc+'%)':'');q.style.color=pc>0?col(2):(pc<0?col(0):'');t.appendChild(q);}
+    var bs=document.createElement('span');bs.className='hpbest';bs.textContent=D.histBest.replace('{t}',mx);t.appendChild(bs);
     row.appendChild(t);var bx=document.createElement('div');bx.className='l1bars hpb';
     hm.forEach(function(h){var saved=rest;rest=h.ts.inhale;var s=Math.round(h.ts[m]),c=col(level(h.ts[m],m));rest=saved;
-      bx.insertAdjacentHTML('beforeend','<div class="l1pair"><div class="l1col"><b style="color:'+c+'">'+s+'</b><i style="height:'+Math.max(6,Math.round(70*s/mx))+'px;background:'+c+'"></i></div><span>'+new Date(h.d).toLocaleDateString(loc,{day:'numeric',month:'numeric'})+'</span></div>');});
+      bx.insertAdjacentHTML('beforeend','<div class="l1pair"><div class="l1col"><b style="color:'+c+'">'+s+'<small>'+D.L1.bestV.replace('{t}','').trim()+'</small></b><i style="height:'+Math.max(6,Math.round(70*s/mx))+'px;background:'+c+'"></i></div><span>'+new Date(h.d).toLocaleDateString(loc,{day:'numeric',month:'numeric'})+'</span></div>');});
     row.appendChild(bx);pg.appendChild(row);setTimeout(function(){bx.scrollLeft=bx.scrollWidth;},0);});
   wrap.appendChild(pg);
   history.forEach(function(h,hi){
@@ -468,7 +469,7 @@ function l1Render(){if(!$('l1H'))return;var T=D.L1,k=l1Today();
   $('l1Next').hidden=!pl;if(pl)$('l1Next').textContent=T1('next',{t:plWhen(pl.at)});
   $('l1Now').hidden=!k||k>=3;$('l1Now').textContent=T.now;
   $('l1Sub').textContent=k>=3?T.full:'';
-  var cs=L1.s.map(function(x){return x.c||0;}),best=cs.length?Math.max.apply(null,cs):0;$('l1Best').hidden=!best;$('l1BestL').textContent=T.best;$('l1BestV').textContent=T1('bestV',{t:best});  // Nov: one number, the best control hold at the end of a training
+  var cs=L1.s.map(function(x){return x.c||0;}),best=cs.length?Math.max.apply(null,cs):0;$('l1Best').hidden=!best;$('l1BestL').textContent=T.best;$('l1BestS').textContent=D.X.ctrl0;$('l1BestV').textContent=T1('bestV',{t:best});  // Nov: one number, the best control hold at the end of a training
   $('l1Chk').hidden=!l1CheckDue();$('l1ChkT').textContent=T.chkT;$('l1ChkGo').textContent=T.chkGo;
   $('l1ChartH').textContent=T.chartH;$('l1Note').textContent=T.note;l1Chart();}
 function l1Open(skip){skip=skip===true;$('exPlan').hidden=true;if(l1Today()>=3)return;track('l1_open');var n=l1DayN();
