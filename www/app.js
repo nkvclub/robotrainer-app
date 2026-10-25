@@ -421,7 +421,7 @@ $('exPay').addEventListener('click',openPay);
 ['payH','payList','exOffer','payPrice','payGo','payMsg','payRenew','payNote'].forEach(function(id){$('exPayBox').appendChild($(id));});$('exPayBox').appendChild(document.querySelector('.paylinks'));  // Nov: the offer sits under the result, scroll down to «Оформить подписку»
 $('payClose').addEventListener('click',closePay);
 $('payModal').addEventListener('click',function(e){if(e.target===this)closePay();});
-$('payGo').addEventListener('click',function(){if(PAY.busy||PAY.owned)return;track('pay_buy');if(!PAY.available){var m=$('payMsg');m.textContent=D.PAY.wait;m.className='msg err';return;}payAsk='buy';PAY.buy();});  // the store has not answered yet (no network)
+$('payGo').addEventListener('click',function(){if(PAY.busy||PAY.owned)return;track('pay_buy');if(!PAY.available){var m=$('payMsg');m.textContent=PAY.kind==='rustore'?D.PAY.waitRs:D.PAY.wait;m.className='msg err';return;}payAsk='buy';PAY.buy();});  // the store has not answered yet (no network)
 $('ofWinBtn').addEventListener('click',function(){$('payGo').click();});  // the medal is the choice: tapping it buys, like «Оформить подписку»
 // RuStore build: subscriptions are managed in the RuStore app, not on a Google Play page
 ['payManage','subManage'].forEach(function(id){$(id).addEventListener('click',function(e){if(PAY.manage){e.preventDefault();PAY.manage();}});});
@@ -507,8 +507,8 @@ function l1Remind(){l1CheckRemind();var LN=P.LocalNotifications;if(!LN||L1.plan)
 function l1Tab(){var on=PAY.owned;$('tabL1').hidden=!on;}
 function subDay(t){var d=new Date(t);return lang==='ru'?('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+d.getFullYear():d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});}
 function subTxt(){return PAY.owned?(PAY.until?D.subTill.replace('{d}',subDay(PAY.until)):D.subOn):D.subOff;}
-function subRow(){$('subRow').hidden=!PAY.store;$('subSt').textContent=subTxt();$('subRn').hidden=!(PAY.owned&&PAY.until);$('subRn').textContent=PAY.renew?D.subRen:D.subEnd;$('subManage').hidden=!PAY.owned;$('subManage').textContent=D.PAY.manage;  // no subscription: Play's list is empty, so no link. Settings and the Level 1 screen show what Google Play says about the subscription
-  $('l1SubSt').hidden=!(PAY.store&&PAY.owned);$('l1SubSt').textContent=subTxt();}
+function subRow(){$('subRow').hidden=!(PAY.store||PAY.owned);$('subSt').textContent=subTxt();$('subRn').hidden=!(PAY.owned&&PAY.until);$('subRn').textContent=PAY.renew?D.subRen:D.subEnd;$('subManage').hidden=!PAY.owned;$('subManage').textContent=D.PAY.manage;  // no subscription: Play's list is empty, so no link. Settings and the Level 1 screen show what Google Play says about the subscription
+  $('l1SubSt').hidden=!PAY.owned;$('l1SubSt').textContent=subTxt();}
 // Nov 2026-10-25: a reminder 7 days and 1 day before the paid year ends or renews
 function subRemind(){var LN=P.LocalNotifications;if(!LN||!PAY.checked)return;var key=PAY.owned&&PAY.until?PAY.until+'|'+PAY.renew+'|'+lang:'';var was='';try{was=localStorage.getItem('rt_subrem')||'';}catch(e){}if(key===was)return;
   try{localStorage.setItem('rt_subrem',key);}catch(e){}
