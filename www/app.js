@@ -209,7 +209,8 @@ function renderHistory(){
   cell(D.histN,String(history.length));cell(D.histLast,D.B[history[0].o],col(history[0].o),'hlv');
   if(history.length>1){var df=Math.round(history[0].ts.exhale-history[1].ts.exhale);cell(D.histTrend,(df>0?'+':'')+df+' '+D.sec,df>0?col(2):(df<0?col(0):''));}
   wrap.appendChild(sm);
-  history.forEach(function(h,hi){
+  // Nov 2026-10-25: the best test sits on top in a frame, then the last 5; the rest folds into an archive so a year of tests is not a mile long
+  var mk=function(h,hi){
     var c=document.createElement('div');c.className='card hcard';c.style.setProperty('--lv',col(h.o));c.style.animationDelay=Math.min(hi,8)*70+'ms';
     var top=document.createElement('div');top.className='hist-top';
     var dt=document.createElement('div');dt.className='hist-date';dt.textContent=new Date(h.d).toLocaleString(lang==='ru'?'ru-RU':'en-US',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
@@ -223,7 +224,12 @@ function renderHistory(){
       var bar=document.createElement('div');bar.className='bar';var f=document.createElement('div');f.className='fill';f.style.background=col(l);f.style.width='0';(function(f,w,d){setTimeout(function(){f.style.width=w;},250+d);})(f,Math.round(Math.min(s/barFull(m),1)*100)+'%',Math.min(hi,8)*70);bar.appendChild(f);
       g.appendChild(n);g.appendChild(v);g.appendChild(bar);c.appendChild(g);});
     if(h.ex>0){var xe=document.createElement('div');xe.className='hex';xe.textContent=X('hist',{b:h.ex});c.appendChild(xe);}
-    rest=saved;wrap.appendChild(c);});
+    rest=saved;return c;};
+  if(history.length>1){var bi=0,sc=function(h){return h.o*1e4+h.ts.inhale+h.ts.exhale+h.ts.load;};history.forEach(function(h,i){if(sc(h)>sc(history[bi]))bi=i;});
+    var bc=mk(history[bi],0);bc.classList.add('hbest');var bt=document.createElement('div');bt.className='hbestt';bt.textContent=D.histBestH;bc.insertBefore(bt,bc.firstChild);wrap.appendChild(bc);}
+  history.slice(0,5).forEach(function(h,hi){wrap.appendChild(mk(h,hi));});
+  if(history.length>5){var ab=document.createElement('button');ab.type='button';ab.className='harch';ab.textContent=D.histArch.replace('{n}',history.length-5);var ar=document.createElement('div');ar.className='harchl';ar.hidden=true;
+    ab.addEventListener('click',function(){if(!ar.childNodes.length)history.slice(5).forEach(function(h){ar.appendChild(mk(h,0));});ar.hidden=!ar.hidden;ab.classList.toggle('open',!ar.hidden);});wrap.appendChild(ab);wrap.appendChild(ar);}
   box2.appendChild(wrap);
 }
 
