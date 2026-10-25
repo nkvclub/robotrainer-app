@@ -562,4 +562,4 @@ Promise.all([store.get('settings'),store.get('history')]).then(function(r){
 });
 })();
 /* Nov 2026-10-25: every window opens at its very top (title and point 1), never where it was scrolled last time */
-(function(){var sh=document.querySelectorAll('.sheet');for(var i=0;i<sh.length;i++){(function(s){var w=s.parentElement;new MutationObserver(function(){if(!w.hidden){s.scrollTop=0;w.scrollTop=0;}}).observe(w,{attributes:true,attributeFilter:['hidden','class','style']});})(sh[i]);}})();
+(function(){var sh=document.querySelectorAll('.sheet');for(var i=0;i<sh.length;i++){(function(s){var w=s.parentElement;new MutationObserver(function(){if(!w.hidden){s.scrollTop=0;w.scrollTop=0;var f=s.querySelector('.fpscroll');if(f)f.scrollTop=0;}}).observe(w,{attributes:true,attributeFilter:['hidden','class','style']});})(sh[i]);}})();

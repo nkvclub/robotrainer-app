@@ -241,3 +241,11 @@ body.vbcap-on #box .lbl{display:none!important}
 .harch{border:0;background:color-mix(in srgb,var(--accent) 10%,var(--card));color:var(--accent);font:inherit;font-weight:800;font-size:15px;padding:14px;border-radius:16px;cursor:pointer}
 .harch::after{content:' ▾'}.harch.open::after{content:' ▴'}
 .harchl{display:flex;flex-direction:column;gap:14px}
+
+/* Nov 2026-10-25: the how-to is a plain full screen in app colours: title pinned under the status bar, text scrolls below it, button pinned at the bottom */
+.modal.fullpage{background:var(--bg);align-items:stretch}
+.modal.fullpage .sheet{max-height:none;height:100%;max-width:560px;border-radius:0;box-shadow:none;background:var(--bg);overflow:hidden;padding:calc(18px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));animation:none}
+.modal.fullpage .ctah{flex:none;font-size:22px}
+.fpscroll{display:flex;flex-direction:column;gap:12px}
+.modal.fullpage .fpscroll{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-bottom:8px;-webkit-overflow-scrolling:touch}
+.modal.fullpage .cta{flex:none}
