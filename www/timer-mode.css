@@ -228,3 +228,9 @@ body.vbcap-on #box .lbl{display:none!important}
 .l1day3{display:flex;gap:8px;align-items:flex-end}
 .l1pair+.l1pair{border-left:1px solid color-mix(in srgb,var(--muted) 25%,transparent);padding-left:14px}
 .l1pair span{align-self:stretch;text-align:center}
+
+/* Nov 2026-10-25: thinner bars with air between them, same in Level 1 and History */
+.l1col i{width:12px!important;align-self:center}
+.l1col{width:auto!important;min-width:26px;padding:0 2px}
+.l1col b small{display:block;font-size:10px;font-weight:700;line-height:1}
+.l1bests{font-size:13px;color:var(--muted);font-weight:600}
