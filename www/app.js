@@ -41,7 +41,7 @@ function applyTexts(){
   $('howList').innerHTML='';D.howL.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('howList').appendChild(li);});
   $('warnList').innerHTML='';D.warnL.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('warnList').appendChild(li);});
   $('lru').setAttribute('aria-pressed',lang==='ru');$('len').setAttribute('aria-pressed',lang==='en');
-  $('privLink').href=CFG.PRIVACY_URL[lang];$('consentLink').href=CFG.PRIVACY_URL[lang];$('siteLink').href=CFG.SITE_URL[lang];subRow();$('payPriv').href=CFG.PRIVACY_URL[lang];if(window.payRender)payRender();
+  $('consent2Row').hidden=lang!=='ru';if(lang!=='ru')$('consent2').checked=false;$('privLink').href=CFG.PRIVACY_URL[lang];$('consentLink').href=CFG.PRIVACY_URL[lang];$('siteLink').href=CFG.SITE_URL[lang];subRow();$('payPriv').href=CFG.PRIVACY_URL[lang];if(window.payRender)payRender();
   $('ver').textContent=D.ver+' '+CFG.version;
   if(P.App&&P.App.getInfo&&!CFG.nativeVer)P.App.getInfo().then(function(i){CFG.version=i.version;CFG.nativeVer=true;$('ver').textContent=D.ver+' '+i.version;}).catch(function(){});  // show the store version, not the web one
   var sd=$('sDay');sd.innerHTML='';[1,2,3,4,5,6,0].forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent=D.days[d];sd.appendChild(o);});sd.value=S.remDay;
@@ -262,8 +262,10 @@ function openEmail(){track('email_open');checkForm();$('emailMsg').textContent='
 function closeEmail(){$('emailModal').hidden=true;document.body.classList.remove('lock');if(document.activeElement)document.activeElement.blur();}
 $('emailClose').addEventListener('click',closeEmail);
 $('emailModal').addEventListener('click',function(e){if(e.target===this)closeEmail();});
-function checkForm(){$('emailSend').disabled=!($('consent').checked&&$('email').value.trim());}
-$('consent').addEventListener('change',checkForm);$('email').addEventListener('input',checkForm);
+// Nov 2026-10-25 (legal check): in Russian two separate agreements, personal data and emails; both needed, none ticked in advance
+function consentOk(){return $('consent').checked&&(lang!=='ru'||$('consent2').checked);}
+function checkForm(){$('emailSend').disabled=!(consentOk()&&$('email').value.trim());}
+$('consent').addEventListener('change',checkForm);$('consent2').addEventListener('change',checkForm);$('email').addEventListener('input',checkForm);
 // Fields as the site expects them (robotrainer.ru/wp-json/rt/v1/app-lead)
 function payload(email,last){var t=last.ts||{};
   var b={key:CFG.EMAIL_KEY,email:email,consent:true,lang:lang,inhale:Math.round(t.inhale||0),exhale:Math.round(t.exhale||0),load:Math.round(t.load||0),website:''};
@@ -281,7 +283,7 @@ $('emailForm').addEventListener('submit',function(e){
   e.preventDefault();
   var email=$('email').value.trim(),msg=$('emailMsg');
   var say=function(t,ok){msg.textContent=t;msg.className='msg '+(ok?'ok':'err');};
-  $('consent').parentNode.classList.remove('need');
+  $('consent').parentNode.classList.remove('need');$('consent2Row').classList.remove('need');
   if(!reEmail.test(email)){say(D.badEmail);return;}
   var url=CFG.EMAIL_ENDPOINT[lang];
   if(!url){say(D.sendOff,true);setTimeout(closeEmail,2500);return;}
@@ -293,7 +295,7 @@ $('emailForm').addEventListener('submit',function(e){
     if(j.ok){track('email_sent');sendTrack();say(server(j,j.repeat?D.repeat:D.sent),true);store.set('emailSent',true);setTimeout(closeEmail,3000);return;}
     $('emailSend').disabled=false;
     if(j.error==='email')say(server(j,D.badEmail));
-    else if(j.error==='consent'){$('consent').parentNode.classList.add('need');say(server(j,D.consent));}
+    else if(j.error==='consent'){$('consent').parentNode.classList.add('need');if(lang==='ru'&&!$('consent2').checked)$('consent2Row').classList.add('need');say(server(j,D.consent));}
     else if(j.error==='rate'||j.status===429)say(server(j,D.rate));
     else say(server(j,D.sendErr));
   }).catch(function(){
