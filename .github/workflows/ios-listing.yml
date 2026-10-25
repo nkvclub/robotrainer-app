@@ -24,6 +24,7 @@ jobs:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_CONTACT_PHONE: ${{ secrets.ASC_CONTACT_PHONE }}
         run: |
           printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/key.p8"
           ASC_KEY_PATH="$RUNNER_TEMP/key.p8" python3 .github/asc/listing.py

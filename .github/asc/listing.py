@@ -138,10 +138,15 @@ rd_attrs = {'contactFirstName': 'Konstantin', 'contactLastName': 'Novikov', 'con
             'demoAccountRequired': False, 'notes': NOTES}
 if rd and rd.get('data'):
     call('PATCH', f'/v1/appStoreReviewDetails/{rd["data"]["id"]}', {'data': {'type': 'appStoreReviewDetails', 'id': rd['data']['id'], 'attributes': rd_attrs}})
-else:
-    call('POST', '/v1/appStoreReviewDetails', {'data': {'type': 'appStoreReviewDetails', 'attributes': rd_attrs,
+elif os.environ.get('ASC_CONTACT_PHONE'):
+    call('POST', '/v1/appStoreReviewDetails', {'data': {'type': 'appStoreReviewDetails',
+         'attributes': dict(rd_attrs, contactPhone=os.environ['ASC_CONTACT_PHONE']),
          'relationships': {'appStoreVersion': rel('appStoreVersions', vid)}}})
-print('review details ok')
+else:
+    print('REVIEW DETAILS MISSING: contact phone must be typed in App Store Connect (App Review Information)')
+    if STEP == 'submit':
+        sys.exit(1)
+print('review details step done')
 
 if STEP != 'submit':
     print('STEP', STEP, '- not submitting')
