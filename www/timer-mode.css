@@ -234,3 +234,10 @@ body.vbcap-on #box .lbl{display:none!important}
 .l1col{width:auto!important;min-width:26px;padding:0 2px}
 .l1col b small{display:block;font-size:10px;font-weight:700;line-height:1}
 .l1bests{font-size:13px;color:var(--muted);font-weight:600}
+
+/* History: best test framed on top, last 5, archive (Nov 2026-10-25) */
+.hcard.hbest{box-shadow:0 0 0 3px var(--accent),0 10px 24px var(--glow)}
+.hbestt{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.harch{border:0;background:color-mix(in srgb,var(--accent) 10%,var(--card));color:var(--accent);font:inherit;font-weight:800;font-size:15px;padding:14px;border-radius:16px;cursor:pointer}
+.harch::after{content:' ▾'}.harch.open::after{content:' ▴'}
+.harchl{display:flex;flex-direction:column;gap:14px}
