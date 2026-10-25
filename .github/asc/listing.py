@@ -118,6 +118,9 @@ for loc, t in TEXTS.items():
     if not files:
         print('no screenshots for', loc)
         continue
+    if ver['attributes']['appStoreState'] == 'READY_FOR_REVIEW':
+        print('screenshots', loc, 'kept (version is ready for review, Apple locks them)')
+        continue
     sets = call('GET', f'/v1/appStoreVersionLocalizations/{lid}/appScreenshotSets')['data']
     sset = next((s for s in sets if s['attributes']['screenshotDisplayType'] == 'APP_IPHONE_67'), None)
     if sset is None:
