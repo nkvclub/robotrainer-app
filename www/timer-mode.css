@@ -215,3 +215,13 @@ body.vbcap-on #box .lbl{display:none!important}
 .l1grid b{font-size:11px;font-weight:700;color:var(--muted);text-align:center;text-transform:uppercase}
 .l1grid span.off{opacity:.35}
 .l1grid span.tdy{outline:2.5px solid var(--ink,#0b1b3a);outline-offset:2px}
+
+/* Level 1 chart as bars (Nov 2026-10-25) */
+.l1bars{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 2px;align-items:flex-end;scrollbar-width:thin}
+.l1pair{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px}
+.l1cols{display:flex;gap:4px;align-items:flex-end;height:146px}
+.l1col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;width:26px}
+.l1col b{font-size:13px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.l1col i{display:block;width:100%;border-radius:6px 6px 2px 2px;background:var(--accent)}
+.l1col.o b{color:var(--orange)}.l1col.o i{background:var(--orange)}
+.l1pair span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}

@@ -421,18 +421,14 @@ function T1(k,o){var t=D.L1[k];for(var n in o)t=t.replace('{'+n+'}',o[n]);return
 function l1Chart(){var el=$('l1Chart');el.innerHTML='';
   var S1=L1.s.filter(function(x){return x.a&&x.c;});  // every session: inhale hold before (blue) and after (orange), like the site
   if(!S1.length){var p=document.createElement('div');p.className='small';p.textContent=L1.s.length?D.L1.chartNew:D.L1.chartEmpty;el.appendChild(p);return;}
-  var va=S1.map(function(x){return x.a;}),vc=S1.map(function(x){return x.c;}),all=va.concat(vc);
-  var W=300,H=150,l=30,r=10,t=14,b=24,mx=Math.max.apply(null,all),mn=Math.min.apply(null,all),lo=Math.max(0,Math.floor((mn-5)/5)*5),hi=Math.ceil((mx+5)/5)*5;
-  var n=Math.max(S1.length,7),x=function(i){return l+(W-l-r)*(n<2?0:i/(n-1));},y=function(s){return t+(H-t-b)*(1-(s-lo)/(hi-lo));};
-  var svg='<svg viewBox="0 0 '+W+' '+H+'" class="l1svg" role="img" aria-label="'+D.L1.chartH+'">';
-  [lo,Math.round((lo+hi)/2),hi].forEach(function(g){svg+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+y(g)+'" y2="'+y(g)+'" class="gr"/><text x="'+(l-6)+'" y="'+(y(g)+4)+'" class="ax" text-anchor="end">'+g+'</text>';});
-  [[va,'ln'],[vc,'ln ln2']].forEach(function(q){var v=q[0];
-    svg+='<polyline class="'+q[1]+'" points="'+v.map(function(s,i){return x(i)+','+y(s);}).join(' ')+'"/>';
-    v.forEach(function(s,i){svg+='<circle class="pt'+(q[1]==='ln'?'':' pt2')+'" cx="'+x(i)+'" cy="'+y(s)+'" r="'+(i===v.length-1?5:3.5)+'"/>';});});
-  var lc=vc[vc.length-1];svg+='<text x="'+x(vc.length-1)+'" y="'+(y(lc)-10)+'" class="lbv" text-anchor="'+(vc.length>n-2?'end':'middle')+'">'+lc+' '+D.sec+'</text>';
-  svg+='<text x="'+l+'" y="'+(H-6)+'" class="ax">1</text><text x="'+(W-r)+'" y="'+(H-6)+'" class="ax" text-anchor="end">'+n+'</text></svg>';
+  // Nov 2026-10-25: bars like the site, not lines: a pair per training (blue before, orange after), the number on top, the date below; scrolls sideways when there are many
+  var mx=Math.max.apply(null,S1.map(function(x){return Math.max(x.a,x.c);})),loc=lang==='en'?'en-US':'ru-RU';
+  var svg='<div class="l1bars" role="img" aria-label="'+D.L1.chartH+'">';
+  S1.forEach(function(x){var h=function(v){return Math.max(6,Math.round(120*v/mx));};
+    svg+='<div class="l1pair"><div class="l1cols"><div class="l1col"><b>'+x.a+'</b><i style="height:'+h(x.a)+'px"></i></div><div class="l1col o"><b>'+x.c+'</b><i style="height:'+h(x.c)+'px"></i></div></div><span>'+new Date(x.d).toLocaleDateString(loc,{day:'numeric',month:'numeric'})+'</span></div>';});
+  svg+='</div>';
   svg+='<div class="l1leg"><span><i></i>'+D.L1.legA+'</span><span><i class="o"></i>'+D.L1.legC+'</span></div>';
-  el.innerHTML=svg;}
+  el.innerHTML=svg;var bx=el.querySelector('.l1bars');if(bx)setTimeout(function(){bx.scrollLeft=bx.scrollWidth;},0);}
 var calM=null;
 function l1Cal(pl0){if(!L1.since){L1.since=Math.min(L1.start||Date.now(),Date.now());store.set('l1',L1);}
   var loc=lang==='en'?'en-US':'ru-RU',now=new Date(),s0=new Date(L1.since),first=new Date(s0.getFullYear(),s0.getMonth(),1),last=new Date(now.getFullYear(),now.getMonth(),1);
