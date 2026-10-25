@@ -505,7 +505,7 @@ function l1Remind(){l1CheckRemind();var LN=P.LocalNotifications;if(!LN||L1.plan)
 function l1Tab(){var on=PAY.owned;$('tabL1').hidden=!on;}
 function subDay(t){var d=new Date(t);return lang==='ru'?('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+d.getFullYear():d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});}
 function subTxt(){return PAY.owned?(PAY.until?D.subTill.replace('{d}',subDay(PAY.until)):D.subOn):D.subOff;}
-function subRow(){$('subRow').hidden=!PAY.store;$('subSt').textContent=subTxt();$('subRn').hidden=!(PAY.owned&&PAY.until);$('subRn').textContent=PAY.renew?D.subRen:D.subEnd;$('subManage').textContent=D.PAY.manage;  // Settings and the Level 1 screen show what Google Play says about the subscription
+function subRow(){$('subRow').hidden=!PAY.store;$('subSt').textContent=subTxt();$('subRn').hidden=!(PAY.owned&&PAY.until);$('subRn').textContent=PAY.renew?D.subRen:D.subEnd;$('subManage').hidden=!PAY.owned;$('subManage').textContent=D.PAY.manage;  // no subscription: Play's list is empty, so no link. Settings and the Level 1 screen show what Google Play says about the subscription
   $('l1SubSt').hidden=!(PAY.store&&PAY.owned);$('l1SubSt').textContent=subTxt();}
 // Nov 2026-10-25: a reminder 7 days and 1 day before the paid year ends or renews
 function subRemind(){var LN=P.LocalNotifications;if(!LN||!PAY.checked)return;var key=PAY.owned&&PAY.until?PAY.until+'|'+PAY.renew+'|'+lang:'';var was='';try{was=localStorage.getItem('rt_subrem')||'';}catch(e){}if(key===was)return;
