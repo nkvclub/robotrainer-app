@@ -8,6 +8,7 @@ on:
   push:
     paths:
       - .github/asc/listing.py
+      - .github/asc/asc_api.py
       - .github/asc/listing.json
       - .github/asc/step
       - .github/asc/screens/**

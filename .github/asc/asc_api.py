@@ -26,7 +26,7 @@ def call(method, path, body=None, ok_conflict=False, ok_missing=False):
     except urllib.error.HTTPError as e:
         text = e.read().decode()
         if ok_conflict and e.code == 409:
-            print('  already set:', text[:300])
+            print('  already set:', text)
             return None
         if ok_missing and e.code == 404:
             return None
