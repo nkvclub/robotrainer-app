@@ -434,8 +434,10 @@ function l1Days(){var k=[];L1.s.forEach(function(x){var q=dkey(x.d);if(k.indexOf
 function l1Today(){var t=dkey(Date.now());return L1.s.filter(function(x){return dkey(x.d)===t;}).length;}
 function l1DayN(){var k=l1Days();return k.length+(k.indexOf(dkey(Date.now()))<0?1:0);}
 function T1(k,o){var t=D.L1[k];for(var n in o)t=t.replace('{'+n+'}',o[n]);return t;}
+function l1Free(){var st=L1.start||Date.now();for(var i=0;i<history.length;i++){var h=history[i];if(h.ex>0&&h.d<=st&&h.ts&&h.ts.inhale)return {d:h.d,a:Math.round(h.ts.inhale),c:h.ex};}return null;}  // the free exercise before the subscription: test inhale → inhale after the exercise
+function l1Pairs(){var f=l1Free(),S1=L1.s.filter(function(x){return x.a&&x.c;});return f?[f].concat(S1):S1;}  // Nov 2026-10-25: the free exercise is the first pair, then every Level 1 training
 function l1Chart(){var el=$('l1Chart');el.innerHTML='';
-  var S1=L1.s.filter(function(x){return x.a&&x.c;});  // every session: inhale hold before (blue) and after (orange), like the site
+  var S1=l1Pairs();  // every session: inhale hold before (blue) and after (orange), like the site
   if(!S1.length){var p=document.createElement('div');p.className='small';p.textContent=L1.s.length?D.L1.chartNew:D.L1.chartEmpty;el.appendChild(p);return;}
   // Nov 2026-10-25: bars like the site, not lines: a pair per training (blue before, orange after), the number on top, the date below; scrolls sideways when there are many
   var mx=Math.max.apply(null,S1.map(function(x){return Math.max(x.a,x.c);})),loc=lang==='en'?'en-US':'ru-RU';
@@ -472,7 +474,7 @@ function l1Render(){if(!$('l1H'))return;var T=D.L1,k=l1Today();
   $('l1Next').hidden=!pl;if(pl)$('l1Next').textContent=T1('next',{t:plWhen(pl.at)});
   $('l1Now').hidden=!k||k>=3;$('l1Now').textContent=T.now;
   $('l1Sub').textContent=k>=3?T.full:'';
-  var cs=L1.s.map(function(x){return Math.max(x.a||0,x.c||0);}),best=cs.length?Math.max.apply(null,cs):0;$('l1Best').hidden=!best;$('l1BestL').textContent=T.best;$('l1BestS').textContent=D.X.ctrl0;$('l1BestV').textContent=T1('bestV',{t:best});  // Nov: one number, the best control hold at the end of a training
+  var cs=l1Pairs().map(function(x){return Math.max(x.a||0,x.c||0);}),best=cs.length?Math.max.apply(null,cs):0;$('l1Best').hidden=!best;$('l1BestL').textContent=T.best;$('l1BestS').textContent=D.X.ctrl0;$('l1BestV').textContent=T1('bestV',{t:best});  // Nov: one number, the best control hold at the end of a training
   $('l1Chk').hidden=!l1CheckDue();$('l1ChkT').textContent=T.chkT;$('l1ChkGo').textContent=T.chkGo;
   $('l1ChartH').textContent=T.chartH;$('l1Note').textContent=T.note;l1Chart();}
 function l1Open(skip){skip=skip===true;$('exPlan').hidden=true;if(l1Today()>=3)return;track('l1_open');var n=l1DayN();
