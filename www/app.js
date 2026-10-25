@@ -54,11 +54,13 @@ function awake(on){clearTimeout(awakeT);if(!P.KeepAwake)return;
   else P.KeepAwake.allowSleep().catch(function(){});}
 /* ---------- feedback: sound + vibration ---------- */
 var ac=null,acT=0;  // the sound chip sleeps after a quiet minute or when the app is hidden (battery); never during a hold or rest, so timer beeps always sound
+function buzz2(){var one=function(){if(P.Haptics&&P.Haptics.vibrate)P.Haptics.vibrate({duration:500}).catch(function(){});else try{navigator.vibrate&&navigator.vibrate(500);}catch(e){}};one();setTimeout(one,800);}
 function beep(f){
+  var isGo=f==='go';if(isGo)f=880;
   if(S.snd){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();clearTimeout(acT);acT=setTimeout(function(){if(ac&&!run&&!restT&&!EX.on)ac.suspend();},60000);var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.25);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.25);}catch(e){}}
-  // in the exercise there is one kind of buzz, only when something must be done now (breathe, or tap START); no codes to learn
-  if(EX.on&&f!==880)f=0;var ms=EX.on?400:0;
-  if(S.vib&&f){if(ms&&P.Haptics&&P.Haptics.vibrate){P.Haptics.vibrate({duration:ms}).catch(function(){});}else if(P.Haptics){P.Haptics.impact({style:'MEDIUM'}).catch(function(){});}else{try{navigator.vibrate&&navigator.vibrate(ms||60);}catch(e){}}}
+  // Nov 2026-10-25: in the exercise the phone buzzes only when the rest is over (time to press СТАРТ), as two strong pulses; START and green stay silent for the hand
+  if(EX.on){if(S.vib&&isGo)buzz2();return;}
+  if(S.vib){if(P.Haptics){P.Haptics.impact({style:'MEDIUM'}).catch(function(){});}else{try{navigator.vibrate&&navigator.vibrate(60);}catch(e){}}}
 }
 
 /* ---------- screens ---------- */
@@ -338,7 +340,7 @@ function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(D.X.restH,D.
   exPrg.style.transition='none';exPrg.style.stroke=acc();exPrg.getBoundingClientRect();exPrg.style.transition='';  // blue at once, no green/red fading into it
   var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),'','');  // Nov 2026-10-24: a rest circle shows only the countdown
     exPrg.style.strokeDashoffset=C*(1-left/sec);
-    if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);exReady();}};  // one buzz: the next step's card is up, the circle waits for СТАРТ
+    if(left<=0){clearInterval(EX.restT);EX.restT=0;beep('go');exReady();}};  // one buzz: the next step's card is up, the circle waits for СТАРТ
   paint();EX.restT=setInterval(paint,250);}
 function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';
   $('exTime').textContent=Math.floor(s);
@@ -432,10 +434,27 @@ function l1Chart(){var el=$('l1Chart');el.innerHTML='';
   svg+='<text x="'+l+'" y="'+(H-6)+'" class="ax">1</text><text x="'+(W-r)+'" y="'+(H-6)+'" class="ax" text-anchor="end">'+n+'</text></svg>';
   svg+='<div class="l1leg"><span><i></i>'+D.L1.legA+'</span><span><i class="o"></i>'+D.L1.legC+'</span></div>';
   el.innerHTML=svg;}
-function l1Render(){if(!$('l1H'))return;var T=D.L1,n=l1DayN(),k=l1Today(),days=l1Days().length;
-  $('l1H').textContent=T.h;$('l1Day').textContent=days>=21?T.fin:T1('day',{n:n});
-  var pl0=L1.plan&&(L1.plan.rep||L1.plan.at>Date.now())?L1.plan:null,pn=pl0&&dkey(pl0.at)===dkey(Date.now())?n:days+1;
-  var g=$('l1Grid');g.innerHTML='';for(var i=1;i<=21;i++){var e=document.createElement('span');e.textContent=i;e.className=i<=days?'ok':(i===n?'cur':'');if(i>days&&i!==n&&pl0&&(pl0.rep||i===pn))e.className='pl';g.appendChild(e);}  // planned days have a blue ring
+var calM=null;
+function l1Cal(pl0){if(!L1.since){L1.since=Math.min(L1.start||Date.now(),Date.now());store.set('l1',L1);}
+  var loc=lang==='en'?'en-US':'ru-RU',now=new Date(),s0=new Date(L1.since),first=new Date(s0.getFullYear(),s0.getMonth(),1),last=new Date(now.getFullYear(),now.getMonth(),1);
+  if(pl0&&!pl0.rep){var q=new Date(pl0.at);q=new Date(q.getFullYear(),q.getMonth(),1);if(q>last)last=q;}if(pl0&&pl0.rep){last=new Date(now.getFullYear(),now.getMonth()+1,1);}
+  if(!calM)calM=new Date(now.getFullYear(),now.getMonth(),1);if(calM<first)calM=first;if(calM>last)calM=last;
+  var t=calM.toLocaleDateString(loc,{month:'long',year:'numeric'});$('l1CalT').textContent=t.charAt(0).toUpperCase()+t.slice(1).replace(/\s*г\.$/,'');
+  $('l1CalP').disabled=calM<=first;$('l1CalN').disabled=calM>=last;
+  var done=l1Days(),today=dkey(Date.now()),sk=dkey(L1.since),g=$('l1Grid');g.innerHTML='';
+  var wd=lang==='en'?0:1;for(var i=0;i<7;i++){var h=document.createElement('b');h.textContent=new Date(2024,0,wd+i).toLocaleDateString(loc,{weekday:'short'}).replace('.','');g.appendChild(h);}  // Jan 1 2024 is a Monday
+  var off=(calM.getDay()-wd+7)%7;for(i=0;i<off;i++)g.appendChild(document.createElement('i'));
+  var dim=new Date(calM.getFullYear(),calM.getMonth()+1,0).getDate(),pk=pl0&&!pl0.rep?dkey(pl0.at):'',rs=pl0&&pl0.rep?new Date(new Date(pl0.at).toDateString()).getTime():0;
+  for(var d=1;d<=dim;d++){var dt=new Date(calM.getFullYear(),calM.getMonth(),d),k=dkey(dt.getTime()),e=document.createElement('span');e.textContent=d;
+    var before=dt.getTime()<new Date(s0.toDateString()).getTime(),past=dt.getTime()<new Date(now.toDateString()).getTime();
+    if(done.indexOf(k)>=0)e.className='ok';else if(before)e.className='off';else if(!past&&(k===pk||(rs&&dt.getTime()>=rs)))e.className='pl';
+    if(k===today)e.classList.add('tdy');g.appendChild(e);}}
+$('l1CalP').addEventListener('click',function(){calM=new Date(calM.getFullYear(),calM.getMonth()-1,1);l1Render();});
+$('l1CalN').addEventListener('click',function(){calM=new Date(calM.getFullYear(),calM.getMonth()+1,1);l1Render();});
+function l1Render(){if(!$('l1H'))return;var T=D.L1,k=l1Today();
+  $('l1H').textContent=T.h;
+  var pl0=L1.plan&&(L1.plan.rep||L1.plan.at>Date.now())?L1.plan:null;
+  l1Cal(pl0);  // Nov 2026-10-25: a full calendar from the subscription date instead of «День N из 21»
   var b=$('l1Go');b.textContent=k?T.plan:T.go;  // Nov 2026-10-24: after a training the person plans the next one; only days, this button and the chart
   var pl=pl0;if(pl&&pl.rep&&pl.at<=Date.now()){var q=new Date(pl.at),t=new Date();t.setHours(q.getHours(),q.getMinutes(),0,0);if(t<=new Date())t.setDate(t.getDate()+1);pl={at:t.getTime(),rep:1};}  // a daily plan shows its next time
   $('l1Next').hidden=!pl;if(pl)$('l1Next').textContent=T1('next',{t:plWhen(pl.at)});
@@ -530,3 +549,5 @@ Promise.all([store.get('settings'),store.get('history')]).then(function(r){
   go(S.warned?'scrTest':'scrWarn');
 });
 })();
+/* Nov 2026-10-25: every window opens at its very top (title and point 1), never where it was scrolled last time */
+(function(){var sh=document.querySelectorAll('.sheet');for(var i=0;i<sh.length;i++){(function(s){var w=s.parentElement;new MutationObserver(function(){if(!w.hidden){s.scrollTop=0;w.scrollTop=0;}}).observe(w,{attributes:true,attributeFilter:['hidden','class','style']});})(sh[i]);}})();

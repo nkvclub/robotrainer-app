@@ -206,3 +206,12 @@ body.vbcap-on #box .lbl{display:none!important}
 .l1chkt{font-weight:700;font-size:16px;line-height:1.35;color:var(--fg);text-wrap:balance}
 .plerr{color:var(--red);font-weight:700;text-align:center}
 #exBox .ring .prg{transition:none}  /* Nov 2026-10-24: the colour switches at once, red never fades through muddy olive into green */
+
+/* Level 1 calendar (Nov 2026-10-25): months from the subscription date, trained days green, planned days ringed, today outlined */
+.l1cal{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:8px}
+.l1cal .l1dayh{margin:0}
+.calnav{width:40px;height:40px;border:0;border-radius:50%;background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--accent);font-size:24px;font-weight:800;line-height:1;cursor:pointer}
+.calnav:disabled{opacity:.25;cursor:default}
+.l1grid b{font-size:11px;font-weight:700;color:var(--muted);text-align:center;text-transform:uppercase}
+.l1grid span.off{opacity:.35}
+.l1grid span.tdy{outline:2.5px solid var(--ink,#0b1b3a);outline-offset:2px}
