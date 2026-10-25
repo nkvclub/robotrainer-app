@@ -225,3 +225,6 @@ body.vbcap-on #box .lbl{display:none!important}
 .l1col i{display:block;width:100%;border-radius:6px 6px 2px 2px;background:var(--accent)}
 .l1col.o b{color:var(--orange)}.l1col.o i{background:var(--orange)}
 .l1pair span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.l1day3{display:flex;gap:8px;align-items:flex-end}
+.l1pair+.l1pair{border-left:1px solid color-mix(in srgb,var(--muted) 25%,transparent);padding-left:14px}
+.l1pair span{align-self:stretch;text-align:center}

@@ -424,8 +424,9 @@ function l1Chart(){var el=$('l1Chart');el.innerHTML='';
   // Nov 2026-10-25: bars like the site, not lines: a pair per training (blue before, orange after), the number on top, the date below; scrolls sideways when there are many
   var mx=Math.max.apply(null,S1.map(function(x){return Math.max(x.a,x.c);})),loc=lang==='en'?'en-US':'ru-RU';
   var svg='<div class="l1bars" role="img" aria-label="'+D.L1.chartH+'">';
-  S1.forEach(function(x){var h=function(v){return Math.max(6,Math.round(120*v/mx));};
-    svg+='<div class="l1pair"><div class="l1cols"><div class="l1col"><b>'+x.a+'</b><i style="height:'+h(x.a)+'px"></i></div><div class="l1col o"><b>'+x.c+'</b><i style="height:'+h(x.c)+'px"></i></div></div><span>'+new Date(x.d).toLocaleDateString(loc,{day:'numeric',month:'numeric'})+'</span></div>';});
+  var h=function(v){return Math.max(6,Math.round(120*v/mx));},gr=[];S1.forEach(function(x){var k=dkey(x.d);if(!gr.length||gr[gr.length-1].k!==k)gr.push({k:k,d:x.d,s:[]});gr[gr.length-1].s.push(x);});  // up to 3 trainings a day sit together under one date
+  gr.forEach(function(g){svg+='<div class="l1pair"><div class="l1day3">';g.s.forEach(function(x){svg+='<div class="l1cols"><div class="l1col"><b>'+x.a+'</b><i style="height:'+h(x.a)+'px"></i></div><div class="l1col o"><b>'+x.c+'</b><i style="height:'+h(x.c)+'px"></i></div></div>';});
+    svg+='</div><span>'+new Date(g.d).toLocaleDateString(loc,{day:'numeric',month:'numeric'})+'</span></div>';});
   svg+='</div>';
   svg+='<div class="l1leg"><span><i></i>'+D.L1.legA+'</span><span><i class="o"></i>'+D.L1.legC+'</span></div>';
   el.innerHTML=svg;var bx=el.querySelector('.l1bars');if(bx)setTimeout(function(){bx.scrollLeft=bx.scrollWidth;},0);}
