@@ -237,3 +237,4 @@ body.vbcap-on #box .lbl{display:none!important}
 /* Nov 2026-10-25: thinner bars with air between them, same in Level 1 and History */
 .l1col i{width:12px!important;align-self:center}
 .hpb .l1col{width:28px}.hpb .l1col i{width:12px!important}
+.l1col{width:auto!important;min-width:26px;padding:0 2px}

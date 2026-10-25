@@ -212,7 +212,7 @@ function renderHistory(){
   // Nov 2026-10-25: a month later nobody remembers the old numbers, so the progress sits on top: per hold, every test as a bar (oldest left), first test → now
   var pg=document.createElement('div');pg.className='card hprog';var ph=document.createElement('div');ph.className='l1charth';ph.textContent=D.histProg;pg.appendChild(ph);
   var hs=history.slice().reverse(),loc=lang==='ru'?'ru-RU':'en-US';
-  ORDER.forEach(function(m){var hm=hs.filter(function(h){return h.ts&&isFinite(h.ts[m]);});if(!hm.length)return;  // old records may miss a hold
+  ORDER.forEach(function(m){var hm=hs.filter(function(h){return h.ts&&typeof h.ts[m]==='number'&&isFinite(h.ts[m]);});if(!hm.length)return;  // old records may miss a hold
     var v=hm.map(function(h){return Math.round(h.ts[m]);}),a=v[0],b=v[v.length-1],mx=Math.max.apply(null,v)||1;
     var row=document.createElement('div');row.className='hpm';var t=document.createElement('div');t.className='hpt';var nm=document.createElement('b');nm.textContent=name(m);t.appendChild(nm);
     if(v.length>1){var q=document.createElement('span');var pc=a?Math.round((b-a)/a*100):0;q.textContent=D.histFirst.replace('{a}',a).replace('{b}',b)+(pc?' ('+(pc>0?'+':'')+pc+'%)':'');q.style.color=pc>0?col(2):(pc<0?col(0):'');t.appendChild(q);}
