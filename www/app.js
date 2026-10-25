@@ -55,12 +55,10 @@ function awake(on){clearTimeout(awakeT);if(!P.KeepAwake)return;
 /* ---------- feedback: sound + vibration ---------- */
 var ac=null,acT=0;  // the sound chip sleeps after a quiet minute or when the app is hidden (battery); never during a hold or rest, so timer beeps always sound
 function buzz2(){var one=function(){if(P.Haptics&&P.Haptics.vibrate)P.Haptics.vibrate({duration:500}).catch(function(){});else try{navigator.vibrate&&navigator.vibrate(500);}catch(e){}};one();setTimeout(one,800);}
-function beep(f){
-  var isGo=f==='go';if(isGo)f=880;
+function beep(f,go){
   if(S.snd){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();clearTimeout(acT);acT=setTimeout(function(){if(ac&&!run&&!restT&&!EX.on)ac.suspend();},60000);var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.25);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.25);}catch(e){}}
-  // Nov 2026-10-25: in the exercise the phone buzzes only when the rest is over (time to press СТАРТ), as two strong pulses; START and green stay silent for the hand
-  if(EX.on){if(S.vib&&isGo)buzz2();return;}
-  if(S.vib){if(P.Haptics){P.Haptics.impact({style:'MEDIUM'}).catch(function(){});}else{try{navigator.vibrate&&navigator.vibrate(60);}catch(e){}}}
+  // Nov 2026-10-25: the phone buzzes once per rest, 10 seconds before it ends (time to get ready), as two strong pulses; in the test, the exercise and Level 1 alike; START, STOP and green only beep
+  if(S.vib&&go)buzz2();
 }
 
 /* ---------- screens ---------- */
@@ -113,7 +111,7 @@ function startRest(o){cd=o||{sec:REST,calm:'restCalm',soon:'restSoon',go:'restGo
   paint();
   var end=Date.now()+TOT*1000,warned=false;  // wall clock, so a dimmed screen doesn't slow it down
   restT=setInterval(function(){restLeft=Math.max(0,Math.ceil((end-Date.now())/1000));
-    if(restLeft<=10&&!warned){warned=true;beep(520);}
+    if(restLeft<=10&&!warned){warned=true;beep(520,true);}
     if(restLeft<=0){clearInterval(restT);restT=0;restLeft=0;beep(880);setTimeout(function(){beep(880);},250);
       box.className='ringbox idle showface ready';prg.style.strokeDashoffset=C;}
     paint();},250);}
@@ -336,11 +334,12 @@ function exStepT(){var k=EX.steps[EX.i];return k==='in'?(EX.i<EX.steps.length-1?
 function exReady(){exStopTimers();EX.state='ready';EX.tReady=performance.now();EX.goal=exGoal();exDots();exPrg.style.transition='';exPrg.style.stroke=col(0);exPrg.style.strokeDashoffset=C;
   exCard(exHead(),exStepT(),'');exBtn(D.X.tapGo,1,0);
   exRing('idle ready goal','0','','');}  // the circle never repeats the card's head
-function exRest(sec){exStopTimers();EX.state='rest';exDots();exCard(D.X.restH,D.X.restT,'');exBtn(D.X.tapGo,0,0);var last=EX.res[EX.i-1],end=Date.now()+sec*1000;  // Nov 2026-10-21: the rest runs by itself right after СТОП (or «Понятно, начинаем»); only holds need СТАРТ/СТОП
+function exRest(sec){exStopTimers();EX.state='rest';EX.w10=false;exDots();exCard(D.X.restH,D.X.restT,'');exBtn(D.X.tapGo,0,0);var last=EX.res[EX.i-1],end=Date.now()+sec*1000;  // Nov 2026-10-21: the rest runs by itself right after СТОП (or «Понятно, начинаем»); only holds need СТАРТ/СТОП
   exPrg.style.transition='none';exPrg.style.stroke=acc();exPrg.getBoundingClientRect();exPrg.style.transition='';  // blue at once, no green/red fading into it
   var paint=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));exRing('idle rest',mmss(left),'','');  // Nov 2026-10-24: a rest circle shows only the countdown
     exPrg.style.strokeDashoffset=C*(1-left/sec);
-    if(left<=0){clearInterval(EX.restT);EX.restT=0;beep('go');exReady();}};  // one buzz: the next step's card is up, the circle waits for СТАРТ
+    if(left<=10&&!EX.w10){EX.w10=true;beep(880,true);}  // the one buzz: 10 s left, get ready
+    if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);exReady();}};
   paint();EX.restT=setInterval(paint,250);}
 function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';
   $('exTime').textContent=Math.floor(s);
