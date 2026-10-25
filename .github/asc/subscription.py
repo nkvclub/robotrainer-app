@@ -4,56 +4,16 @@ Product level1_year, group «Level 1», 1 year, $3.99 in the US and Apple's
 equalized prices elsewhere, en-US and ru localizations, review screenshot.
 Run by .github/workflows/ios-subscription.yml with the App Store Connect API key.
 """
-import hashlib, json, os, sys, time, urllib.request, urllib.error
-import jwt
+import hashlib, os, sys
+from asc_api import call, rel, all_pages, upload_parts, BUNDLE
 
-BUNDLE = 'com.robotrainerpro.app'
 PRODUCT = 'level1_year'
 USD = '3.99'
-API = 'https://api.appstoreconnect.apple.com'
-KEY_ID, ISSUER = os.environ['ASC_KEY_ID'], os.environ['ASC_ISSUER_ID']
-KEY = open(os.environ['ASC_KEY_PATH']).read()
 SHOT = os.path.join(os.path.dirname(__file__), 'review.png')
 LOC = {
     'en-US': ('Level 1', 'A year of Level 1 breath training, stats and charts'),
     'ru': ('Уровень 1', 'Год тренировок Уровня 1, статистика и графики'),
 }
-
-
-def token():
-    now = int(time.time())
-    return jwt.encode({'iss': ISSUER, 'iat': now, 'exp': now + 1100, 'aud': 'appstoreconnect-v1'},
-                      KEY, algorithm='ES256', headers={'kid': KEY_ID, 'typ': 'JWT'})
-
-
-def call(method, path, body=None, ok_conflict=False):
-    url = path if path.startswith('http') else API + path
-    data = json.dumps(body).encode() if body is not None else None
-    req = urllib.request.Request(url, data=data, method=method, headers={
-        'Authorization': 'Bearer ' + token(), 'Content-Type': 'application/json'})
-    try:
-        with urllib.request.urlopen(req) as r:
-            raw = r.read()
-            return json.loads(raw) if raw else {}
-    except urllib.error.HTTPError as e:
-        text = e.read().decode()
-        if ok_conflict and e.code == 409:
-            print('  already set:', text[:300])
-            return None
-        sys.exit(f'{method} {path} -> {e.code}\n{text}')
-
-
-def rel(kind, id_):
-    return {'data': {'type': kind, 'id': id_}}
-
-
-def all_pages(path):
-    out = []
-    while path:
-        r = call('GET', path)
-        out += r['data']
-        path = r.get('links', {}).get('next')
-    return out
 
 
 app = call('GET', f'/v1/apps?filter[bundleId]={BUNDLE}')['data']
@@ -133,11 +93,7 @@ if not shot.get('data'):
         'type': 'subscriptionAppStoreReviewScreenshots',
         'attributes': {'fileName': 'review.png', 'fileSize': len(blob)},
         'relationships': {'subscription': rel('subscriptions', sid)}}})['data']
-    for op in r['attributes']['uploadOperations']:
-        part = blob[op['offset']:op['offset'] + op['length']]
-        req = urllib.request.Request(op['url'], data=part, method=op['method'],
-                                     headers={h['name']: h['value'] for h in op['requestHeaders']})
-        urllib.request.urlopen(req).read()
+    upload_parts(r['attributes']['uploadOperations'], blob)
     call('PATCH', f'/v1/subscriptionAppStoreReviewScreenshots/{r["id"]}', {'data': {
         'type': 'subscriptionAppStoreReviewScreenshots', 'id': r['id'],
         'attributes': {'uploaded': True, 'sourceFileChecksum': hashlib.md5(blob).hexdigest()}}})

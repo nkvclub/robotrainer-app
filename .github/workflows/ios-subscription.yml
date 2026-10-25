@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - .github/asc/**
+      - .github/asc/subscription.py
+      - .github/asc/review.png
       - .github/workflows/ios-subscription.yml
 
 jobs:

@@ -1,0 +1,30 @@
+name: iOS App Store listing
+
+# Fills the App Store listing (texts, screenshots, price, countries, age rating,
+# review notes) from .github/asc. With .github/asc/step = submit it also sends
+# the version and the Level 1 subscription to App Review. Safe to run again.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/asc/listing.py
+      - .github/asc/listing.json
+      - .github/asc/step
+      - .github/asc/screens/**
+      - .github/workflows/ios-listing.yml
+
+jobs:
+  listing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: pip install pyjwt cryptography
+      - name: Fill listing
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/key.p8"
+          ASC_KEY_PATH="$RUNNER_TEMP/key.p8" python3 .github/asc/listing.py
+          rm -f "$RUNNER_TEMP/key.p8"
