@@ -6,7 +6,9 @@
 var PRODUCT='level1_year', PLAY_ID='com.robotrainerpro.app';
 var Cap=window.Capacitor, P=(Cap&&Cap.Plugins)||{};
 var subs=[];
-var PAY=window.RT_PAY={available:false,owned:false,price:'',busy:false,err:'',
+// Nov 2026-10-25: a dollar price is always written $3.99 (Google Play gives «3,99 $» on Russian phones)
+function usd(o){if(o.currency==='USD'&&o.priceMicros)return '$'+(o.priceMicros/1e6).toFixed(2);return String(o.price||'').replace(/^\s*(\d+)[,.](\d\d)\s*(\$|US\$|USD)\s*$/,'$$$1.$2');}
+var PAY=window.RT_PAY={store:false,available:false,owned:false,price:'',busy:false,err:'',
   on:function(f){subs.push(f);},
   buy:function(){},restore:function(){}};
 function emit(){subs.forEach(function(f){try{f(PAY);}catch(e){}});}
@@ -20,7 +22,7 @@ function start(){
   st.verbosity=C.LogLevel.WARNING;
   st.register([{id:PRODUCT,type:C.ProductType.PAID_SUBSCRIPTION,platform:G}]);
   st.when()
-    .productUpdated(function(){var p=st.get(PRODUCT,G);if(p){var o=p.pricing||(p.offers[0]&&p.offers[0].pricingPhases[0]);PAY.price=o?o.price:'';PAY.available=true;}emit();})
+    .productUpdated(function(){var p=st.get(PRODUCT,G);if(p){var o=p.pricing||(p.offers[0]&&p.offers[0].pricingPhases[0]);PAY.price=o?usd(o):'';PAY.available=true;}emit();})
     .approved(function(t){t.verify();})
     .verified(function(r){r.finish();})
     .finished(function(){check();})
@@ -36,5 +38,6 @@ function start(){
 if(!(Cap&&Cap.getPlatform&&Cap.getPlatform()==='android'))return;
 var appInfo=P.App&&P.App.getInfo?P.App.getInfo():Promise.resolve({});
 appInfo.then(function(i){if(i.id!==PLAY_ID)return;  // RuStore build has its own id and no Google billing
+  PAY.store=true;emit();  // the offer is shown at once, even before Play answers (no network, slow start)
   if(window.CdvPurchase)start();else document.addEventListener('deviceready',start,false);}).catch(function(){});
 })();

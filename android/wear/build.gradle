@@ -10,8 +10,8 @@ android {
         minSdkVersion 30
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Own range so it never meets the phone's version codes in the store
-        versionCode 1001
-        versionName "1.0.0"
+        versionCode 1002
+        versionName "1.0.1"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17

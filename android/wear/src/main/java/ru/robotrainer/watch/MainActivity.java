@@ -22,8 +22,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /* The watch is only a remote for the exercise (Nov 2026-10-24): the phone runs the steps and keeps the texts,
-   the watch shows the circle and START/STOP, and buzzes once when something must be done:
-   the 30 s rest is over (tap START), or the ring turned green (you can breathe, tap STOP).
+   the watch shows the circle, the time and START/STOP, and buzzes once per rest, 10 s before it ends (Nov 2026-10-25);
+   the ring turning green is silent, nothing should distract a hold.
    Timing is counted here from the phone's wall clock times, so a slow link never moves the buzz. */
 public class MainActivity extends Activity implements DataClient.OnDataChangedListener {
     static final String STATE = "/rt/state", TAP = "/rt/tap";
@@ -40,12 +40,8 @@ public class MainActivity extends Activity implements DataClient.OnDataChangedLi
     final Runnable tick = new Runnable() {
         @Override public void run() {
             long now = System.currentTimeMillis();
-            if (st.equals("rest") && now >= end) {
-                buzz(id + "rest:" + step);  // one buzz: time to breathe out and tap START
-                setSt("ready");
-            } else if (st.equals("hold") && goal > 0 && now - t0 >= goal * 1000L) {
-                buzz(id + "hit:" + step);  // one buzz: the ring is green, you can breathe
-            }
+            if (st.equals("rest") && end - now <= 10000 && end - now > 0) buzz(id + "rest:" + step);  // the one buzz: 10 s left, get ready
+            if (st.equals("rest") && now >= end) setSt("ready");
             draw();
             h.postDelayed(this, 100);
         }
@@ -155,7 +151,7 @@ public class MainActivity extends Activity implements DataClient.OnDataChangedLi
     void buzz(String key) {
         if (!buzzed.add(key)) return;
         Vibrator v = getSystemService(Vibrator.class);
-        if (v != null) v.vibrate(VibrationEffect.createOneShot(400, VibrationEffect.DEFAULT_AMPLITUDE));
+        if (v != null) v.vibrate(VibrationEffect.createWaveform(new long[] {0, 500, 300, 500}, -1));  // two strong pulses, like the phone
     }
 
     void draw() {

@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">РобоТренер</string>
-    <string name="wait">Начни упражнение\nна телефоне</string>
+    <string name="wait">Начни тренировку\nна телефоне</string>
     <string name="nophone">Нет связи\nс телефоном</string>
     <string name="look">Смотри\nна телефон</string>
-    <string name="rest">Продышись</string>
     <string name="start">СТАРТ</string>
     <string name="stop">СТОП</string>
-    <string name="exhale_go">Выдохни и жми</string>
-    <string name="inhale_go">Вдохни и жми</string>
-    <string name="hold">Не дыши</string>
-    <string name="can_breathe">Можно вдохнуть</string>
     <string name="done">Готово!\nРезультат\nна телефоне</string>
 </resources>

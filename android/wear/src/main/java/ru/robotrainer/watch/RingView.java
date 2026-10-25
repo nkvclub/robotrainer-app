@@ -14,7 +14,7 @@ import android.view.View;
 import java.util.Locale;
 
 /* One screen, drawn by hand: dark background (watches keep it black for the battery), the app's blue / red / green.
-   No numbers during a hold, only the ring's colour, like on the phone */
+   Like the phone (Nov 2026-10-25): the rest shows only its countdown, a hold its seconds until STOP; the ring is red until the goal, then green */
 public class RingView extends View {
     static final int BLUE = 0xFF0A6FE0, BLUE2 = 0xFF4D9BFF, RED = 0xFFE53935, GREEN = 0xFF43A047,
         DIM = 0xFF3A4250, TRACK_BLUE = 0xFF1D3557, TRACK_RED = 0xFF3B1A1A, MUTED = 0xFFB8C7DD;
@@ -67,15 +67,13 @@ public class RingView extends View {
                 int sec = (int) Math.ceil(left / 1000.0);
                 p.setTypeface(Typeface.MONOSPACE);
                 p.setFakeBoldText(true);
-                text(c, String.format(Locale.US, "%d:%02d", sec / 60, sec % 60), cx, cy + s * 0.02f, s * 0.2f, 0xFFFFFFFF);
+                text(c, String.format(Locale.US, "%d:%02d", sec / 60, sec % 60), cx, cy + s * 0.04f, s * 0.2f, 0xFFFFFFFF);
                 p.setFakeBoldText(false);
-                text(c, t(R.string.rest), cx, cy + s * 0.17f, s * 0.07f, MUTED);
                 break;
             }
             case "ready":
                 dots(c, cx, cy - s * 0.3f, s);
-                button(c, cx, cy - s * 0.02f, s * 0.22f, BLUE2, BLUE, t(R.string.start), s);
-                text(c, t(a.inh ? R.string.inhale_go : R.string.exhale_go), cx, cy + s * 0.31f, s * 0.068f, 0xFFFFFFFF);
+                button(c, cx, cy + s * 0.03f, s * 0.22f, BLUE2, BLUE, t(R.string.start), s);
                 break;
             case "hold": {
                 long el = Math.max(0, now - a.t0);
@@ -90,8 +88,8 @@ public class RingView extends View {
                     arc(c, cx, cy, rad, ring, RED, (el % 30000) / 30000f);
                 }
                 dots(c, cx, cy - s * 0.3f, s);
-                button(c, cx, cy - s * 0.02f, s * 0.22f, green ? 0xFF7BD67F : 0xFFFF6B66, green ? GREEN : RED, t(R.string.stop), s);
-                text(c, t(green ? R.string.can_breathe : R.string.hold), cx, cy + s * 0.31f, s * 0.068f, 0xFFFFFFFF);
+                text(c, String.valueOf(el / 1000), cx, cy - s * 0.17f, s * 0.085f, 0xFFFFFFFF);
+                button(c, cx, cy + s * 0.08f, s * 0.22f, green ? 0xFF7BD67F : 0xFFFF6B66, green ? GREEN : RED, t(R.string.stop), s);
                 break;
             }
             case "done": {
