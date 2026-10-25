@@ -228,3 +228,9 @@ body.vbcap-on #box .lbl{display:none!important}
 .l1day3{display:flex;gap:8px;align-items:flex-end}
 .l1pair+.l1pair{border-left:1px solid color-mix(in srgb,var(--muted) 25%,transparent);padding-left:14px}
 .l1pair span{align-self:stretch;text-align:center}
+
+/* History: progress on top (Nov 2026-10-25) */
+.hprog{display:flex;flex-direction:column;gap:14px}
+.hpm{display:flex;flex-direction:column;gap:6px}
+.hpt{display:flex;flex-direction:column;gap:2px;font-size:14px}.hpt span{font-weight:700;font-size:13px;color:var(--muted)}
+.hpb .l1pair+.l1pair{border-left:0;padding-left:0}.hpb{gap:10px}.hpb .l1col{width:30px}

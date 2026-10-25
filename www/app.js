@@ -209,6 +209,17 @@ function renderHistory(){
   cell(D.histN,String(history.length));cell(D.histLast,D.B[history[0].o],col(history[0].o),'hlv');
   if(history.length>1){var df=Math.round(history[0].ts.exhale-history[1].ts.exhale);cell(D.histTrend,(df>0?'+':'')+df+' '+D.sec,df>0?col(2):(df<0?col(0):''));}
   wrap.appendChild(sm);
+  // Nov 2026-10-25: a month later nobody remembers the old numbers, so the progress sits on top: per hold, every test as a bar (oldest left), first test → now
+  var pg=document.createElement('div');pg.className='card hprog';var ph=document.createElement('div');ph.className='l1charth';ph.textContent=D.histProg;pg.appendChild(ph);
+  var hs=history.slice().reverse(),loc=lang==='ru'?'ru-RU':'en-US';
+  ORDER.forEach(function(m){var v=hs.map(function(h){return Math.round(h.ts[m]);}),a=v[0],b=v[v.length-1],mx=Math.max.apply(null,v)||1;
+    var row=document.createElement('div');row.className='hpm';var t=document.createElement('div');t.className='hpt';var nm=document.createElement('b');nm.textContent=name(m);t.appendChild(nm);
+    if(v.length>1){var q=document.createElement('span');var pc=a?Math.round((b-a)/a*100):0;q.textContent=D.histFirst.replace('{a}',a).replace('{b}',b)+(pc?' ('+(pc>0?'+':'')+pc+'%)':'');q.style.color=pc>0?col(2):(pc<0?col(0):'');t.appendChild(q);}
+    row.appendChild(t);var bx=document.createElement('div');bx.className='l1bars hpb';
+    hs.forEach(function(h){var saved=rest;rest=h.ts.inhale;var s=Math.round(h.ts[m]),c=col(level(h.ts[m],m));rest=saved;
+      bx.insertAdjacentHTML('beforeend','<div class="l1pair"><div class="l1col"><b style="color:'+c+'">'+s+'</b><i style="height:'+Math.max(6,Math.round(70*s/mx))+'px;background:'+c+'"></i></div><span>'+new Date(h.d).toLocaleDateString(loc,{day:'numeric',month:'numeric'})+'</span></div>');});
+    row.appendChild(bx);pg.appendChild(row);setTimeout(function(){bx.scrollLeft=bx.scrollWidth;},0);});
+  wrap.appendChild(pg);
   history.forEach(function(h,hi){
     var c=document.createElement('div');c.className='card hcard';c.style.setProperty('--lv',col(h.o));c.style.animationDelay=Math.min(hi,8)*70+'ms';
     var top=document.createElement('div');top.className='hist-top';
