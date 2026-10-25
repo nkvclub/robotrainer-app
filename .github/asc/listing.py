@@ -59,8 +59,8 @@ call('PATCH', f'/v1/ageRatingDeclarations/{age["id"]}', {'data': {'type': 'ageRa
 print('age rating ok')
 
 # Price: free
-sched = call('GET', f'/v1/apps/{app_id}/appPriceSchedule', ok_missing=True)
-if not (sched and sched.get('data')):
+# A schedule object can exist with no prices in it, so always (re)post the free price
+if True:
     free = next(p for p in all_pages(f'/v1/apps/{app_id}/appPricePoints?filter[territory]=USA&limit=200')
                 if float(p['attributes']['customerPrice']) == 0)
     call('POST', '/v1/appPriceSchedules', {'data': {'type': 'appPriceSchedules', 'relationships': {
@@ -144,7 +144,7 @@ if rd and rd.get('data'):
 elif os.environ.get('ASC_CONTACT_PHONE'):
     call('POST', '/v1/appStoreReviewDetails', {'data': {'type': 'appStoreReviewDetails',
          'attributes': dict(rd_attrs, contactPhone=os.environ['ASC_CONTACT_PHONE']),
-         'relationships': {'appStoreVersion': rel('appStoreVersions', vid)}}})
+         'relationships': {'appStoreVersion': rel('appStoreVersions', vid)}}}, ok_conflict=True)
 else:
     print('REVIEW DETAILS MISSING: contact phone must be typed in App Store Connect (App Review Information)')
     if STEP == 'submit':
@@ -155,18 +155,20 @@ if STEP != 'submit':
     print('STEP', STEP, '- not submitting')
     sys.exit(0)
 
-# Submit: the first subscription goes with this version
-subs = call('GET', f'/v1/apps/{app_id}/subscriptionGroups?include=subscriptions')
-for s in subs.get('included', []):
-    if s['type'] == 'subscriptions' and s['attributes']['state'] == 'READY_TO_SUBMIT':
-        call('POST', '/v1/subscriptionSubmissions', {'data': {'type': 'subscriptionSubmissions',
-             'relationships': {'subscription': rel('subscriptions', s['id'])}}}, ok_conflict=True)
-        print('subscription submitted', s['attributes']['productId'])
+# Submit: the version goes into a review submission first; the first subscription
+# must be submitted while that version is in it, then the submission is sent.
 open_subs = [r for r in call('GET', f'/v1/reviewSubmissions?filter[app]={app_id}&filter[platform]=IOS')['data']
              if r['attributes']['state'] in ('READY_FOR_REVIEW',)]
 sub = open_subs[0] if open_subs else call('POST', '/v1/reviewSubmissions', {'data': {'type': 'reviewSubmissions',
       'attributes': {'platform': 'IOS'}, 'relationships': {'app': rel('apps', app_id)}}})['data']
 call('POST', '/v1/reviewSubmissionItems', {'data': {'type': 'reviewSubmissionItems', 'relationships': {
      'reviewSubmission': rel('reviewSubmissions', sub['id']), 'appStoreVersion': rel('appStoreVersions', vid)}}}, ok_conflict=True)
+print('version added to review submission', sub['id'])
+groups = call('GET', f'/v1/apps/{app_id}/subscriptionGroups?include=subscriptions')
+for s in groups.get('included', []):
+    if s['type'] == 'subscriptions' and s['attributes']['state'] == 'READY_TO_SUBMIT':
+        call('POST', '/v1/subscriptionSubmissions', {'data': {'type': 'subscriptionSubmissions',
+             'relationships': {'subscription': rel('subscriptions', s['id'])}}})
+        print('subscription submitted', s['attributes']['productId'])
 call('PATCH', f'/v1/reviewSubmissions/{sub["id"]}', {'data': {'type': 'reviewSubmissions', 'id': sub['id'], 'attributes': {'submitted': True}}})
 print('SUBMITTED for review', sub['id'])
