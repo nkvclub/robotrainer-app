@@ -41,7 +41,7 @@ function applyTexts(){
   $('howList').innerHTML='';D.howL.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('howList').appendChild(li);});
   $('warnList').innerHTML='';D.warnL.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('warnList').appendChild(li);});
   $('lru').setAttribute('aria-pressed',lang==='ru');$('len').setAttribute('aria-pressed',lang==='en');
-  $('privLink').href=CFG.PRIVACY_URL[lang];$('consentLink').href=CFG.PRIVACY_URL[lang];$('siteLink').href=CFG.SITE_URL[lang];subRow();$('payPriv').href=CFG.PRIVACY_URL[lang];if(window.payRender)payRender();
+  $('consent2Row').hidden=lang!=='ru';if(lang!=='ru')$('consent2').checked=false;$('privLink').href=CFG.PRIVACY_URL[lang];$('consentLink').href=CFG.PRIVACY_URL[lang];$('siteLink').href=CFG.SITE_URL[lang];subRow();$('payPriv').href=CFG.PRIVACY_URL[lang];if(window.payRender)payRender();
   $('ver').textContent=D.ver+' '+CFG.version;
   if(P.App&&P.App.getInfo&&!CFG.nativeVer)P.App.getInfo().then(function(i){CFG.version=i.version;CFG.nativeVer=true;$('ver').textContent=D.ver+' '+i.version;}).catch(function(){});  // show the store version, not the web one
   var sd=$('sDay');sd.innerHTML='';[1,2,3,4,5,6,0].forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent=D.days[d];sd.appendChild(o);});sd.value=S.remDay;
@@ -262,8 +262,10 @@ function openEmail(){track('email_open');checkForm();$('emailMsg').textContent='
 function closeEmail(){$('emailModal').hidden=true;document.body.classList.remove('lock');if(document.activeElement)document.activeElement.blur();}
 $('emailClose').addEventListener('click',closeEmail);
 $('emailModal').addEventListener('click',function(e){if(e.target===this)closeEmail();});
-function checkForm(){$('emailSend').disabled=!($('consent').checked&&$('email').value.trim());}
-$('consent').addEventListener('change',checkForm);$('email').addEventListener('input',checkForm);
+// Nov 2026-10-25 (legal check): in Russian two separate agreements, personal data and emails; both needed, none ticked in advance
+function consentOk(){return $('consent').checked&&(lang!=='ru'||$('consent2').checked);}
+function checkForm(){$('emailSend').disabled=!(consentOk()&&$('email').value.trim());}
+$('consent').addEventListener('change',checkForm);$('consent2').addEventListener('change',checkForm);$('email').addEventListener('input',checkForm);
 // Fields as the site expects them (robotrainer.ru/wp-json/rt/v1/app-lead)
 function payload(email,last){var t=last.ts||{};
   var b={key:CFG.EMAIL_KEY,email:email,consent:true,lang:lang,inhale:Math.round(t.inhale||0),exhale:Math.round(t.exhale||0),load:Math.round(t.load||0),website:''};
@@ -281,7 +283,7 @@ $('emailForm').addEventListener('submit',function(e){
   e.preventDefault();
   var email=$('email').value.trim(),msg=$('emailMsg');
   var say=function(t,ok){msg.textContent=t;msg.className='msg '+(ok?'ok':'err');};
-  $('consent').parentNode.classList.remove('need');
+  $('consent').parentNode.classList.remove('need');$('consent2Row').classList.remove('need');
   if(!reEmail.test(email)){say(D.badEmail);return;}
   var url=CFG.EMAIL_ENDPOINT[lang];
   if(!url){say(D.sendOff,true);setTimeout(closeEmail,2500);return;}
@@ -293,7 +295,7 @@ $('emailForm').addEventListener('submit',function(e){
     if(j.ok){track('email_sent');sendTrack();say(server(j,j.repeat?D.repeat:D.sent),true);store.set('emailSent',true);setTimeout(closeEmail,3000);return;}
     $('emailSend').disabled=false;
     if(j.error==='email')say(server(j,D.badEmail));
-    else if(j.error==='consent'){$('consent').parentNode.classList.add('need');say(server(j,D.consent));}
+    else if(j.error==='consent'){$('consent').parentNode.classList.add('need');if(lang==='ru'&&!$('consent2').checked)$('consent2Row').classList.add('need');say(server(j,D.consent));}
     else if(j.error==='rate'||j.status===429)say(server(j,D.rate));
     else say(server(j,D.sendErr));
   }).catch(function(){
@@ -402,7 +404,7 @@ $('exMail').addEventListener('click',openEmail);
 
 /* ---------- «Уровень 1»: yearly subscription (billing.js), Google Play build only ---------- */
 var PAY=window.RT_PAY,payAsk='';
-function payPrice(){return PAY.price||'$3.99';}
+function payPrice(){return PAY.price||(PAY.kind==='rustore'?'299 ₽':'$3.99');}  // RuStore: 299 ₽ a year (Nov)
 function payShow(){return PAY.store&&!PAY.owned&&EX.state==='res'&&!EX.l1;}  // Nov 2026-10-24: the result screen sells Level 1, it does not wait for the store's price
 function payRender(){var T=D.PAY,show=payShow();$('exPayBox').hidden=!show;exResTxt();  // Nov 2026-10-21: both outcomes lead to Level 1 (gain: «what about a year?», no gain: «room to grow»)
   $('exPay').hidden=true;$('exPay').textContent=T.btn.replace('{p}',payPrice());if(EX.l1)return payRenderSheet(T);$('exMail').className=show?'again':'cta';$('exHome').className=show?'exquit':'again';$('exHome').hidden=false;$('exHome').textContent=PAY.owned?D.L1.back:D.X.home;  // Nov 2026-10-24: with the offer «На главную» is only a small link at the very bottom; a subscriber goes to his results
@@ -410,7 +412,7 @@ function payRender(){var T=D.PAY,show=payShow();$('exPayBox').hidden=!show;exRes
 function payRenderSheet(T){
   $('payH').textContent=T.h;$('ofH').textContent=T.ofH;$('ofCup').textContent=T.ofCup;$('ofOr').textContent=T.ofOr;$('ofWin').textContent=T.ofWin;$('ofTxt').textContent=T.ofTxt;$('payNote').textContent=T.note.replace('{p}',payPrice());  // Nov: a latte or a gold medal, same price; promo footnote
   $('payList').innerHTML='';T.list.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('payList').appendChild(li);});
-  $('payPrice').textContent=T.price.replace('{p}',payPrice());var ios=window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform()==='ios';$('payRenew').textContent=ios?T.renew.replace('in Google Play','in the App Store').replace('Google Play','App Store'):T.renew;$('payTerms').hidden=!ios;if(ios)$('payManage').href='https://apps.apple.com/account/subscriptions';/* Apple 3.1.2: Terms of Use next to the subscription */$('payRestore').textContent=T.restore;$('payManage').textContent=T.manage;
+  $('payPrice').textContent=T.price.replace('{p}',payPrice());var ios=window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform()==='ios';$('payRenew').textContent=PAY.kind==='rustore'?T.renewRs:(ios?T.renew.replace('in Google Play','in the App Store').replace('Google Play','App Store'):T.renew);$('payTerms').hidden=!ios;if(ios)$('payManage').href='https://apps.apple.com/account/subscriptions';/* Apple 3.1.2: Terms of Use next to the subscription */$('payRestore').textContent=T.restore;$('payManage').textContent=T.manage;
   var g=$('payGo');g.textContent=PAY.busy?T.busy:T.go.replace('{p}',payPrice());g.disabled=PAY.busy;g.hidden=PAY.owned;
   var m=$('payMsg');m.textContent=PAY.owned?T.ok:(PAY.err?T.err:(payAsk==='restore'&&!PAY.busy?T.none:''));m.className='msg'+(PAY.owned?' ok':(m.textContent?' err':''));}
 window.payRender=payRender;
@@ -421,8 +423,10 @@ $('exPay').addEventListener('click',openPay);
 ['payH','payList','exOffer','payPrice','payGo','payMsg','payRenew','payNote'].forEach(function(id){$('exPayBox').appendChild($(id));});$('exPayBox').appendChild(document.querySelector('.paylinks'));  // Nov: the offer sits under the result, scroll down to «Оформить подписку»
 $('payClose').addEventListener('click',closePay);
 $('payModal').addEventListener('click',function(e){if(e.target===this)closePay();});
-$('payGo').addEventListener('click',function(){if(PAY.busy||PAY.owned)return;track('pay_buy');if(!PAY.available){var m=$('payMsg');m.textContent=(window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform()==='ios')?D.PAY.waitIos:D.PAY.wait;m.className='msg err';return;}payAsk='buy';PAY.buy();});  // the store has not answered yet (no network)
+$('payGo').addEventListener('click',function(){if(PAY.busy||PAY.owned)return;track('pay_buy');if(!PAY.available){var m=$('payMsg');m.textContent=PAY.kind==='rustore'?D.PAY.waitRs:((window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform()==='ios')?D.PAY.waitIos:D.PAY.wait);m.className='msg err';return;}payAsk='buy';PAY.buy();});  // the store has not answered yet (no network)
 $('ofWinBtn').addEventListener('click',function(){$('payGo').click();});  // the medal is the choice: tapping it buys, like «Оформить подписку»
+// RuStore build: subscriptions are managed in the RuStore app, not on a Google Play page
+['payManage','subManage'].forEach(function(id){$(id).addEventListener('click',function(e){if(PAY.manage){e.preventDefault();PAY.manage();}});});
 $('payRestore').addEventListener('click',function(){if(PAY.busy)return;track('pay_restore');payAsk='restore';PAY.err='';PAY.restore();});
 
 /* ---------- «Уровень 1» (paid), taken from the site's level I trainer (Nov 2026-10-21): inhale hold before -> 30 s rest -> 4 exhale sets
@@ -505,8 +509,8 @@ function l1Remind(){l1CheckRemind();var LN=P.LocalNotifications;if(!LN||L1.plan)
 function l1Tab(){var on=PAY.owned;$('tabL1').hidden=!on;}
 function subDay(t){var d=new Date(t);return lang==='ru'?('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+d.getFullYear():d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});}
 function subTxt(){return PAY.owned?(PAY.until?D.subTill.replace('{d}',subDay(PAY.until)):D.subOn):D.subOff;}
-function subRow(){$('subRow').hidden=!PAY.store;$('subSt').textContent=subTxt();$('subRn').hidden=!(PAY.owned&&PAY.until);$('subRn').textContent=PAY.renew?D.subRen:D.subEnd;$('subManage').hidden=!PAY.owned;$('subManage').textContent=D.PAY.manage;if(window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform()==='ios')$('subManage').href='https://apps.apple.com/account/subscriptions';  // no subscription: Play's list is empty, so no link. Settings and the Level 1 screen show what Google Play says about the subscription
-  $('l1SubSt').hidden=!(PAY.store&&PAY.owned);$('l1SubSt').textContent=subTxt();}
+function subRow(){$('subRow').hidden=!(PAY.store||PAY.owned);$('subSt').textContent=subTxt();$('subRn').hidden=!(PAY.owned&&PAY.until);$('subRn').textContent=PAY.renew?D.subRen:D.subEnd;$('subManage').hidden=!PAY.owned;$('subManage').textContent=D.PAY.manage;if(window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform()==='ios')$('subManage').href='https://apps.apple.com/account/subscriptions';  // no subscription: Play's list is empty, so no link. Settings and the Level 1 screen show what Google Play says about the subscription
+  $('l1SubSt').hidden=!PAY.owned;$('l1SubSt').textContent=subTxt();}
 // Nov 2026-10-25: a reminder 7 days and 1 day before the paid year ends or renews
 function subRemind(){var LN=P.LocalNotifications;if(!LN||!PAY.checked)return;var key=PAY.owned&&PAY.until?PAY.until+'|'+PAY.renew+'|'+lang:'';var was='';try{was=localStorage.getItem('rt_subrem')||'';}catch(e){}if(key===was)return;
   try{localStorage.setItem('rt_subrem',key);}catch(e){}

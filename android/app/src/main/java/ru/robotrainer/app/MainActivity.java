@@ -12,6 +12,12 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(WatchPlugin.class);
+        // RuStore Pay exists only in the RuStore build (see app/build.gradle)
+        try {
+            registerPlugin(Class.forName("ru.robotrainer.rustorepay.RuStorePayPlugin").asSubclass(com.getcapacitor.Plugin.class));
+        } catch (ClassNotFoundException e) {
+            // Google Play build
+        }
         super.onCreate(savedInstanceState);
         WebView wv = getBridge().getWebView();
         // Keep the designed text size: a large system font made texts overflow the circle and cards

@@ -24,7 +24,7 @@
 
 После трёх замеров ты увидишь время каждой задержки, оценку по каждому шагу и общий уровень. Результаты сохраняются в истории, можно пройти тест снова и сравнить.
 
-Хочешь понять, как работает тренировка? После теста сделай бесплатное упражнение: три упражнения с отдыхом по 30 секунд, и контрольный замер покажет улучшенный результат. Если не веришь, проверь!
+Хочешь понять, как работает тренировка? После теста сделай бесплатное упражнение: три упражнения с отдыхом по 30 секунд, и контрольный замер покажет, изменился ли твой результат. Проверь сам!
 
 Уровень 1 (подписка, по желанию):
 • Тренировки первого уровня, шаг за шагом
@@ -60,7 +60,7 @@ Tap START when you begin holding and STOP when you want to breathe. There are no
 
 After all three holds you will see the time of each hold, a grade for each step and your overall level. Results are saved in your history, so you can retake the test and compare.
 
-Want to see how training works? After the test, try a free exercise: three exercises with 30-second rests, and a control hold will show your improved result. Don't believe it? Try it!
+Want to see how training works? After the test, try a free exercise: three exercises with 30-second rests, and a control hold will show whether your result changed. See for yourself!
 
 Level 1 (optional subscription):
 • Level 1 workouts, step by step

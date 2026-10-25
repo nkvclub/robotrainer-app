@@ -1,0 +1,26 @@
+// RuStore Pay (yearly «Уровень 1», 299 ₽). Linked ONLY into the RuStore build (ru.robotrainer.app),
+// see app/build.gradle: the Google Play build never contains this code or the RuStore SDK.
+apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
+
+android {
+    namespace "ru.robotrainer.rustorepay"
+    compileSdk rootProject.ext.compileSdkVersion
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+    kotlinOptions {
+        jvmTarget = '21'
+    }
+}
+
+dependencies {
+    implementation project(":capacitor-android")
+    implementation "androidx.appcompat:appcompat:$rootProject.ext.androidxAppCompatVersion"
+    implementation platform("ru.rustore.sdk:bom:2026.08.01")
+    implementation "ru.rustore.sdk:pay"
+}
