@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App id from RuStore Console: the digits in console.rustore.ru/apps/<id>/versions -->
+    <string name="rustore_console_app_id" translatable="false">0</string>
+</resources>

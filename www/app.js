@@ -402,7 +402,7 @@ $('exMail').addEventListener('click',openEmail);
 
 /* ---------- «Уровень 1»: yearly subscription (billing.js), Google Play build only ---------- */
 var PAY=window.RT_PAY,payAsk='';
-function payPrice(){return PAY.price||'$3.99';}
+function payPrice(){return PAY.price||(PAY.kind==='rustore'?'299 ₽':'$3.99');}  // RuStore: 299 ₽ a year (Nov)
 function payShow(){return PAY.store&&!PAY.owned&&EX.state==='res'&&!EX.l1;}  // Nov 2026-10-24: the result screen sells Level 1, it does not wait for the store's price
 function payRender(){var T=D.PAY,show=payShow();$('exPayBox').hidden=!show;exResTxt();  // Nov 2026-10-21: both outcomes lead to Level 1 (gain: «what about a year?», no gain: «room to grow»)
   $('exPay').hidden=true;$('exPay').textContent=T.btn.replace('{p}',payPrice());if(EX.l1)return payRenderSheet(T);$('exMail').className=show?'again':'cta';$('exHome').className=show?'exquit':'again';$('exHome').hidden=false;$('exHome').textContent=PAY.owned?D.L1.back:D.X.home;  // Nov 2026-10-24: with the offer «На главную» is only a small link at the very bottom; a subscriber goes to his results
@@ -410,7 +410,7 @@ function payRender(){var T=D.PAY,show=payShow();$('exPayBox').hidden=!show;exRes
 function payRenderSheet(T){
   $('payH').textContent=T.h;$('ofH').textContent=T.ofH;$('ofCup').textContent=T.ofCup;$('ofOr').textContent=T.ofOr;$('ofWin').textContent=T.ofWin;$('ofTxt').textContent=T.ofTxt;$('payNote').textContent=T.note.replace('{p}',payPrice());  // Nov: a latte or a gold medal, same price; promo footnote
   $('payList').innerHTML='';T.list.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('payList').appendChild(li);});
-  $('payPrice').textContent=T.price.replace('{p}',payPrice());$('payRenew').textContent=T.renew;$('payRestore').textContent=T.restore;$('payManage').textContent=T.manage;
+  $('payPrice').textContent=T.price.replace('{p}',payPrice());$('payRenew').textContent=PAY.kind==='rustore'?T.renewRs:T.renew;$('payRestore').textContent=T.restore;$('payManage').textContent=T.manage;
   var g=$('payGo');g.textContent=PAY.busy?T.busy:T.go.replace('{p}',payPrice());g.disabled=PAY.busy;g.hidden=PAY.owned;
   var m=$('payMsg');m.textContent=PAY.owned?T.ok:(PAY.err?T.err:(payAsk==='restore'&&!PAY.busy?T.none:''));m.className='msg'+(PAY.owned?' ok':(m.textContent?' err':''));}
 window.payRender=payRender;
@@ -423,6 +423,8 @@ $('payClose').addEventListener('click',closePay);
 $('payModal').addEventListener('click',function(e){if(e.target===this)closePay();});
 $('payGo').addEventListener('click',function(){if(PAY.busy||PAY.owned)return;track('pay_buy');if(!PAY.available){var m=$('payMsg');m.textContent=D.PAY.wait;m.className='msg err';return;}payAsk='buy';PAY.buy();});  // the store has not answered yet (no network)
 $('ofWinBtn').addEventListener('click',function(){$('payGo').click();});  // the medal is the choice: tapping it buys, like «Оформить подписку»
+// RuStore build: subscriptions are managed in the RuStore app, not on a Google Play page
+['payManage','subManage'].forEach(function(id){$(id).addEventListener('click',function(e){if(PAY.manage){e.preventDefault();PAY.manage();}});});
 $('payRestore').addEventListener('click',function(){if(PAY.busy)return;track('pay_restore');payAsk='restore';PAY.err='';PAY.restore();});
 
 /* ---------- «Уровень 1» (paid), taken from the site's level I trainer (Nov 2026-10-21): inhale hold before -> 30 s rest -> 4 exhale sets
