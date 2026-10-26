@@ -322,7 +322,11 @@
   <div class="wrap">
     <h2>Have a project in mind?</h2>
     <p>Tell us what you need: an app, a website or more customers. We will reply with a simple plan and a price.</p>
-    <form class="form" id="lead" novalidate>
+    <form class="form" id="lead" action="https://formsubmit.co/nkvclub@gmail.com" method="POST" novalidate>
+      <input type="hidden" name="_next" value="https://nkvclub.github.io/robotrainer-app/?sent=1#contact">
+      <input type="hidden" name="_subject" id="f-subj" value="New project request">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
       <div class="q">What do you need?</div>
       <div class="opts" id="svc">
         <label><input type="checkbox" name="Service" value="Mobile app" data-x="x-app"><span>Mobile app</span></label>
@@ -452,25 +456,23 @@
 </section>
 <script>
 (function(){
-  var ENDPOINT='https://formsubmit.co/ajax/nkvclub@gmail.com';
   var f=document.getElementById('lead'),err=document.getElementById('f-err'),btn=document.getElementById('f-send');
+  if(/[?&]sent=1/.test(location.search)){f.style.display='none';document.getElementById('lead-done').style.display='block';}
   document.querySelectorAll('#svc input').forEach(function(c){c.addEventListener('change',function(){
     if(c.dataset.x)document.getElementById(c.dataset.x).classList.toggle('on',c.checked);});});
   function show(t){err.textContent=t;err.style.display='block';}
   f.addEventListener('submit',function(e){
-    e.preventDefault();err.style.display='none';
-    var d={},fd=new FormData(f);
-    fd.forEach(function(v,k){if(!v)return;d[k]=d[k]?d[k]+', '+v:v;});
-    if(!d.Service)return show('Please choose what you need.');
-    if(!d.Name)return show('Please enter your name.');
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email||''))return show('Please enter a valid email.');
-    d._subject='New project request: '+d.Service;d._template='table';d._captcha='false';
+    err.style.display='none';
+    var svc=[].map.call(f.querySelectorAll('#svc input:checked'),function(c){return c.value;}).join(', ');
+    var name=f.elements.Name.value.trim(),mail=f.elements.email.value.trim();
+    if(!svc){e.preventDefault();return show('Please choose what you need.');}
+    if(!name){e.preventDefault();return show('Please enter your name.');}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){e.preventDefault();return show('Please enter a valid email.');}
+    document.getElementById('f-subj').value='New project request: '+svc;
     btn.disabled=true;btn.textContent='Sending...';
-    fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(d)})
-      .then(function(r){return r.json().catch(function(){return{};}).then(function(j){if(!r.ok||j.success==='false'||j.success===false)throw 0;});})
-      .then(function(){f.style.display='none';document.getElementById('lead-done').style.display='block';})
-      .catch(function(){btn.disabled=false;btn.textContent='Send request →';show('Could not send. Please email us at marketing@robotrainerpro.com');});
+    setTimeout(function(){btn.disabled=false;btn.textContent='Send request →';},15000);
   });
+  window.addEventListener('pageshow',function(){btn.disabled=false;btn.textContent='Send request →';});
 })();
 </script>
 
