@@ -124,7 +124,8 @@
   .opts input:focus-visible+span{outline:2px solid var(--blue2)}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
   .extra{display:none;border-left:3px solid var(--sky);padding-left:16px;margin-top:6px}
-  .extra.on{display:block}
+  .extra.on{display:block;margin-top:22px}
+  .form .xt{font-weight:800;color:var(--blue);font-size:17px}
   .form .btn{background:var(--blue);color:#fff;border:0;cursor:pointer;margin-top:24px;width:100%;justify-content:center}
   .form .btn[disabled]{opacity:.6;cursor:wait}
   .form .note{font-size:13px;color:var(--muted);margin-top:12px;text-align:center}
@@ -327,12 +328,13 @@
         <label><input type="checkbox" name="Service" value="Mobile app" data-x="x-app"><span>Mobile app</span></label>
         <label><input type="checkbox" name="Service" value="Website" data-x="x-web"><span>Website</span></label>
         <label><input type="checkbox" name="Service" value="Google Ads" data-x="x-ads"><span>Google Ads</span></label>
-        <label><input type="checkbox" name="Service" value="App store publishing"><span>App store publishing</span></label>
-        <label><input type="checkbox" name="Service" value="Ad creatives"><span>Ad creatives</span></label>
-        <label><input type="checkbox" name="Service" value="Analytics"><span>Analytics</span></label>
+        <label><input type="checkbox" name="Service" value="App store publishing" data-x="x-pub"><span>App store publishing</span></label>
+        <label><input type="checkbox" name="Service" value="Ad creatives" data-x="x-cre"><span>Ad creatives</span></label>
+        <label><input type="checkbox" name="Service" value="Analytics" data-x="x-ana"><span>Analytics</span></label>
       </div>
 
       <div class="extra" id="x-app">
+        <div class="xt">Mobile app</div>
         <div class="q">App for</div>
         <div class="opts">
           <label><input type="checkbox" name="App platform" value="iPhone"><span>iPhone</span></label>
@@ -347,7 +349,8 @@
       </div>
 
       <div class="extra" id="x-web">
-        <div class="q">Website</div>
+        <div class="xt">Website</div>
+        <div class="q">New or existing?</div>
         <div class="opts">
           <label><input type="radio" name="Website type" value="New website"><span>New website</span></label>
           <label><input type="radio" name="Website type" value="Redo my website"><span>Redo my website</span></label>
@@ -357,16 +360,72 @@
       </div>
 
       <div class="extra" id="x-ads">
-        <div class="q">Google Ads</div>
+        <div class="xt">Google Ads</div>
+        <div class="q">Your ads</div>
         <div class="opts">
           <label><input type="radio" name="Ads status" value="Start new ads"><span>Start new ads</span></label>
           <label><input type="radio" name="Ads status" value="Improve my ads"><span>Improve my ads</span></label>
+        </div>
+        <div class="q">Main goal</div>
+        <div class="opts">
+          <label><input type="checkbox" name="Ads goal" value="More calls"><span>More calls</span></label>
+          <label><input type="checkbox" name="Ads goal" value="More sales"><span>More sales</span></label>
+          <label><input type="checkbox" name="Ads goal" value="More leads"><span>More leads</span></label>
+          <label><input type="checkbox" name="Ads goal" value="More app installs"><span>More app installs</span></label>
         </div>
         <label for="f-budget">Monthly ad budget</label>
         <select id="f-budget" name="Ad budget">
           <option value="">Choose</option>
           <option>Under $500</option><option>$500 to $2,000</option><option>$2,000 to $10,000</option><option>Over $10,000</option>
         </select>
+      </div>
+
+      <div class="extra" id="x-pub">
+        <div class="xt">App store publishing</div>
+        <div class="q">Stores</div>
+        <div class="opts">
+          <label><input type="checkbox" name="Stores" value="App Store"><span>App Store</span></label>
+          <label><input type="checkbox" name="Stores" value="Google Play"><span>Google Play</span></label>
+          <label><input type="checkbox" name="Stores" value="Other stores"><span>Other stores</span></label>
+        </div>
+        <div class="q">Is your app ready?</div>
+        <div class="opts">
+          <label><input type="radio" name="App ready" value="Yes, ready"><span>Yes, ready</span></label>
+          <label><input type="radio" name="App ready" value="Almost, need help"><span>Almost, need help</span></label>
+        </div>
+      </div>
+
+      <div class="extra" id="x-cre">
+        <div class="xt">Ad creatives</div>
+        <div class="q">What do you need?</div>
+        <div class="opts">
+          <label><input type="checkbox" name="Creatives" value="Images"><span>Images</span></label>
+          <label><input type="checkbox" name="Creatives" value="Short videos"><span>Short videos</span></label>
+          <label><input type="checkbox" name="Creatives" value="Ad texts"><span>Ad texts</span></label>
+        </div>
+        <div class="q">Where will the ads run?</div>
+        <div class="opts">
+          <label><input type="checkbox" name="Ad platforms" value="Google"><span>Google</span></label>
+          <label><input type="checkbox" name="Ad platforms" value="Facebook / Instagram"><span>Facebook / Instagram</span></label>
+          <label><input type="checkbox" name="Ad platforms" value="TikTok"><span>TikTok</span></label>
+          <label><input type="checkbox" name="Ad platforms" value="Not sure"><span>Not sure</span></label>
+        </div>
+      </div>
+
+      <div class="extra" id="x-ana">
+        <div class="xt">Analytics</div>
+        <div class="q">What should we track?</div>
+        <div class="opts">
+          <label><input type="checkbox" name="Track" value="Website"><span>Website</span></label>
+          <label><input type="checkbox" name="Track" value="App"><span>App</span></label>
+          <label><input type="checkbox" name="Track" value="Ads"><span>Ads</span></label>
+        </div>
+        <div class="q">Do you have Google Analytics?</div>
+        <div class="opts">
+          <label><input type="radio" name="Has Google Analytics" value="Yes"><span>Yes</span></label>
+          <label><input type="radio" name="Has Google Analytics" value="No"><span>No</span></label>
+          <label><input type="radio" name="Has Google Analytics" value="Not sure"><span>Not sure</span></label>
+        </div>
       </div>
 
       <label for="f-msg">Tell us about your project</label>
