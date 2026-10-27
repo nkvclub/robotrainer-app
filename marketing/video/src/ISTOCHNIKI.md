@@ -9,3 +9,5 @@ https://www.pexels.com/license/
 - 7877141 — тот же парень легко поднимается
 
 Экраны: store/reklama/{ru,en}/android/3,4,5.png. Концовка: кадр из multik-lestnica.
+- v2: 7876573 (другой ракурс, 4K), 7876915 (девушка бежит дальше)
+- Звук дыхания: Mixkit «Strong breathing of a person» (sfx 2232), бесплатная лицензия Mixkit

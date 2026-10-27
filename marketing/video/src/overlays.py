@@ -52,3 +52,8 @@ for L in ('ru','en'):
         src=Image.alpha_composite(src,sh.filter(ImageFilter.GaussianBlur(6)))
         text_block(ImageDraw.Draw(src),lines,y0,size,[(255,255,255,255)]*(len(lines)-1)+[YEL] if n==3 else None)
         src.convert('RGB').save(f'{out}/{L}_s{n}.png')
+Q={'ru':(['Нет сил?'],['Или ты просто','задохнулся?']),'en':(['No strength?'],['Or are you just','out of breath?'])}
+W_=(255,255,255,255)
+for L,(a,b) in Q.items():
+    shadowed(a,90,92,[W_]).save(f'{out}/{L}_q1.png')
+    shadowed(a+b,90,92,[W_,YEL,YEL]).save(f'{out}/{L}_q2.png')
