@@ -12,3 +12,4 @@ https://www.pexels.com/license/
 - v2: 7876573 (другой ракурс, 4K), 7876915 (девушка бежит дальше)
 - Звук дыхания: Mixkit «Strong breathing of a person» (sfx 2232), бесплатная лицензия Mixkit
 - v3 (Remotion): marketing/video/remotion/. Папку public/ (клипы a..g.mp4 из build2.sh, экраны, шрифты Inter, icon.png, breath.mp3) собрать заново; рендер: npx remotion render src/index.ts lestnica-ru out/ru.mp4
+- Бокс (Remotion, src/Boks.tsx): Pexels 6296296, 6296292, 6296288 (пропущенный удар ногой), 6296150, 6296151 — одна серия, один зал. Звук удара: Mixkit sfx 2155.

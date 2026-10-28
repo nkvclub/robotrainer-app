@@ -1,20 +1,20 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Img, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 
-const FPS = 25;
-const s = (sec: number) => Math.round(sec * FPS);
+export const FPS = 25;
+export const s = (sec: number) => Math.round(sec * FPS);
 const YEL = '#FFD23F';
 const BLUE_TOP = '#1f74f0';
 const BLUE_BOT = '#0a3aa8';
 
-const fontCss = `
+export const fontCss = `
 @font-face{font-family:'InterX';src:url(${staticFile('Inter-Bold.otf')});font-weight:700}
 @font-face{font-family:'InterX';src:url(${staticFile('Inter-ExtraBold.otf')});font-weight:800}
 @font-face{font-family:'InterX';src:url(${staticFile('Inter-SemiBold.otf')});font-weight:600}`;
 
-type Lang = 'ru' | 'en';
-type Line = {t: string; y?: boolean};
-const T: Record<Lang, {
+export type Lang = 'ru' | 'en';
+export type Line = {t: string; y?: boolean};
+export const T: Record<Lang, {
   q1: Line[]; q2: Line[]; hook: Line[]; s3: Line[]; s4: Line[]; s5: Line[]; small: string; brand: string; get: string; store: string;
 }> = {
   ru: {
@@ -40,7 +40,7 @@ const T: Record<Lang, {
 };
 
 // Each line pops in: rises, scales from 0.85 and the yellow ones get a glow sweep.
-const PopLines: React.FC<{lines: Line[]; size: number; delay?: number; stagger?: number; dark?: boolean}> = ({lines, size, delay = 0, stagger = 7, dark = true}) => {
+export const PopLines: React.FC<{lines: Line[]; size: number; delay?: number; stagger?: number; dark?: boolean}> = ({lines, size, delay = 0, stagger = 7, dark = true}) => {
   const f = useCurrentFrame();
   const {fps} = useVideoConfig();
   return (
@@ -63,11 +63,11 @@ const PopLines: React.FC<{lines: Line[]; size: number; delay?: number; stagger?:
   );
 };
 
-const TopShade: React.FC = () => (
+export const TopShade: React.FC = () => (
   <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,10,40,.62) 0%, rgba(0,10,40,.25) 30%, rgba(0,0,0,0) 45%)'}} />
 );
 
-const Live: React.FC<{src: string; grade?: boolean}> = ({src, grade}) => (
+export const Live: React.FC<{src: string; grade?: boolean}> = ({src, grade}) => (
   <AbsoluteFill>
     <OffthreadVideo src={staticFile(src)} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
     {grade ? <AbsoluteFill style={{background: 'radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 45%, rgba(0,0,0,.45) 100%)'}} /> : null}
@@ -75,13 +75,13 @@ const Live: React.FC<{src: string; grade?: boolean}> = ({src, grade}) => (
 );
 
 // Slow "breathing" pulse of a dark vignette: makes the out-of-breath moment heavier.
-const BreathPulse: React.FC = () => {
+export const BreathPulse: React.FC = () => {
   const f = useCurrentFrame();
   const a = 0.18 + 0.14 * (0.5 + 0.5 * Math.sin(f / 9));
   return <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 40%, rgba(0,0,0,${a + 0.25}) 100%)`}} />;
 };
 
-const TextTop: React.FC<{children: React.ReactNode; top?: number}> = ({children, top = 110}) => (
+export const TextTop: React.FC<{children: React.ReactNode; top?: number}> = ({children, top = 110}) => (
   <AbsoluteFill style={{justifyContent: 'flex-start', alignItems: 'center', paddingTop: top}}>{children}</AbsoluteFill>
 );
 
@@ -97,7 +97,7 @@ const BlueBg: React.FC = () => (
   <AbsoluteFill style={{background: `linear-gradient(180deg, ${BLUE_TOP} 0%, ${BLUE_BOT} 100%)`}}><Bubbles /></AbsoluteFill>
 );
 
-const ScreenScene: React.FC<{img: string; lines: Line[]; reveal?: boolean}> = ({img, lines, reveal}) => {
+export const ScreenScene: React.FC<{img: string; lines: Line[]; reveal?: boolean}> = ({img, lines, reveal}) => {
   const f = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
   const inP = spring({frame: f - 3, fps, config: {damping: 14, stiffness: 110}});
@@ -121,7 +121,7 @@ const ScreenScene: React.FC<{img: string; lines: Line[]; reveal?: boolean}> = ({
   );
 };
 
-const SmallNote: React.FC<{text: string}> = ({text}) => {
+export const SmallNote: React.FC<{text: string}> = ({text}) => {
   const f = useCurrentFrame();
   const o = interpolate(f, [8, 20], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
@@ -131,7 +131,7 @@ const SmallNote: React.FC<{text: string}> = ({text}) => {
   );
 };
 
-const EndCard: React.FC<{lang: Lang}> = ({lang}) => {
+export const EndCard: React.FC<{lang: Lang}> = ({lang}) => {
   const f = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = T[lang];
