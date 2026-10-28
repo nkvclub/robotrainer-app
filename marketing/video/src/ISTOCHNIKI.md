@@ -11,3 +11,4 @@ https://www.pexels.com/license/
 Экраны: store/reklama/{ru,en}/android/3,4,5.png. Концовка: кадр из multik-lestnica.
 - v2: 7876573 (другой ракурс, 4K), 7876915 (девушка бежит дальше)
 - Звук дыхания: Mixkit «Strong breathing of a person» (sfx 2232), бесплатная лицензия Mixkit
+- v3 (Remotion): marketing/video/remotion/. Папку public/ (клипы a..g.mp4 из build2.sh, экраны, шрифты Inter, icon.png, breath.mp3) собрать заново; рендер: npx remotion render src/index.ts lestnica-ru out/ru.mp4
