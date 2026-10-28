@@ -1,0 +1,55 @@
+name: Watch build
+
+# Wear OS watch remote + phone app that talks to it. Test APKs (test key) and Google Play bundles (release key).
+on:
+  push:
+    branches: ['claude/project-thread-qobgp8']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npx cap sync android
+      - name: Build test APKs (phone + watch)
+        working-directory: android
+        run: |
+          RT_APP_ID=com.robotrainerpro.app ./gradlew :app:assembleDebug :wear:assembleDebug --no-daemon
+          cp app/build/outputs/apk/debug/app-debug.apk ../robotrainer-phone-test.apk
+          cp wear/build/outputs/apk/debug/wear-debug.apk ../robotrainer-watch-test.apk
+      - name: Restore release key from secrets
+        env:
+          KEY_B64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+        run: echo "$KEY_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+      - name: Build Google Play bundles (phone + watch)
+        working-directory: android
+        env:
+          RT_KEYSTORE_FILE: ${{ runner.temp }}/release.jks
+          RT_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RT_APP_ID: com.robotrainerpro.app
+        run: |
+          ./gradlew :app:bundleRelease :wear:bundleRelease --no-daemon
+          cp app/build/outputs/bundle/release/app-release.aab ../robotrainer.aab
+          cp wear/build/outputs/bundle/release/wear-release.aab ../robotrainer-watch.aab
+      - name: Publish watch build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "watch-${{ github.run_number }}" robotrainer-phone-test.apk robotrainer-watch-test.apk robotrainer.aab robotrainer-watch.aab \
+            --target "${{ github.sha }}" \
+            --title "Часы, сборка ${{ github.run_number }}" \
+            --notes "robotrainer.aab (телефон) и robotrainer-watch.aab (часы) для Google Play, com.robotrainerpro.app. Файлы *-test.apk только для проверки." \
+            --prerelease --latest=false

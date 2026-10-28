@@ -8,8 +8,8 @@ android {
         applicationId System.getenv('RT_APP_ID') ?: "ru.robotrainer.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 14
-        versionName "1.0.11"
+        versionCode 23
+        versionName "1.0.20"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -56,6 +56,11 @@ dependencies {
     implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
     implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
     implementation project(':capacitor-android')
+    // RuStore Pay: only in the RuStore build (no RT_APP_ID). The Google Play build never gets it.
+    if (!System.getenv('RT_APP_ID')) implementation project(':rustorepay')
+    // watch remote (WatchPlugin)
+    implementation "com.google.android.gms:play-services-wearable:19.0.0"
+    implementation "androidx.wear:wear-remote-interactions:1.1.0"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
