@@ -1,0 +1,58 @@
+name: iOS resubmit with a new build
+
+# Runs when .github/asc/resubmit-request changes (a new workflow on a side branch
+# can't be started by hand). The file holds two words: build number, and SEND or check.
+# With SEND it takes the version out of the review queue, attaches the build,
+# updates the review notes and sends the version (and the Level 1 subscription) again.
+on:
+  push:
+    paths:
+      - .github/asc/resubmit-request
+
+jobs:
+  resubmit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: pip install pyjwt cryptography
+      - name: Read request
+        run: |
+          read B S < .github/asc/resubmit-request
+          echo "BUILD=$B" >> "$GITHUB_ENV"; echo "SEND=$S" >> "$GITHUB_ENV"
+          echo "build $B, mode $S"
+      - name: Build ready?
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/key.p8"
+          cd .github/asc && ASC_KEY_PATH="$RUNNER_TEMP/key.p8" python3 - <<'PY'
+          import os, sys
+          from asc_api import call, BUNDLE
+          app = call('GET', f'/v1/apps?filter[bundleId]={BUNDLE}')['data'][0]['id']
+          b = call('GET', f'/v1/builds?filter[app]={app}&filter[version]={os.environ["BUILD"]}')['data']
+          print('build', os.environ['BUILD'], [x['attributes']['processingState'] for x in b])
+          if not b or b[0]['attributes']['processingState'] != 'VALID':
+              sys.exit('build not processed yet')
+          PY
+      - name: Cancel waiting review
+        if: env.SEND == 'SEND' || env.SEND == 'CANCEL'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: ASC_KEY_PATH="$RUNNER_TEMP/key.p8" python3 .github/asc/resubmit.py
+      - name: Attach build and submit
+        if: env.SEND == 'SEND'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_CONTACT_PHONE: ${{ secrets.ASC_CONTACT_PHONE }}
+          APP_BUILD: ${{ env.BUILD }}
+          ASC_STEP: submit
+        run: ASC_KEY_PATH="$RUNNER_TEMP/key.p8" python3 .github/asc/listing.py
+      - name: Remove key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/key.p8"

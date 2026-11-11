@@ -15,7 +15,7 @@
 #calcBtn{display:none!important}
 #scrTest.started #bars:not(.results) .row.calcrow{opacity:1;padding-block:14px}
 .cbtn.calc{animation:callpill 1.2s ease-in-out infinite}
-body.vbcap-on .ringbox .lbl{display:none!important}
+body.vbcap-on #box .lbl{display:none!important}
 /* the step card stays still and the same width as the others; only its button invites a tap */
 #bars:not(.results) .row.act{animation:none;cursor:default}
 #bars:not(.results) .row.act:active{transform:none}
@@ -61,7 +61,7 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 #exGo{border:0;font-family:inherit}
 .exh:empty{display:none}
 #exBox .mascot{display:none}
-#exBox.lv1 .mascot,#exBox.lv2 .mascot{display:block}
+#exBox.lv0 .mascot,#exBox.lv1 .mascot,#exBox.lv2 .mascot{display:block}
 #exBox.exhold .time{display:block;font-size:min(48px,22cqw)}
 #exBox.exhold .lbl{display:inline-block;margin-top:8px;padding:4px 12px;border-radius:12px;background:#fff;color:var(--accent);font-weight:800;font-size:min(13px,6.2cqw);opacity:1}
 #exBox.ready .time,#exBox.hold .time,#exBox.ready .lbl,#exBox.hold .lbl{display:none}
@@ -88,3 +88,164 @@ body.vbcap-on .ringbox .lbl{display:none!important}
 #scrEx.res #exCard .cbtn{display:none!important}
 /* the exercise face has no mascot during rest, so the pill takes its width from the circle, not from the digits */
 #exBox .lbl{max-width:66cqw!important;box-sizing:border-box}
+/* «Уровень 1» subscription sheet */
+.paysheet{text-align:center;gap:14px}
+.paylist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;text-align:left}
+.paylist li{position:relative;padding-left:28px;font-size:16px;line-height:1.35}
+.paylist li::before{content:"✓";position:absolute;left:0;top:0;width:20px;height:20px;border-radius:50%;background:color-mix(in srgb,var(--green) 18%,var(--card));color:var(--green);font-weight:800;font-size:13px;display:grid;place-items:center}
+.payprice{font-size:22px;font-weight:800;color:var(--ink,inherit)}
+.payrenew{line-height:1.35}
+.paylinks{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font-size:14px}
+.paylinks .link{all:unset;cursor:pointer;color:var(--accent);text-decoration:underline;font-weight:600}
+#payGo:disabled{opacity:.7}
+/* «Уровень 1» screen */
+#scrL1 .wrap{gap:14px}
+.l1day{display:flex;flex-direction:column;gap:12px;align-items:center}
+.l1dayh{font-weight:800;font-size:18px;text-align:center}
+.l1grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;width:100%}
+.l1grid span{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--muted);background:color-mix(in srgb,var(--muted) 12%,var(--card))}
+.l1grid span.wk{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent)}
+.l1grid span.ok{background:var(--green);color:#fff;box-shadow:none}
+.l1grid span.cur{background:var(--accent);color:#fff;box-shadow:0 4px 10px var(--glow)}
+.l1act{display:flex;flex-direction:column;gap:8px;text-align:center}
+.l1act .small{line-height:1.4}
+.l1chart{display:flex;flex-direction:column;gap:6px}
+.l1charth{font-weight:700;font-size:15px}
+.l1svg{width:100%;height:auto;display:block}
+.l1svg .gr{stroke:color-mix(in srgb,var(--muted) 22%,transparent);stroke-width:1}
+.l1svg .ax{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.l1svg .ln{fill:none;stroke:var(--accent);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.l1svg .pt{fill:#fff;stroke:var(--accent);stroke-width:2.5}
+.l1svg .lbv{fill:var(--accent);font-size:12px;font-weight:800}
+#l1Sum{grid-template-columns:repeat(3,minmax(0,1fr))}
+#l1Sum .hs span{overflow-wrap:anywhere}
+.exlinks{display:flex;justify-content:center;gap:4px;flex-wrap:wrap}
+.exlinks[hidden],.exlinks:has(.exquit[hidden]+.exquit[hidden]){display:none}
+.exlinks .exquit{padding:6px 8px}
+/* exercise like the site's trainer: red ring until the goal, green once it is reached; a missed set's dot goes grey */
+.exdots span.miss{background:color-mix(in srgb,var(--muted) 45%,transparent);color:#fff}
+#exBox.exhold.goal .lbl{color:var(--red)}
+#exBox.hit .lbl{color:var(--green)}
+.l1svg .ln2{stroke:var(--orange)}.l1svg .pt2{stroke:var(--orange)}.l1svg .lbv{fill:var(--orange)}
+.l1leg{display:flex;gap:14px;justify-content:center;font-size:12px;color:var(--muted);margin-top:4px}
+.l1leg i{display:inline-block;width:10px;height:10px;border-radius:5px;background:var(--accent);margin-right:5px;vertical-align:-1px}.l1leg i.o{background:var(--orange)}
+/* the whole circle is red while the goal is ahead and turns green when it is reached, like the site's big button */
+#exBox.goal .face{background:radial-gradient(circle at 35% 30%,#ff6f6b,var(--red) 70%);box-shadow:0 12px 40px rgba(229,57,53,.35),inset 0 -6px 18px rgba(0,0,0,.18)}
+#exBox.hit .face{background:radial-gradient(circle at 35% 30%,#7bd27f,var(--green) 70%);box-shadow:0 12px 40px rgba(67,160,71,.35),inset 0 -6px 18px rgba(0,0,0,.18)}
+#exBox.exhold.goal.hit .lbl{color:var(--green)}
+#exBox .face{transition:background .3s,transform .15s}
+/* «жми, чтобы начать / остановить» at the bottom of the circle, like the site's button; the whole circle can be tapped */
+.extap{position:absolute;left:18%;right:18%;bottom:21%;white-space:nowrap;overflow:hidden;text-align:center;color:#fff;font-size:min(20px,8cqw);font-weight:800;text-transform:uppercase;letter-spacing:.06em;opacity:1;pointer-events:none;z-index:3}
+.extap:empty{display:none}
+#exBox.ready,#exBox.exhold{cursor:pointer}
+/* calm screen like the site's trainer: the step card on top, the circle under it is the only button */
+#scrEx.res #exGo{display:none}
+#scrEx:not(.res) .exhead{order:0}#scrEx:not(.res) #exCard{order:1}#scrEx:not(.res) #exBox{order:2}#scrEx:not(.res) #exNote,#scrEx:not(.res) .exlinks{order:3}
+#exBox.ready .excap{font-size:min(22px,8.5cqw)}
+#exBox.ready.goal .face{background:radial-gradient(circle at 35% 30%,#ff6f6b,var(--red) 70%)}
+
+#exBox.ready .excap{font-size:min(34px,13cqw);font-weight:900;letter-spacing:.06em}  /* СТАРТ on the circle, like the test */
+#scrEx:not(.res) #exT{line-height:1.3;min-height:5.2em}  /* room for 4 lines, so the circle never jumps between steps */
+.sheet>*{flex-shrink:0}  /* a long how-to scrolls; the button keeps its full height */
+#scrEx.res:has(#exPay:not([hidden])) #exBox.done{width:min(290px,calc(100vw - 60px),29dvh)}  /* with the Level 1 offer there are 3 buttons; a smaller face keeps them all on a small screen */
+
+.exoffer{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.exoffer .ofh{margin:0;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.ofrow{display:flex;align-items:center;justify-content:center;gap:14px}
+.ofrow figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:1px}
+.ofrow svg{width:58px;height:52px}
+.ofrow figcaption{font-size:12px;font-weight:700;color:var(--fg)}
+.ofrow b{font-size:15px;font-weight:800;color:var(--muted)}
+.exoffer .oftxt{margin:2px 0 0;font-size:14px;font-weight:700;color:var(--fg);text-wrap:balance}
+.paynote{text-align:center;line-height:1.35}
+.ofrow figure{padding:6px 8px;border-radius:14px;border:2px solid transparent}
+.ofrow .ofwin{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent);cursor:pointer}  /* the medal is the picked choice and a button */
+.ofrow figure:not(.ofwin){opacity:.7}
+.expaybox{display:flex;flex-direction:column;gap:14px;text-align:center;background:var(--card);border-radius:22px;padding:18px 16px;box-shadow:0 6px 24px rgba(10,111,224,.10)}  /* Level 1 offer under the exercise result */
+.expaybox[hidden]{display:none}
+.expaybox .ctah{font-size:18px}
+/* Nov 2026-10-24: full step texts on the cards; smaller type and circle so the three links stay on screen */
+#scrEx:not(.res) #exH{font-size:15px;line-height:1.25;min-height:2.5em;display:flex;align-items:center;justify-content:center}
+#scrEx:not(.res) #exT{font-size:14px;font-weight:600;line-height:1.3;min-height:7.8em}
+#scrEx:not(.res) #exNote{display:none}
+#scrEx:not(.res) #exBox{width:min(330px,calc(100vw - 60px),31dvh)}
+.exlinks .exquit{font-size:14px}
+.expaybox #payGo{font-size:16px;line-height:1.3}
+
+/* Nov 2026-10-24: СТАРТ / СТОП as a big button under the circle, like the test; the circle shows only the time */
+#scrEx:not(.res) #exGo{order:2;margin-top:-4px;align-self:center;min-width:150px}
+#scrEx #exBox.ready .time{display:block;font-size:min(48px,22cqw)}
+/* Nov 2026-10-24: 8 dots like the how-to: rest (blue) / set (green if the goal was reached, red if not) / … / control «Вдох» */
+.exdots{gap:5px;align-items:center;flex-wrap:wrap;justify-content:center}
+.exdots span{min-width:18px;height:18px;border-radius:9px;padding:0;font-size:11px}
+.exdots span.inh{padding:0 8px;height:22px;border-radius:11px}
+.exdots span.rst.done,.exdots span.rst.cur{background:var(--accent);color:#fff}
+.exdots span.set.ok,.exdots span.inh.ok{background:var(--green);color:#fff}
+.exdots span.set.miss{background:var(--red);color:#fff}
+.exdots span.cur{background:var(--red);color:#fff;box-shadow:0 0 0 3px color-mix(in srgb,currentColor 0%,transparent),0 0 0 3px color-mix(in srgb,var(--fg) 25%,transparent)}
+.exdots span.rst.cur{background:var(--accent)}
+.exdots span.set.cur,.exdots span.inh.cur{background:var(--card);color:var(--accent);box-shadow:inset 0 0 0 3px var(--accent);transform:scale(1.2)}  /* the step that runs now: blue ring; red only means a missed goal */
+#exBox .lbl:empty{display:none!important}  /* Nov 2026-10-24: no words inside the circle, only the time */
+/* Nov 2026-10-24: no grey dots: rests are always blue, a set not done yet is an empty ring until it turns green or red */
+.exdots span.rst{background:var(--accent)}
+.exdots span.set:not(.ok):not(.miss):not(.cur),.exdots span.inh:not(.ok):not(.cur){background:var(--card);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent);color:var(--accent)}
+/* plan the next training: big and simple (Nov 2026-10-24) */
+.l1grid span.pl{background:var(--card);color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+.l1next{font-weight:800;font-size:16px;color:var(--accent);text-align:center}
+.planbox{gap:14px}
+.pll{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:15px;color:var(--fg)}
+.pll input{font:inherit;font-size:20px;font-weight:700;padding:12px 14px;border-radius:14px;border:2px solid color-mix(in srgb,var(--accent) 30%,transparent);background:var(--card);color:var(--fg);width:100%;box-sizing:border-box}
+.plchips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.plchips button{all:unset;cursor:pointer;text-align:center;padding:12px 6px;border-radius:14px;font-weight:700;font-size:15px;color:var(--accent);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent)}
+.plchips button.on{background:var(--accent);color:#fff;box-shadow:none}
+.plrep{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;color:var(--fg)}
+.plrep input{width:24px;height:24px;accent-color:var(--accent);flex-shrink:0}
+.l1best{display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:700;font-size:16px;color:var(--fg)}
+.l1best b{font-size:24px;font-weight:900;color:var(--green);white-space:nowrap}
+.l1chk{display:flex;flex-direction:column;gap:12px;text-align:center;box-shadow:inset 0 0 0 2px var(--accent)}
+.l1chkt{font-weight:700;font-size:16px;line-height:1.35;color:var(--fg);text-wrap:balance}
+.plerr{color:var(--red);font-weight:700;text-align:center}
+#exBox .ring .prg{transition:none}  /* Nov 2026-10-24: the colour switches at once, red never fades through muddy olive into green */
+
+/* Level 1 calendar (Nov 2026-10-25): months from the subscription date, trained days green, planned days ringed, today outlined */
+.l1cal{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:8px}
+.l1cal .l1dayh{margin:0}
+.calnav{width:40px;height:40px;border:0;border-radius:50%;background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--accent);font-size:24px;font-weight:800;line-height:1;cursor:pointer}
+.calnav:disabled{opacity:.25;cursor:default}
+.l1grid b{font-size:11px;font-weight:700;color:var(--muted);text-align:center;text-transform:uppercase}
+.l1grid span.off{opacity:.35}
+.l1grid span.tdy{outline:2.5px solid var(--ink,#0b1b3a);outline-offset:2px}
+
+/* Level 1 chart as bars (Nov 2026-10-25) */
+.l1bars{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 2px;align-items:flex-end;scrollbar-width:thin}
+.l1pair{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px}
+.l1cols{display:flex;gap:4px;align-items:flex-end;height:146px}
+.l1col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;width:26px}
+.l1col b{font-size:13px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.l1col i{display:block;width:100%;border-radius:6px 6px 2px 2px;background:var(--accent)}
+.l1col.o b{color:var(--orange)}.l1col.o i{background:var(--orange)}
+.l1pair span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.l1day3{display:flex;gap:8px;align-items:flex-end}
+.l1pair+.l1pair{border-left:1px solid color-mix(in srgb,var(--muted) 25%,transparent);padding-left:14px}
+.l1pair span{align-self:stretch;text-align:center}
+
+/* Nov 2026-10-25: thinner bars with air between them, same in Level 1 and History */
+.l1col i{width:12px!important;align-self:center}
+.l1col{width:auto!important;min-width:26px;padding:0 2px}
+.l1col b small{display:block;font-size:10px;font-weight:700;line-height:1}
+.l1bests{font-size:13px;color:var(--muted);font-weight:600}
+
+/* History: best test framed on top, last 5, archive (Nov 2026-10-25) */
+.hcard.hbest{box-shadow:0 0 0 3px var(--accent),0 10px 24px var(--glow)}
+.hbestt{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.harch{border:0;background:color-mix(in srgb,var(--accent) 10%,var(--card));color:var(--accent);font:inherit;font-weight:800;font-size:15px;padding:14px;border-radius:16px;cursor:pointer}
+.harch::after{content:' ▾'}.harch.open::after{content:' ▴'}
+.harchl{display:flex;flex-direction:column;gap:14px}
+
+/* Nov 2026-10-25: the how-to is a plain full screen in app colours: title pinned under the status bar, text scrolls below it, button pinned at the bottom */
+.modal.fullpage{background:var(--bg);align-items:stretch}
+.modal.fullpage .sheet{max-height:none;height:100%;max-width:560px;border-radius:0;box-shadow:none;background:var(--bg);overflow:hidden;padding:calc(18px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));animation:none}
+.modal.fullpage .ctah{flex:none;font-size:22px}
+.fpscroll{display:flex;flex-direction:column;gap:12px}
+.modal.fullpage .fpscroll{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-bottom:8px;-webkit-overflow-scrolling:touch}
+.modal.fullpage .cta{flex:none}

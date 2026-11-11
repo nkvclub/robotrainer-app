@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>American Business Trust.Corp — Apps, Websites, Google Ads</title>
+<meta name="description" content="American Business Trust.Corp is a Florida company. We build mobile apps and websites, publish apps on Google Play and the App Store, and run Google Ads campaigns.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0b1630; --navy2:#13224a; --blue:#2563eb; --blue2:#3b82f6; --sky:#e8f0ff;
+    --ink:#0f172a; --muted:#5b6475; --line:#e5e9f2; --bg:#f6f8fc; --white:#fff;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--white);line-height:1.6;-webkit-font-smoothing:antialiased}
+  img{max-width:100%;display:block}
+  a{color:var(--blue)}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+  .eyebrow{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+  h1,h2,h3{letter-spacing:-.02em;line-height:1.15;margin:0}
+  h2{font-size:clamp(28px,3.4vw,40px);margin:10px 0 14px}
+  .lead{font-size:18px;color:var(--muted);max-width:680px;margin:0}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:12px;font-weight:700;text-decoration:none;font-size:16px;transition:transform .15s,box-shadow .15s}
+  .btn:hover{transform:translateY(-1px)}
+  .btn-primary{background:var(--blue);color:#fff;box-shadow:0 10px 30px rgba(37,99,235,.35)}
+  .btn-ghost{color:#fff;border:1px solid rgba(255,255,255,.28)}
+  section{padding:96px 0}
+  .head{margin-bottom:48px}
+
+  /* header */
+  header{position:sticky;top:0;z-index:20;background:rgba(11,22,48,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08)}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;height:70px}
+  .logo{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none;font-weight:800;font-size:17px}
+  .mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--blue2),#1d4ed8);display:grid;place-items:center;font-size:14px;font-weight:800;color:#fff;letter-spacing:.02em}
+  nav a{color:rgba(255,255,255,.75);text-decoration:none;font-size:15px;font-weight:500;margin-left:28px}
+  nav a:hover{color:#fff}
+  nav .cta{color:#fff;background:var(--blue);padding:10px 18px;border-radius:10px}
+
+  /* hero */
+  .hero{background:radial-gradient(1200px 600px at 85% -10%,rgba(59,130,246,.35),transparent 60%),linear-gradient(180deg,var(--navy),var(--navy2));color:#fff;padding:90px 0 110px;overflow:hidden}
+  .hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+  .hero h1{font-size:clamp(38px,5.2vw,62px);font-weight:800;margin:16px 0 22px}
+  .hero h1 span{background:linear-gradient(90deg,#60a5fa,#93c5fd);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{font-size:19px;color:rgba(255,255,255,.75);max-width:560px;margin:0 0 34px}
+  .hero .eyebrow{color:#93c5fd}
+  .actions{display:flex;flex-wrap:wrap;gap:14px}
+  .form .q{font-weight:600;font-size:15px;margin:18px 0 10px}
+  .form .q:first-child{margin-top:0}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
+  .chips span{font-size:14px;color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.18);padding:7px 14px;border-radius:999px}
+  .visual{position:relative;height:500px}
+  .browser{position:absolute;right:0;top:20px;width:92%;border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.12);background:#fff}
+  .browser .bar{height:30px;background:#eef2f8;display:flex;align-items:center;gap:6px;padding:0 12px}
+  .browser .bar i{width:10px;height:10px;border-radius:50%;background:#cbd5e1}
+  .phone{position:absolute;left:0;bottom:0;width:210px;border-radius:30px;padding:8px;background:#0a0f1f;box-shadow:0 30px 70px rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.15)}
+  .phone img{border-radius:23px}
+
+  /* services */
+  .services{background:var(--bg)}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .svc{background:#fff;border:1px solid var(--line);border-radius:18px;padding:30px;transition:box-shadow .2s,transform .2s}
+  .svc:hover{box-shadow:0 18px 40px rgba(15,23,42,.08);transform:translateY(-2px)}
+  .ico{width:48px;height:48px;border-radius:12px;background:var(--sky);display:grid;place-items:center;margin-bottom:20px}
+  .ico svg{width:24px;height:24px;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .svc h3{font-size:20px;margin-bottom:10px}
+  .svc p{color:var(--muted);margin:0 0 16px;font-size:15.5px}
+  .svc ul{margin:0;padding:0;list-style:none}
+  .svc li{position:relative;padding-left:22px;font-size:15px;margin:7px 0}
+  .svc li:before{content:"";position:absolute;left:0;top:9px;width:8px;height:8px;border-radius:50%;background:var(--blue2)}
+
+  /* process */
+  .steps{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;counter-reset:s}
+  .step{border-top:3px solid var(--blue);padding-top:20px}
+  .step:before{counter-increment:s;content:"0" counter(s);display:block;font-weight:800;font-size:28px;color:var(--blue);margin-bottom:10px}
+  .step h3{font-size:18px;margin-bottom:8px}
+  .step p{margin:0;color:var(--muted);font-size:15px}
+
+  /* work */
+  .work{background:var(--navy);color:#fff}
+  .work .lead{color:rgba(255,255,255,.7)}
+  .work .eyebrow{color:#93c5fd}
+  .case{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;padding:44px 0;border-top:1px solid rgba(255,255,255,.1)}
+  .case:first-of-type{border-top:0}
+  .case h3{font-size:28px;margin:8px 0 14px}
+  .case p{color:rgba(255,255,255,.75);margin:0 0 18px}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+  .tags span{font-size:13px;font-weight:600;color:#bfdbfe;background:rgba(59,130,246,.15);padding:6px 12px;border-radius:999px}
+  .case a.more{color:#93c5fd;font-weight:700;text-decoration:none;margin-right:20px}
+  .shot{border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1)}
+  .phones{display:flex;gap:16px;justify-content:center}
+  .phones img{width:31%;border-radius:20px;border:6px solid #0a0f1f;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+  .phones img:nth-child(2){transform:translateY(-22px)}
+
+  /* about */
+  .about .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:start}
+  .about p{color:var(--muted);font-size:17px}
+  .facts{background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:30px}
+  .facts dl{display:grid;grid-template-columns:150px 1fr;gap:14px 18px;margin:0}
+  .facts dt{color:var(--muted);font-size:14.5px}
+  .facts dd{margin:0;font-weight:600}
+  .stack{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .stack span{font-size:14px;border:1px solid var(--line);padding:7px 14px;border-radius:10px;background:#fff}
+
+  /* contact */
+  .contact{background:linear-gradient(135deg,var(--blue),#1d4ed8);color:#fff;text-align:center}
+  .contact h2{color:#fff}
+  .contact p{color:rgba(255,255,255,.85);font-size:18px;max-width:620px;margin:0 auto 30px}
+  .contact .btn{background:#fff;color:var(--blue)}
+  .contact small{display:block;margin-top:18px;color:rgba(255,255,255,.75);font-size:15px}
+  .form{max-width:720px;margin:0 auto;background:#fff;color:var(--ink);border-radius:20px;padding:34px;text-align:left;box-shadow:0 30px 60px rgba(11,22,48,.25)}
+  .form label{display:block;font-weight:600;font-size:15px;margin:18px 0 8px}
+  .form label:first-child{margin-top:0}
+  .form input,.form textarea,.form select{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+  .form input:focus,.form textarea:focus,.form select:focus{outline:2px solid var(--blue2);border-color:transparent;background:#fff}
+  .form textarea{min-height:110px;resize:vertical}
+  .opts{display:flex;flex-wrap:wrap;gap:10px}
+  .opts label{margin:0;font-weight:600;font-size:15px;cursor:pointer}
+  .opts input{position:absolute;opacity:0;width:1px;height:1px}
+  .opts span{display:inline-block;color:var(--ink);padding:10px 16px;border:1px solid var(--line);border-radius:999px;background:var(--bg)}
+  .opts input:checked+span{background:var(--blue);border-color:var(--blue);color:#fff}
+  .opts input:focus-visible+span{outline:2px solid var(--blue2)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+  .extra{display:none;border-left:3px solid var(--sky);padding-left:16px;margin-top:6px}
+  .extra.on{display:block;margin-top:22px}
+  .form .xt{font-weight:800;color:var(--blue);font-size:17px}
+  .form .btn{background:var(--blue);color:#fff;border:0;cursor:pointer;margin-top:24px;width:100%;justify-content:center}
+  .form .btn[disabled]{opacity:.6;cursor:wait}
+  .form .note{font-size:13px;color:var(--muted);margin-top:12px;text-align:center}
+  .form .err{color:#dc2626;font-weight:600;font-size:15px;margin-top:12px;display:none}
+  .done{display:none;max-width:720px;margin:0 auto;background:#fff;color:var(--ink);border-radius:20px;padding:40px;box-shadow:0 30px 60px rgba(11,22,48,.25)}
+  .done h3{font-size:24px;margin:0 0 8px}
+  .hp{display:none}
+  @media (max-width:620px){.form{padding:22px}.row2{grid-template-columns:1fr}}
+  footer{background:var(--navy);color:rgba(255,255,255,.6);font-size:14px;padding:30px 0}
+  footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  footer a{color:rgba(255,255,255,.75);text-decoration:none;margin-left:18px}
+
+  @media (max-width:980px){
+    .hero .wrap,.case,.about .wrap{grid-template-columns:1fr}
+    .visual{height:420px;max-width:560px}
+    .grid3{grid-template-columns:1fr 1fr}
+    .steps{grid-template-columns:1fr 1fr}
+    nav a:not(.cta){display:none}
+  }
+  @media (max-width:620px){
+    section{padding:68px 0}
+    .wrap{padding:0 16px}
+    .hero{padding:56px 0 70px}
+    .grid3,.steps{grid-template-columns:1fr}
+    .visual{height:330px}
+    .phone{width:150px;border-radius:24px}
+    .phone img{border-radius:18px}
+    .facts dl{grid-template-columns:1fr;gap:4px}
+    .facts dd{margin-bottom:10px}
+    .logo span.full{display:none}
+    footer a{margin:0 18px 0 0}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="#top"><span class="mark">ABT</span><span class="full">American Business Trust.Corp</span></a>
+    <nav><a href="#services">Services</a><a href="#process">Process</a><a href="#work">Work</a><a href="#about">About</a><a class="cta" href="#contact">Contact us</a></nav>
+  </div>
+</header>
+
+<div class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">Florida digital studio</span>
+      <h1>Apps, websites and ads that <span>bring customers</span></h1>
+      <p>We design and build mobile apps and websites, publish them on Google Play and the App Store, and run Google Ads campaigns. One team takes your project from the idea to real users.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#contact">Discuss your project →</a>
+        <a class="btn btn-ghost" href="#work">See our work</a>
+      </div>
+      <div class="chips"><span>Android &amp; iPhone</span><span>WordPress</span><span>Google Ads</span><span>English &amp; Russian</span></div>
+    </div>
+    <div class="visual" aria-hidden="true">
+      <div class="browser"><div class="bar"><i></i><i></i><i></i></div><img src="site-en.jpg" alt=""></div>
+      <div class="phone"><img src="app-1.jpg" alt=""></div>
+    </div>
+  </div>
+</div>
+
+<section class="services" id="services">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Services</span>
+      <h2>Everything to launch and grow online</h2>
+      <p class="lead">Take one service or the full package. We explain every step in plain words and show results you can check yourself.</p>
+    </div>
+    <div class="grid3">
+      <div class="svc">
+        <div class="ico"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg></div>
+        <h3>Mobile apps</h3>
+        <p>Android and iPhone apps from one codebase, so you pay for one app and get both platforms.</p>
+        <ul><li>Screens and user flow design</li><li>Android and iOS builds</li><li>In-app subscriptions and payments</li><li>Push reminders and notifications</li></ul>
+      </div>
+      <div class="svc">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></div>
+        <h3>App store publishing</h3>
+        <p>We handle the stores for you: accounts, store pages, reviews and every update after launch.</p>
+        <ul><li>Google Play, App Store and RuStore</li><li>Store texts and screenshots</li><li>Privacy forms and age ratings</li><li>Subscription setup and pricing</li></ul>
+      </div>
+      <div class="svc">
+        <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M7 6.5h.01M10 6.5h.01"/></svg></div>
+        <h3>Websites</h3>
+        <p>Fast business websites and landing pages that work well on phones and are easy to update.</p>
+        <ul><li>WordPress sites and landing pages</li><li>Mobile-first layout</li><li>Contact and lead forms</li><li>Search basics (SEO)</li></ul>
+      </div>
+      <div class="svc">
+        <div class="ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+        <h3>Google Ads</h3>
+        <p>Search and display campaigns that bring people who are already looking for what you offer.</p>
+        <ul><li>Keyword research</li><li>Ad texts and campaign setup</li><li>Budget control</li><li>Monthly reports in plain words</li></ul>
+      </div>
+      <div class="svc">
+        <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg></div>
+        <h3>Ad creatives</h3>
+        <p>Visuals for ads and social media that match your brand and get attention.</p>
+        <ul><li>Banners and posters</li><li>Short videos and reels</li><li>Store and social media graphics</li><li>Versions for different sizes</li></ul>
+      </div>
+      <div class="svc">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+        <h3>Analytics</h3>
+        <p>See where your customers come from and which ads and pages actually work.</p>
+        <ul><li>Google Analytics setup</li><li>Conversion tracking</li><li>App and website events</li><li>Simple monthly reports</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="process">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">How we work</span>
+      <h2>Clear steps, no surprises</h2>
+      <p class="lead">You approve every important step before we move on, so the result is exactly what you expected.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><h3>Talk</h3><p>We learn your business, your customers and your goal.</p></div>
+      <div class="step"><h3>Plan</h3><p>You get a simple plan with screens, texts and a price.</p></div>
+      <div class="step"><h3>Build</h3><p>We build and show you working versions as we go.</p></div>
+      <div class="step"><h3>Launch</h3><p>We publish the app or website and start the ads.</p></div>
+      <div class="step"><h3>Grow</h3><p>We track results, fix what does not work and improve.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="work" id="work">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Our work</span>
+      <h2>RoboTrainer: our own product</h2>
+      <p class="lead">RoboTrainer is a breathing endurance project we built and run ourselves. It shows everything we do for clients: an app, two websites, store publishing and online ads.</p>
+    </div>
+
+    <div class="case">
+      <div>
+        <span class="eyebrow">Mobile app</span>
+        <h3>RoboTrainer: Breath Test</h3>
+        <p>A free 4-minute breath-hold endurance test with a guided exercise and an optional yearly subscription. One app for Android and iPhone, in English and Russian.</p>
+        <div class="tags"><span>Android &amp; iOS</span><span>Subscriptions</span><span>Google Play</span><span>RuStore</span></div>
+        <a class="more" href="https://play.google.com/store/apps/details?id=com.robotrainerpro.app">Google Play →</a>
+      </div>
+      <div class="phones"><img src="app-1.jpg" alt="RoboTrainer test screen"><img src="app-2.jpg" alt="RoboTrainer result screen"><img src="app-4.jpg" alt="RoboTrainer exercise result"></div>
+    </div>
+
+    <div class="case">
+      <div>
+        <span class="eyebrow">Website · English</span>
+        <h3>robotrainerpro.com</h3>
+        <p>A WordPress website for the US market with a free online breath-hold test, guided training and a personal dashboard.</p>
+        <div class="tags"><span>WordPress</span><span>Online test</span><span>Dashboard</span><span>Payments</span></div>
+        <a class="more" href="https://robotrainerpro.com">Visit website →</a>
+      </div>
+      <div class="shot"><img src="site-en.jpg" alt="robotrainerpro.com home page"></div>
+    </div>
+
+    <div class="case">
+      <div>
+        <span class="eyebrow">Website · Russian</span>
+        <h3>robotrainer.ru</h3>
+        <p>The Russian version of the project with its own design, pricing, online training and a free breath test.</p>
+        <div class="tags"><span>WordPress</span><span>Online training</span><span>Subscriptions</span></div>
+        <a class="more" href="https://robotrainer.ru">Visit website →</a>
+      </div>
+      <div class="shot"><img src="site-ru.jpg" alt="robotrainer.ru home page"></div>
+    </div>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">About us</span>
+      <h2>A small team that does the whole job</h2>
+      <p>American Business Trust.Corp is a Florida corporation. We are a small team, so you talk directly to the people who build your project, without managers in between.</p>
+      <p>We build our own products too, so we know what it takes to get an app through store review, collect payments and bring the first users. We work in English and Russian.</p>
+      <div class="stack"><span>Android</span><span>iOS</span><span>Capacitor</span><span>WordPress</span><span>Google Ads</span><span>Google Analytics</span><span>GitHub</span></div>
+    </div>
+    <div class="facts">
+      <dl>
+        <dt>Legal name</dt><dd>American Business Trust.Corp</dd>
+        <dt>Type</dt><dd>Florida Profit Corporation</dd>
+        <dt>Document number</dt><dd>P17000072869</dd>
+        <dt>Country</dt><dd>United States</dd>
+        <dt>Languages</dt><dd>English, Russian</dd>
+        <dt>Contact</dt><dd><a href="#contact">Project request form</a></dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="wrap">
+    <h2>Have a project in mind?</h2>
+    <p>Tell us what you need: an app, a website or more customers. We will reply with a simple plan and a price.</p>
+    <form class="form" id="lead" action="https://formsubmit.co/d12cc12c60708f2f47eb855a26baea53" method="POST" novalidate>
+      <input type="hidden" name="_next" value="https://nkvclub.github.io/robotrainer-app/?sent=1#contact">
+      <input type="hidden" name="_subject" id="f-subj" value="New project request">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
+      <div class="q">What do you need?</div>
+      <div class="opts" id="svc">
+        <label><input type="checkbox" name="Service" value="Mobile app" data-x="x-app"><span>Mobile app</span></label>
+        <label><input type="checkbox" name="Service" value="Website" data-x="x-web"><span>Website</span></label>
+        <label><input type="checkbox" name="Service" value="Google Ads" data-x="x-ads"><span>Google Ads</span></label>
+        <label><input type="checkbox" name="Service" value="App store publishing" data-x="x-pub"><span>App store publishing</span></label>
+        <label><input type="checkbox" name="Service" value="Ad creatives" data-x="x-cre"><span>Ad creatives</span></label>
+        <label><input type="checkbox" name="Service" value="Analytics" data-x="x-ana"><span>Analytics</span></label>
+      </div>
+
+      <div class="extra" id="x-app">
+        <div class="xt">Mobile app</div>
+        <div class="q">App for</div>
+        <div class="opts">
+          <label><input type="checkbox" name="App platform" value="iPhone"><span>iPhone</span></label>
+          <label><input type="checkbox" name="App platform" value="Android"><span>Android</span></label>
+          <label><input type="checkbox" name="App platform" value="Not sure"><span>Not sure</span></label>
+        </div>
+        <div class="q">Do you have a design?</div>
+        <div class="opts">
+          <label><input type="radio" name="App design" value="Yes"><span>Yes</span></label>
+          <label><input type="radio" name="App design" value="No, need one"><span>No, need one</span></label>
+        </div>
+      </div>
+
+      <div class="extra" id="x-web">
+        <div class="xt">Website</div>
+        <div class="q">New or existing?</div>
+        <div class="opts">
+          <label><input type="radio" name="Website type" value="New website"><span>New website</span></label>
+          <label><input type="radio" name="Website type" value="Redo my website"><span>Redo my website</span></label>
+        </div>
+        <label for="f-site">Your current website (if any)</label>
+        <input id="f-site" name="Current website" type="text" placeholder="example.com">
+      </div>
+
+      <div class="extra" id="x-ads">
+        <div class="xt">Google Ads</div>
+        <div class="q">Your ads</div>
+        <div class="opts">
+          <label><input type="radio" name="Ads status" value="Start new ads"><span>Start new ads</span></label>
+          <label><input type="radio" name="Ads status" value="Improve my ads"><span>Improve my ads</span></label>
+        </div>
+        <div class="q">Main goal</div>
+        <div class="opts">
+          <label><input type="checkbox" name="Ads goal" value="More calls"><span>More calls</span></label>
+          <label><input type="checkbox" name="Ads goal" value="More sales"><span>More sales</span></label>
+          <label><input type="checkbox" name="Ads goal" value="More leads"><span>More leads</span></label>
+          <label><input type="checkbox" name="Ads goal" value="More app installs"><span>More app installs</span></label>
+        </div>
+        <label for="f-budget">Monthly ad budget</label>
+        <select id="f-budget" name="Ad budget">
+          <option value="">Choose</option>
+          <option>Under $500</option><option>$500 to $2,000</option><option>$2,000 to $10,000</option><option>Over $10,000</option>
+        </select>
+      </div>
+
+      <div class="extra" id="x-pub">
+        <div class="xt">App store publishing</div>
+        <div class="q">Stores</div>
+        <div class="opts">
+          <label><input type="checkbox" name="Stores" value="App Store"><span>App Store</span></label>
+          <label><input type="checkbox" name="Stores" value="Google Play"><span>Google Play</span></label>
+          <label><input type="checkbox" name="Stores" value="Other stores"><span>Other stores</span></label>
+        </div>
+        <div class="q">Is your app ready?</div>
+        <div class="opts">
+          <label><input type="radio" name="App ready" value="Yes, ready"><span>Yes, ready</span></label>
+          <label><input type="radio" name="App ready" value="Almost, need help"><span>Almost, need help</span></label>
+        </div>
+      </div>
+
+      <div class="extra" id="x-cre">
+        <div class="xt">Ad creatives</div>
+        <div class="q">What do you need?</div>
+        <div class="opts">
+          <label><input type="checkbox" name="Creatives" value="Images"><span>Images</span></label>
+          <label><input type="checkbox" name="Creatives" value="Short videos"><span>Short videos</span></label>
+          <label><input type="checkbox" name="Creatives" value="Ad texts"><span>Ad texts</span></label>
+        </div>
+        <div class="q">Where will the ads run?</div>
+        <div class="opts">
+          <label><input type="checkbox" name="Ad platforms" value="Google"><span>Google</span></label>
+          <label><input type="checkbox" name="Ad platforms" value="Facebook / Instagram"><span>Facebook / Instagram</span></label>
+          <label><input type="checkbox" name="Ad platforms" value="TikTok"><span>TikTok</span></label>
+          <label><input type="checkbox" name="Ad platforms" value="Not sure"><span>Not sure</span></label>
+        </div>
+      </div>
+
+      <div class="extra" id="x-ana">
+        <div class="xt">Analytics</div>
+        <div class="q">What should we track?</div>
+        <div class="opts">
+          <label><input type="checkbox" name="Track" value="Website"><span>Website</span></label>
+          <label><input type="checkbox" name="Track" value="App"><span>App</span></label>
+          <label><input type="checkbox" name="Track" value="Ads"><span>Ads</span></label>
+        </div>
+        <div class="q">Do you have Google Analytics?</div>
+        <div class="opts">
+          <label><input type="radio" name="Has Google Analytics" value="Yes"><span>Yes</span></label>
+          <label><input type="radio" name="Has Google Analytics" value="No"><span>No</span></label>
+          <label><input type="radio" name="Has Google Analytics" value="Not sure"><span>Not sure</span></label>
+        </div>
+      </div>
+
+      <label for="f-msg">Tell us about your project</label>
+      <textarea id="f-msg" name="Project" placeholder="What is your business? What should the app, website or ads do?"></textarea>
+
+      <div class="row2">
+        <div><label for="f-name">Your name</label><input id="f-name" name="Name" type="text" autocomplete="name" required></div>
+        <div><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>
+      </div>
+      <label for="f-phone">Phone (optional)</label>
+      <input id="f-phone" name="Phone" type="tel" autocomplete="tel">
+      <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off">
+
+      <button class="btn" type="submit" id="f-send">Send request →</button>
+      <div class="err" id="f-err"></div>
+      <div class="note">We use your contact details only to reply to this request. <a href="https://robotrainerpro.com/privacy-policy/">Privacy Policy</a></div>
+    </form>
+    <div class="done" id="lead-done">
+      <h3>Thank you!</h3>
+      <p style="color:var(--muted);margin:0">We got your request and will reply by email.</p>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  var f=document.getElementById('lead'),err=document.getElementById('f-err'),btn=document.getElementById('f-send');
+  if(/[?&]sent=1/.test(location.search)){f.style.display='none';document.getElementById('lead-done').style.display='block';}
+  document.querySelectorAll('#svc input').forEach(function(c){c.addEventListener('change',function(){
+    if(c.dataset.x)document.getElementById(c.dataset.x).classList.toggle('on',c.checked);});});
+  function show(t){err.textContent=t;err.style.display='block';}
+  f.addEventListener('submit',function(e){
+    err.style.display='none';
+    var svc=[].map.call(f.querySelectorAll('#svc input:checked'),function(c){return c.value;}).join(', ');
+    var name=f.elements.Name.value.trim(),mail=f.elements.email.value.trim();
+    if(!svc){e.preventDefault();return show('Please choose what you need.');}
+    if(!name){e.preventDefault();return show('Please enter your name.');}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){e.preventDefault();return show('Please enter a valid email.');}
+    document.getElementById('f-subj').value='New project request: '+svc;
+    btn.disabled=true;btn.textContent='Sending...';
+    setTimeout(function(){btn.disabled=false;btn.textContent='Send request →';},15000);
+  });
+  window.addEventListener('pageshow',function(){btn.disabled=false;btn.textContent='Send request →';});
+})();
+</script>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 American Business Trust.Corp. All rights reserved.</span>
+    <span><a href="https://robotrainerpro.com/privacy-policy/">Privacy Policy</a><a href="#contact">Contact</a></span>
+  </div>
+</footer>
+
+</body>
+</html>

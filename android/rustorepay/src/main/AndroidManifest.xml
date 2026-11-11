@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Return from a bank app (SBP, SberPay) back to the payment sheet -->
+        <activity android:name="ru.robotrainer.app.MainActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="robotrainerpay" />
+            </intent-filter>
+        </activity>
+        <meta-data android:name="console_app_id_value" android:value="@string/rustore_console_app_id" />
+        <meta-data android:name="sdk_pay_scheme_value" android:value="robotrainerpay" />
+    </application>
+</manifest>

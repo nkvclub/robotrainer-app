@@ -1,0 +1,44 @@
+name: RuStore Pay check
+
+# Compile check only (no release): RuStore build with RuStore Pay, Google Play build without it.
+on:
+  push:
+    branches: [rustore-pay]
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: List RuStore Pay SDK classes
+        run: |
+          R=https://nexus-external.rustore.ru/repository/maven-rustore-exposed/ru/rustore/sdk
+          curl -sf $R/bom/2026.08.01/bom-2026.08.01.pom -o bom.pom
+          V=$(python3 -c "import re;s=open('bom.pom').read();m=re.search(r'<artifactId>pay</artifactId>\s*<version>([^<]+)',s);print(m.group(1))")
+          echo "pay $V"
+          curl -sf $R/pay/$V/pay-$V.aar -o pay.aar && unzip -o -q pay.aar classes.jar -d payaar
+          unzip -l payaar/classes.jar | grep -o 'ru/rustore/sdk/pay/[A-Za-z0-9_/$]*\.class' | grep -v -e '\$' -e '/internal/' | sort | head -400
+      - run: npm ci
+      - run: npx cap sync android
+      - name: Build RuStore APK (with RuStore Pay)
+        working-directory: android
+        run: ./gradlew :app:assembleDebug --no-daemon
+      - name: Build Google Play bundle (without RuStore Pay)
+        working-directory: android
+        run: RT_APP_ID=com.robotrainerpro.app ./gradlew clean :app:bundleDebug --no-daemon
+      - name: Play bundle must not contain RuStore code
+        run: |
+          AAB=$(ls android/app/build/outputs/bundle/debug/*.aab)
+          if unzip -l "$AAB" | grep -q dex; then
+            for d in $(unzip -l "$AAB" | grep -o 'base/dex/[a-z0-9]*\.dex'); do unzip -p "$AAB" $d | grep -a -c 'ru/rustore' && { echo "RuStore code found in Play bundle"; exit 1; } || true; done
+          fi
+          echo "Play bundle clean"
