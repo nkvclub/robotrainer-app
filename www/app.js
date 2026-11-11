@@ -407,6 +407,7 @@ $('exMail').addEventListener('click',openEmail);
 var PAY=window.RT_PAY,payAsk='';
 function payPrice(){return PAY.price||(PAY.kind==='rustore'?'299 ₽':'$3.99');}  // RuStore: 299 ₽ a year (Nov)
 function payPriceM(){return PAY.priceM||'$9.99';}
+function payPriceMo(){return (PAY.priceMo||'$5').replace(/\.00$/,'');}  // $5 like on the site
 function payShow(){return PAY.store&&!PAY.owned&&EX.state==='res'&&!EX.l1;}  // Nov 2026-10-24: the result screen sells Level 1, it does not wait for the store's price
 function payRender(){var T=D.PAY,show=payShow();$('exPayBox').hidden=!show;exResTxt();  // Nov 2026-10-21: both outcomes lead to Level 1 (gain: «what about a year?», no gain: «room to grow»)
   $('exPay').hidden=true;$('exPay').textContent=T.btn.replace('{p}',payPrice());if(EX.l1)return payRenderSheet(T);$('exMail').className=show?'again':'cta';$('exHome').className=show?'exquit':'again';$('exHome').hidden=false;$('exHome').textContent=PAY.owned?D.L1.back:D.X.home;  // Nov 2026-10-24: with the offer «На главную» is only a small link at the very bottom; a subscriber goes to his results
@@ -416,19 +417,21 @@ function payRenderSheet(T){
   $('payList').innerHTML='';T.list.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('payList').appendChild(li);});
   $('payPrice').textContent=T.price.replace('{p}',payPrice());$('payRenew').textContent=PAY.kind==='rustore'?T.renewRs:T.renew;$('payRestore').textContent=T.restore;$('payManage').textContent=T.manage;
   var g=$('payGo');g.textContent=PAY.busy?T.busy:T.go.replace('{p}',payPrice());g.disabled=PAY.busy;g.hidden=PAY.owned;
-  var mo=PAY.kind==='play'&&!PAY.owned;$('payMon').hidden=!mo;$('payMonN').hidden=!mo;$('payMon').textContent=T.mon.replace('{p}',payPriceM());$('payMon').disabled=PAY.busy;$('payMonN').textContent=T.monN;  // Nov 2026-11-11: a month without auto-renew, Google Play only
+  var mo=PAY.kind==='play'&&!PAY.owned;$('payMo').hidden=!mo;$('payMo').textContent=T.mo.replace('{p}',payPriceMo());$('payMo').disabled=PAY.busy;if(PAY.kind==='play')$('payRenew').textContent=T.renewPl;$('payMon').hidden=!mo;$('payMonN').hidden=!mo;$('payMon').textContent=T.mon.replace('{p}',payPriceM());$('payMon').disabled=PAY.busy;$('payMonN').textContent=T.monN;  // Nov 2026-11-11: a month without auto-renew, Google Play only
   var m=$('payMsg');m.textContent=PAY.owned?T.ok:(PAY.err?T.err:(payAsk==='restore'&&!PAY.busy?T.none:''));m.className='msg'+(PAY.owned?' ok':(m.textContent?' err':''));}
 window.payRender=payRender;
 function openPay(){track('pay_open');payAsk='';PAY.err='';payRender();$('payModal').hidden=false;document.body.classList.add('lock');}
 function closePay(){$('payModal').hidden=true;document.body.classList.remove('lock');}
 var payWas=PAY.owned;PAY.on(function(){payRender();if(PAY.owned&&!payWas&&payAsk){payWas=true;setTimeout(function(){closePay();exStopTimers();EX.on=false;awake(false);go('scrL1');},1200);}payWas=PAY.owned;});
 $('exPay').addEventListener('click',openPay);
-['payH','payList','exOffer','payPrice','payGo','payMon','payMonN','payMsg','payRenew','payNote'].forEach(function(id){$('exPayBox').appendChild($(id));});$('exPayBox').appendChild(document.querySelector('.paylinks'));  // Nov: the offer sits under the result, scroll down to «Оформить подписку»
+['payH','payList','exOffer','payPrice','payGo','payMo','payMon','payMonN','payMsg','payRenew','payNote'].forEach(function(id){$('exPayBox').appendChild($(id));});$('exPayBox').appendChild(document.querySelector('.paylinks'));  // Nov: the offer sits under the result, scroll down to «Оформить подписку»
 $('payClose').addEventListener('click',closePay);
 $('payModal').addEventListener('click',function(e){if(e.target===this)closePay();});
 $('payGo').addEventListener('click',function(){if(PAY.busy||PAY.owned)return;track('pay_buy');if(!PAY.available){var m=$('payMsg');m.textContent=PAY.kind==='rustore'?D.PAY.waitRs:D.PAY.wait;m.className='msg err';return;}payAsk='buy';PAY.buy();});  // the store has not answered yet (no network)
 function payMonth(msg){if(PAY.busy)return;track('pay_buy_month');if(!PAY.availM){var m=$(msg);m.textContent=D.PAY.wait;m.className='msg err';return;}payAsk='buy';PAY.buyMonth();}
 $('payMon').addEventListener('click',function(){if(!PAY.owned)payMonth('payMsg');});
+function payMonthly(msg){if(PAY.busy)return;track('pay_buy_monthly');if(!PAY.availMo){var m=$(msg);m.textContent=D.PAY.wait;m.className='msg err';return;}payAsk='buy';PAY.buyMonthly();}
+$('payMo').addEventListener('click',function(){if(!PAY.owned)payMonthly('payMsg');});
 $('ofWinBtn').addEventListener('click',function(){$('payGo').click();});  // the medal is the choice: tapping it buys, like «Оформить подписку»
 // RuStore build: subscriptions are managed in the RuStore app, not on a Google Play page
 ['payManage','subManage'].forEach(function(id){$(id).addEventListener('click',function(e){if(PAY.manage){e.preventDefault();PAY.manage();}});});
@@ -527,9 +530,10 @@ function l1Tab(){var on=PAY.owned||l1Had();$('tabL1').hidden=!on;if(!$('scrL1').
 function l1RenRender(){var on=PAY.kind==='play'&&(PAY.plan==='month'||(!PAY.owned&&l1Had()));$('l1Ren').hidden=!on;if(!on)return;
   $('l1RenT').textContent=PAY.owned?(PAY.until?D.renOn.replace('{d}',subDay(PAY.until)):D.subOn):D.renOff;
   $('l1RenM').textContent=PAY.busy?D.PAY.busy:D.renM.replace('{p}',payPriceM());$('l1RenM').disabled=PAY.busy;
-  $('l1RenY').textContent=D.renY.replace('{p}',payPrice());$('l1RenY').hidden=PAY.plan==='year';
+  $('l1RenY').textContent=D.renY.replace('{p}',payPrice());$('l1RenY').hidden=PAY.plan==='year';$('l1RenMo').textContent=D.renMo.replace('{p}',payPriceMo());
   var m=$('l1RenMsg');if(!PAY.err&&m.className.indexOf('err')<0)m.textContent='';if(PAY.err){m.textContent=D.PAY.err;m.className='msg err';}}
 $('l1RenM').addEventListener('click',function(){payMonth('l1RenMsg');});
+$('l1RenMo').addEventListener('click',function(){payMonthly('l1RenMsg');});
 $('l1RenY').addEventListener('click',function(){if(PAY.busy)return;track('pay_buy');if(!PAY.available){var m=$('l1RenMsg');m.textContent=D.PAY.wait;m.className='msg err';return;}payAsk='buy';PAY.buy();});
 PAY.on(l1RenRender);
 function subDay(t){var d=new Date(t);return lang==='ru'?('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+d.getFullYear():d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});}
@@ -539,7 +543,7 @@ function subRow(){$('subRow').hidden=!(PAY.store||PAY.owned);$('subSt').textCont
 // Nov 2026-10-25: a reminder 7 days and 1 day before the paid year ends or renews
 function subRemind(){var LN=P.LocalNotifications;if(!LN||!PAY.checked)return;var key=PAY.owned&&PAY.until?PAY.until+'|'+PAY.renew+'|'+PAY.plan+'|'+lang:'';var was='';try{was=localStorage.getItem('rt_subrem')||'';}catch(e){}if(key===was)return;
   try{localStorage.setItem('rt_subrem',key);}catch(e){}
-  LN.cancel({notifications:[{id:4},{id:5},{id:6}]}).catch(function(){}).then(function(){if(!key)return;var n=(PAY.plan==='month'?[[4,3,D.m3],[5,1,D.m1],[6,0,D.m0]]:[[4,7,PAY.renew?D.sub7R:D.sub7E],[5,1,PAY.renew?D.sub1R:D.sub1E]]).map(function(x){return {id:x[0],title:D.subT,body:x[2],schedule:{at:new Date(PAY.until-x[1]*864e5),allowWhileIdle:true}};}).filter(function(x){return +x.schedule.at>Date.now()+60e3;});
+  LN.cancel({notifications:[{id:4},{id:5},{id:6}]}).catch(function(){}).then(function(){if(!key)return;var n=(PAY.plan==='month'?[[4,3,D.m3],[5,1,D.m1],[6,0,D.m0]]:PAY.plan==='monthly'?[[5,1,PAY.renew?D.sub1Mo:D.sub1MoE]]:[[4,7,PAY.renew?D.sub7R:D.sub7E],[5,1,PAY.renew?D.sub1R:D.sub1E]]).map(function(x){return {id:x[0],title:D.subT,body:x[2],schedule:{at:new Date(PAY.until-x[1]*864e5),allowWhileIdle:true}};}).filter(function(x){return +x.schedule.at>Date.now()+60e3;});
     if(!n.length)return;return LN.requestPermissions().then(function(p){if(!p||p.display!=='granted')return;return LN.schedule({notifications:n});});}).catch(function(){});}
 PAY.on(subRow);PAY.on(subRemind);
 PAY.on(l1Tab);l1Tab();  // a bought level shows at once, even if Play does not answer on this start
