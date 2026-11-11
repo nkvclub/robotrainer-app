@@ -1,0 +1,59 @@
+name: iOS resubmit with a new build
+
+# By hand only. Takes the version out of the review queue, attaches the given
+# build, updates the review notes and sends the version (and the Level 1
+# subscription) to App Review again.
+on:
+  workflow_dispatch:
+    inputs:
+      build:
+        description: Build number (from TestFlight)
+        required: true
+      send:
+        description: Type SEND to really submit (anything else only checks the build)
+        required: true
+        default: check
+
+jobs:
+  resubmit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: pip install pyjwt cryptography
+      - name: Build ready?
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          BUILD: ${{ inputs.build }}
+        run: |
+          printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/key.p8"
+          cd .github/asc && ASC_KEY_PATH="$RUNNER_TEMP/key.p8" python3 - <<'PY'
+          import os, sys
+          from asc_api import call, BUNDLE
+          app = call('GET', f'/v1/apps?filter[bundleId]={BUNDLE}')['data'][0]['id']
+          b = call('GET', f'/v1/builds?filter[app]={app}&filter[version]={os.environ["BUILD"]}')['data']
+          print('build', os.environ['BUILD'], [x['attributes']['processingState'] for x in b])
+          if not b or b[0]['attributes']['processingState'] != 'VALID':
+              sys.exit('build not processed yet')
+          PY
+      - name: Cancel waiting review
+        if: inputs.send == 'SEND'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: ASC_KEY_PATH="$RUNNER_TEMP/key.p8" python3 .github/asc/resubmit.py
+      - name: Attach build and submit
+        if: inputs.send == 'SEND'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_CONTACT_PHONE: ${{ secrets.ASC_CONTACT_PHONE }}
+          APP_BUILD: ${{ inputs.build }}
+          ASC_STEP: submit
+        run: ASC_KEY_PATH="$RUNNER_TEMP/key.p8" python3 .github/asc/listing.py
+      - name: Remove key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/key.p8"

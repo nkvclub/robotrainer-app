@@ -10,12 +10,13 @@ from asc_api import call, rel, all_pages, upload_parts, BUNDLE
 HERE = os.path.dirname(__file__)
 VERSION = os.environ.get('APP_VERSION', '1.0.20')
 BUILD = os.environ.get('APP_BUILD', '11')
-STEP = open(os.path.join(HERE, 'step')).read().strip() if os.path.exists(os.path.join(HERE, 'step')) else 'listing'
+STEP = os.environ.get('ASC_STEP') or (open(os.path.join(HERE, 'step')).read().strip() if os.path.exists(os.path.join(HERE, 'step')) else 'listing')
 TEXTS = json.load(open(os.path.join(HERE, 'listing.json')))
 EU = 'AUT BEL BGR HRV CYP CZE DNK EST FIN FRA DEU GRC HUN IRL ITA LVA LTU LUX MLT NLD POL PRT ROU SVK SVN ESP SWE'.split()
 NOTES = """RoboTrainer is a free self-check of breath-hold endurance: three breath holds (after an inhale, after a full exhale, after 20 squats). No account or login is needed.
 After the test result the app offers a free 4-minute exercise (three exhale holds with 30-second rests, then a control inhale hold). Its result screen shows the optional auto-renewable subscription "Level 1" (level1_year, $3.99 per year), with price, renewal terms, Restore purchases, Manage subscription, Privacy Policy and Terms of Use links.
-It is not a medical device and makes no diagnosis or treatment claims. Before the test the app shows a safety screen (contraindications, never hold breath in water or while driving, stop if dizzy) that the user must confirm.
+It is not a medical device and makes no diagnosis or treatment claims.
+NEW IN THIS BUILD (safety, Guideline 1.4.1): 1) A safety screen must be confirmed with a checkbox at every app launch: adults 18+ only, not for children; not with heart or lung disease, high blood pressure, epilepsy, pregnancy or right after eating; hold the breath only while sitting, never in water, in a bath, while driving or standing; stop at once if dizzy. 2) "Still holding your breath?" check in every hold: after 90 seconds a full-screen window with sound and vibration asks the user to tap "Yes, go on" or "No, stop" (again every 60 seconds). With no answer in 10 seconds the hold stops automatically, an alarm sounds and the app tells the user to breathe. The user starts and ends every hold; no goal forces a longer hold. The test is a short voluntary breath hold at rest, like the well-known "control pause" self-check.
 Results are stored only on the device. Sending results by email is optional and requires a consent checkbox."""
 
 app_id = call('GET', f'/v1/apps?filter[bundleId]={BUNDLE}')['data'][0]['id']
