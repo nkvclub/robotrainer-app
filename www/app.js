@@ -130,7 +130,8 @@ ORDER.forEach(function(m){var row=document.createElement('div');row.className='r
 function sqPaint(){if(mode!=='load'||run||ts.load!==undefined)return;$('sqUnit').textContent=D.sqUnit;$('sqDid').textContent=D.sqDid;
   box.classList.toggle('ready',!!sqN);$('lbl').textContent=sqN?D.start:D.sqFirst;}
 function newTest(){stopRest();sqN=0;$('sqNum').value='';ts={};lv={};rest=0;finished=false;$('bars').classList.remove('results');$('out').hidden=true;$('againBtn').hidden=true;ORDER.forEach(function(m){rows[m].fill.style.width='0';});pick('inhale');}
-function tick(){var s=(performance.now()-t0)/1000;box.style.setProperty('--puff',Math.min(s/full(mode),1).toFixed(3));prg.style.stroke=acc();prg.style.strokeDashoffset=C*(1-(s%full(mode))/full(mode));rows[mode].wd.textContent=D.going;raf=requestAnimationFrame(tick);}
+var SAFE_MAX=180;  // App Review 1.4.1: no breath hold ever runs longer than 3 minutes, the timer stops it and says breathe
+function tick(){var s=(performance.now()-t0)/1000;if(s>=SAFE_MAX){$('btn').click();$('lbl').textContent=D.safeStop;return;}box.style.setProperty('--puff',Math.min(s/full(mode),1).toFixed(3));prg.style.stroke=acc();prg.style.strokeDashoffset=C*(1-(s%full(mode))/full(mode));rows[mode].wd.textContent=D.going;raf=requestAnimationFrame(tick);}
 function overall(){var a=(lv.inhale+lv.exhale+lv.load)/3;return a>=1.5?2:(a>=.6?1:0);}
 function buildResult(o){
   var out=$('out');out.innerHTML='';out.classList.remove('reveal');
@@ -351,6 +352,7 @@ function exRest(sec){exStopTimers();EX.state='rest';EX.w10=false;exDots();exCard
     if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);exReady();}};
   paint();EX.restT=setInterval(paint,250);}
 function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';
+  if(s>=SAFE_MAX){exEnd();return;}  // same 3-minute safety stop in the exercise and Level 1
   $('exTime').textContent=Math.floor(s);
   if(inh){exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));}
   else if(EX.goal){exPrg.style.strokeDashoffset=C*(1-Math.min(s/EX.goal,1));
@@ -575,6 +577,7 @@ Promise.all([store.get('settings'),store.get('history')]).then(function(r){
   lang=S.lang||pickLang();D=L[lang];
   $('sSnd').checked=S.snd;$('sVib').checked=S.vib;$('sRem').checked=S.rem;$('sTime').value=S.remTime;$('remWhen').hidden=!S.rem;
   applyTexts();newTest();
+  if(window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform()==='ios'){S.warned=false;$('warnOk').checked=false;$('warnGo').classList.add('off');}  // iPhone: the safety screen is confirmed at every launch (App Review)
   go(S.warned?'scrTest':'scrWarn');
 });
 })();
