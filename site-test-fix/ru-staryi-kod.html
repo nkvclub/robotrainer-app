@@ -1,0 +1,66 @@
+<script>(function(){
+/* Blind test v2 (12.10.2026): results hidden until all 3 holds are done */
+var ORDER=['inhale','exhale','load'];
+var N={inhale:'1. В покое, на вдохе',exhale:'2. В покое, на выдохе',load:'3. После нагрузки'};
+var T={inhale:'Сядь спокойно. Сделай вдох и выдох, затем глубокий (не максимальный) вдох и задержи дыхание.',exhale:'Подыши спокойно 1–2 минуты. Сделай обычный выдох и задержи дыхание.',load:'Сделай 20 глубоких приседаний за 30 секунд, сразу вдохни и задержи дыхание.'};
+var STOP='Отпускай кнопку при первом сильном желании вдохнуть, не терпи до последнего.';
+var C=['#e53935','#fb8c00','#43a047'],NC='#7f9cc4',iv=null;
+var i=0,run=false,busy=false,t0=0,ts={},lv={},rows={},bad={};
+var btn=document.getElementById('rtBtn'),tm=document.getElementById('rtTime'),lb=document.getElementById('rtLabel'),hint=document.getElementById('rtHint'),box=document.getElementById('rtBars'),out=document.getElementById('rtOut');
+if(!btn||!box){return;}
+var st=document.createElement('style');st.textContent='#test .rt-row{cursor:default}#test .rt-row.rt-lock{opacity:.45}#test .rt-row.rt-lock .rt-rl{border-style:dashed}#test .rt-row.rt-done .rt-rl{border-color:rgba(255,255,255,.55)}#test .rt-hint-err{font-weight:700;margin-bottom:8px}#test .rt-hint-main{color:#e53935;font-weight:700}#test .rt-hint-go{color:#e53935;font-weight:800;margin-top:6px}#test .rt-calc{font-size:18px;font-weight:700;text-align:center;padding:18px 0}#test .rt-again{display:block;margin:18px auto 0;padding:12px 26px;border-radius:999px;border:2px solid #e53935;background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer}#test .rt-again:hover{background:#e53935;color:#fff}';document.head.appendChild(st);
+function pad(n){return (n<10?'0':'')+n;}
+function fmt(ms){var s=Math.floor(ms/1000);return pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60);}
+function neutral(m,sec){var r=rows[m];r.fill.style.background=NC;r.fill.style.width=Math.round(frac(sec,m)*100)+'%';r.wd.style.color='';r.wd.textContent=Math.round(sec)+' с';}
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls){e.className=cls;}if(txt){e.textContent=txt;}return e;}
+function level(sec,m){
+if(m==='inhale'){return sec>=50?2:(sec>=40?1:0);}
+if(m==='exhale'){return sec>70?2:(sec>=25?1:0);}
+var p=sec/ts.inhale*100;return p>50?2:(p>=30?1:0);}
+function frac(sec,m){
+if(m==='inhale'){return Math.min(sec/60,1);}
+if(m==='exhale'){return Math.min(sec/80,1);}
+return Math.min((sec/ts.inhale*100)/60,1);}
+box.textContent='';
+var cap=el('div','rt-cap','');box.appendChild(cap);
+for(var k=0;k<3;k++){(function(m){var row=el('div','rt-row');var lab=el('div','rt-rl','');var bar=el('div','rt-bar');var fill=el('div','rt-fill');bar.appendChild(fill);var wd=el('div','rt-rw','');row.appendChild(lab);row.appendChild(bar);row.appendChild(wd);box.appendChild(row);rows[m]={row:row,lab:lab,fill:fill,wd:wd};})(ORDER[k]);}
+function setHint(err){hint.textContent='';if(err){hint.appendChild(el('div','rt-hint-err',err));}var m=ORDER[i];hint.appendChild(el('div','rt-hint-main',T[m]+' '+STOP));hint.appendChild(el('div','rt-hint-go','Жми на кнопку!'));}
+function setStep(){
+cap.textContent=i<3?('Шаг '+(i+1)+' из 3'):'Все 3 замера готовы';
+for(var k=0;k<3;k++){var m=ORDER[k],r=rows[m];r.fill.style.width='0';r.fill.style.background='';r.wd.style.color='';
+if(k<i){r.lab.textContent=N[m];r.row.className='rt-row rt-done';neutral(m,ts[m]);}
+else if(k===i){r.lab.textContent=N[m];r.wd.textContent='сейчас';r.row.className='rt-row rt-act';}
+else{r.lab.textContent='Шаг '+(k+1);r.wd.textContent='';r.row.className='rt-row rt-lock';}}
+tm.textContent='00:00:00';lb.textContent='Нажми и задержи дыхание';
+if(i<3){setHint('');}}
+function paint(m,sec){var r=rows[m],l=level(sec,m);r.fill.style.background=C[l];r.fill.style.width=Math.round(frac(sec,m)*100)+'%';r.wd.style.color='';r.wd.textContent=Math.round(sec)+' с';}
+function summary(){
+var avg=(lv.inhale+lv.exhale+lv.load)/3;var o=avg>=1.5?2:(avg>=0.6?1:0);
+out.textContent='';out.style.display='block';
+out.appendChild(el('div','','Твой итог по трём тестам'));
+var badge=el('div','rt-sum-b',['Пока слабо','Средний уровень','Хороший уровень'][o]);badge.style.background=C[o];out.appendChild(badge);
+var chips=el('div','rt-chips');
+for(var k=0;k<3;k++){var m=ORDER[k];var c=el('div','rt-chip');c.appendChild(el('div','rt-chip-n',N[m]));c.appendChild(el('div','rt-chip-v',Math.round(ts[m])+' с'));chips.appendChild(c);}
+out.appendChild(chips);
+var mean=['Организм рано подаёт сигнал «вдохни», поэтому дыхание сбивается раньше, чем устают ноги и мышцы. В жизни это одышка на лестнице и на пробежке, быстрая усталость и долгое восстановление.','База есть, но запас по дыханию ограничен. Чаще всего это спад в конце дистанции или тренировки и медленное восстановление между подходами.','У тебя хороший запас по дыханию. Чтобы удержать его и расти дальше, нужна регулярность.'];
+out.appendChild(el('div','rt-txt','Что это значит: '+mean[o]));
+if(lv.inhale>lv.exhale){out.appendChild(el('div','rt-txt','На выдохе ты держишься слабее, чем на вдохе. Это показатель устойчивости к CO₂, и именно её тренирует РобоТренер.'));}
+out.appendChild(el('div','rt-txt','Хорошая новость: это тренируется. Нагрузка растёт по 5 ступеням, таймер и подсказки ведут тебя, результаты записываются сами. Подробности и регистрация на странице с описанием теста.'));
+var again=el('button','rt-again','Пройти тест заново');again.type='button';again.addEventListener('click',restart);out.appendChild(again);}
+function finish(){
+busy=true;i=3;setStep();hint.textContent='Все замеры готовы.';lb.textContent='Тест пройден';tm.textContent='✓';
+out.textContent='';out.style.display='block';out.appendChild(el('div','rt-calc','Считаю результат…'));
+setTimeout(function(){for(var k=0;k<3;k++){var m=ORDER[k];lv[m]=level(ts[m],m);paint(m,ts[m]);}summary();try{localStorage.setItem('rtRes',JSON.stringify(ts));localStorage.setItem('rtTestDone','1');}catch(e){}},1200);}
+function restart(){i=0;run=false;busy=false;ts={};lv={};bad={};out.textContent='';out.style.display='none';setStep();var s=document.getElementById('test');if(s&&s.scrollIntoView){s.scrollIntoView({behavior:'smooth',block:'start'});}}
+setStep();
+btn.addEventListener('click',function(){
+if(busy){return;}
+if(!run){run=true;t0=Date.now();lb.textContent='Нажми, когда захочешь вдохнуть';var m0=ORDER[i];iv=setInterval(function(){var ms=Date.now()-t0;tm.textContent=fmt(ms);neutral(m0,ms/1000);},100);return;}
+run=false;clearInterval(iv);var sec=(Date.now()-t0)/1000,m=ORDER[i],why='';tm.textContent=fmt(sec*1000);
+if(sec<5){why='Слишком коротко, замер не засчитан.';}
+else if(m!=='inhale'&&sec>ts.inhale&&(bad[m]||0)<2){bad[m]=(bad[m]||0)+1;why='Замер не засчитан.';}
+if(why){rows[m].fill.style.width='0';rows[m].wd.textContent='сейчас';lb.textContent='Ещё раз';setHint(why+' Давай ещё раз, внимательно по инструкции.');return;}
+ts[m]=sec;busy=true;lb.textContent='Готово ✓';neutral(m,sec);
+setTimeout(function(){i++;if(i<3){busy=false;setStep();}else{finish();}},800);
+});
+})();</script>

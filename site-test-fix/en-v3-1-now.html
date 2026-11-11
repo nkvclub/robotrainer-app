@@ -1,0 +1,66 @@
+<script>
+(function(){
+/* Blind test v3.1 (15.10.2026): no seconds after each step, only 'done' until the end; auto 1-min rest before step 2, no 30 s squat timer. Results hidden until all 3 holds are done */
+var O=['in','ex','ld'];
+var N={in:['1. Inhale hold','At rest'],ex:['2. Exhale hold','At rest'],ld:['3. After exercise','After 20 squats']};
+var H={in:'Sit down. Take a deep (not maximal) breath, hold it and tap the button.',ex:'Rest for a minute, the timer counts it for you. At the signal, breathe out, hold and tap the button.',ld:'Do 20 squats (or as many as you comfortably can). Then sit down, hold your breath and tap the button.'};
+var GO={in:'Tap the button!',ex:'Tap the button!',ld:'Tap the button!'};
+var TT={in:'Inhale hold',ex:'Exhale hold',ld:'After exercise'};
+var STOP='Tap again at the first strong urge to breathe. Don’t push to the limit.';
+var C=['#e8452c','#f0a020','#2e9e5b'],NC='#7fa9d9',iv=null,rt=0,ac=null,REST=60;
+var i=0,run=false,busy=false,t0=0,ts={},lv={},R={},bad={};
+var big=document.getElementById('big'),tm=document.getElementById('time'),lb=document.getElementById('lbl'),how=document.getElementById('how'),box=document.getElementById('rows'),prog=document.getElementById('prog'),out=document.getElementById('verdict');
+if(!big||!box){return;}
+var st=document.createElement('style');st.textContent='#test .row{cursor:default}#test .row.lock{opacity:.45}#test .row.lock .rl{font-weight:600}#test .how .hm{color:#e8452c;font-weight:700}#test .how .hg{display:block;color:#e8452c;font-weight:800;margin-top:6px}#test .how .he{display:block;color:#0c2653;font-weight:700;margin-bottom:6px}#test .calc{font-size:18px;font-weight:700;text-align:center;padding:18px 0;color:#0c2653}#test .again{display:block;margin:14px auto 0;padding:12px 26px;border-radius:999px;border:2px solid #0a6fe0;background:#fff;color:#0a6fe0;font:inherit;font-weight:700;cursor:pointer}#test .again:hover{background:#0a6fe0;color:#fff}#test .row.lock .rl::before{background-image:none!important}';document.head.appendChild(st);
+var tips=document.querySelector('#test ol.tips');if(tips){tips.innerHTML='<li>Sit down and breathe calmly.</li><li>Tap the timer and hold. Tap again at the first strong urge to breathe. Don’t push through.</li><li>Do all three in a row. Your result appears only at the end.</li>';}
+var focus=document.querySelector('#test .timer-live .focus');if(focus){focus.innerHTML='Don’t strain. Tap <b>Stop</b> at the first strong urge to breathe.';}
+function fmt(s){s=Math.floor(s);return Math.floor(s/60)+':'+(s%60<10?'0':'')+s%60;}
+function neutral(m,s){R[m].fill.style.background=NC;R[m].fill.style.width=Math.round(frac(m,s)*100)+'%';R[m].wd.style.color='';R[m].wd.textContent=Math.round(s)+' s';}
+function doneMark(m){R[m].fill.style.background=NC;R[m].fill.style.width='100%';R[m].wd.style.color='';R[m].wd.textContent='done ✓';}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x)e.textContent=x;return e;}
+function level(m,s){if(m==='in')return s>=50?2:(s>=40?1:0);if(m==='ex')return s>70?2:(s>=25?1:0);var p=s/ts.in*100;return p>50?2:(p>=30?1:0);}
+function frac(m,s){if(m==='in')return Math.min(s/60,1);if(m==='ex')return Math.min(s/80,1);return Math.min((s/ts.in*100)/60,1);}
+box.textContent='';
+O.forEach(function(m){var row=el('div','row');var l=el('div','rl','');var b=el('div','rb');var f=el('i');b.appendChild(f);var w=el('div','rw','');row.appendChild(l);row.appendChild(b);row.appendChild(w);box.appendChild(row);R[m]={row:row,lab:l,fill:f,wd:w};});
+function setHint(err){how.textContent='';if(err){how.appendChild(el('span','he',err));}if(i<3){how.appendChild(el('span','hm',H[O[i]]+' '+STOP));how.appendChild(el('span','hg',GO[O[i]]));}}
+function beep(f){try{if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();}var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=0.08;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+0.18);}catch(e){}}
+function stopRest(){if(rt){clearInterval(rt);rt=0;}}
+function startRest(){stopRest();var end=Date.now()+REST*1000,warned=false,l3=document.getElementById('lbl3');var tick=function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));tm.textContent=fmt(left);var t=left>10?'Rest. Breathe calmly':(left>0?'Get ready to exhale':'Breathe out and tap');lb.textContent=t;if(l3){l3.textContent=t;}if(left<=10){if(!warned){warned=true;beep(520);}}if(left<=0){stopRest();beep(880);setTimeout(function(){beep(880);},250);}};tick();rt=setInterval(tick,250);}
+function setStep(){
+stopRest();
+O.forEach(function(m,k){var r=R[m];r.fill.style.width='0';r.fill.style.background='';r.wd.style.color='';r.lab.textContent='';
+if(k<=i||i>=3){r.lab.appendChild(document.createTextNode(N[m][0]));r.lab.appendChild(el('small','',N[m][1]));}else{r.lab.appendChild(document.createTextNode('Step '+(k+1)));}
+if(k<i){r.row.className='row done';doneMark(m);}
+else if(k===i){r.wd.textContent='now';r.row.className='row on';}
+else{r.wd.textContent='';r.row.className='row lock';}});
+if(prog){prog.textContent=i<3?'Result after all 3 tests':'All 3 tests done';}
+tm.textContent='0:00';lb.textContent='Tap to start';big.classList.remove('run');var l3=document.getElementById('lbl3');if(l3){l3.innerHTML='Tap &amp; hold<br>your breath';}
+if(i<3){setHint('');var cn=document.getElementById('curn'),ct=document.getElementById('curt');if(cn){cn.textContent='Test '+(i+1)+' of 3';}if(ct){ct.textContent=TT[O[i]];}}
+if(i===1){startRest();}}
+function paint(m,s){var l=level(m,s);R[m].fill.style.background=C[l];R[m].fill.style.width=Math.round(frac(m,s)*100)+'%';R[m].wd.style.color='';R[m].wd.textContent=Math.round(s)+' s';}
+function summary(){var a=(lv.in+lv.ex+lv.ld)/3,o=a>=1.5?2:(a>=0.6?1:0);out.textContent='';out.style.display='block';
+out.appendChild(el('div','vt','Your result across all three tests'));var bd=el('div','badge',['Room to improve','Average level','Strong level'][o]);bd.style.background=C[o];out.appendChild(bd);
+var ch=el('div','chips');O.forEach(function(m){var c=el('div','chip');c.appendChild(el('small','',N[m][0]));var v=el('b','',Math.round(ts[m])+' s');c.appendChild(v);ch.appendChild(c);});out.appendChild(ch);
+var mean=['Your body signals “breathe now” early, so your breathing gives out before your legs and muscles do. In real life that means getting winded on stairs and runs, tiring fast and recovering slowly.','You have a base, but a limited breathing reserve. Typically that shows up as fading at the end of a run or workout and slow recovery between sets.','You have a good breathing reserve. Regular practice keeps it and helps you go further.'];
+out.appendChild(el('p','','What it means: '+mean[o]));
+if(lv.in>lv.ex)out.appendChild(el('p','','Your exhale hold is weaker than your inhale hold. That reflects your CO₂ tolerance — exactly what RoboTrainer trains.'));
+out.appendChild(el('p','','Good news: this is trainable. Load grows over 5 levels, the timer guides you, and your results are saved automatically.'));
+var a2=el('a','btn','Start training →');a2.href='#pricing';out.appendChild(a2);
+var ag=el('button','again','Take the test again');ag.type='button';ag.addEventListener('click',restart);out.appendChild(ag);}
+function finish(){busy=true;setStep();how.textContent='All three tests are done.';tm.textContent='✓';lb.textContent='Test complete';var cn=document.getElementById('curn'),ct=document.getElementById('curt'),l3=document.getElementById('lbl3');if(cn){cn.textContent='All done';}if(ct){ct.textContent='Your result is below ↓';}if(l3){l3.textContent='Test complete';}
+out.textContent='';out.style.display='block';out.appendChild(el('div','calc','Calculating your result…'));
+setTimeout(function(){O.forEach(function(m){lv[m]=level(m,ts[m]);paint(m,ts[m]);});summary();try{localStorage.setItem('rtRes',JSON.stringify(ts));localStorage.setItem('rtTestDone','1');}catch(e){}},1200);}
+function restart(){i=0;run=false;busy=false;ts={};lv={};bad={};out.textContent='';out.style.display='none';setStep();var s=document.getElementById('test');if(s){s.scrollIntoView({behavior:'smooth',block:'start'});}}
+setStep();
+big.addEventListener('click',function(){
+if(busy)return;
+if(!run){stopRest();run=true;t0=Date.now();big.classList.add('run');lb.textContent='Tap when you need to breathe';var m0=O[i];iv=setInterval(function(){var x=(Date.now()-t0)/1000;tm.textContent=fmt(x);neutral(m0,x);},100);return;}
+run=false;clearInterval(iv);big.classList.remove('run');var s=(Date.now()-t0)/1000,m=O[i],why='';tm.textContent=fmt(s);
+if(s<5){why='Too short, not counted.';}
+else{var imp=false;if(m!=='in'){if(s>ts.in){if((bad[m]||0)<2){imp=true;}}}if(imp){bad[m]=(bad[m]||0)+1;why='Not counted.';}}
+if(why){R[m].fill.style.width='0';R[m].wd.textContent='now';lb.textContent='Tap to retry';setHint(why+' Let’s try again — follow the instructions carefully.');return;}
+ts[m]=s;busy=true;lb.textContent='Done';doneMark(m);
+setTimeout(function(){i++;if(i<3){busy=false;setStep();}else{finish();}},800);
+});
+})();
+</script>
