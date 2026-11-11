@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      play_id:
+        description: 'Build with the Google Play app id com.robotrainerpro.app (Play billing on)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -25,6 +30,8 @@ jobs:
       - run: npx cap sync android
       - name: Build debug APK
         working-directory: android
+        env:
+          RT_APP_ID: ${{ inputs.play_id && 'com.robotrainerpro.app' || '' }}
         run: ./gradlew assembleDebug --no-daemon
       - run: cp android/app/build/outputs/apk/debug/app-debug.apk robotrainer-test.apk
       - uses: actions/upload-artifact@v5

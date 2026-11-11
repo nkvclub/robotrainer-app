@@ -406,6 +406,8 @@ $('exMail').addEventListener('click',openEmail);
 /* ---------- «Уровень 1»: yearly subscription (billing.js), Google Play build only ---------- */
 var PAY=window.RT_PAY,payAsk='';
 function payPrice(){return PAY.price||(PAY.kind==='rustore'?'299 ₽':'$3.99');}  // RuStore: 299 ₽ a year (Nov)
+function payPriceM(){return PAY.priceM||'$9.99';}
+function payPriceMo(){return (PAY.priceMo||'$5').replace(/\.00$/,'');}  // $5 like on the site
 function payShow(){return PAY.store&&!PAY.owned&&EX.state==='res'&&!EX.l1;}  // Nov 2026-10-24: the result screen sells Level 1, it does not wait for the store's price
 function payRender(){var T=D.PAY,show=payShow();$('exPayBox').hidden=!show;exResTxt();  // Nov 2026-10-21: both outcomes lead to Level 1 (gain: «what about a year?», no gain: «room to grow»)
   $('exPay').hidden=true;$('exPay').textContent=T.btn.replace('{p}',payPrice());if(EX.l1)return payRenderSheet(T);$('exMail').className=show?'again':'cta';$('exHome').className=show?'exquit':'again';$('exHome').hidden=false;$('exHome').textContent=PAY.owned?D.L1.back:D.X.home;  // Nov 2026-10-24: with the offer «На главную» is only a small link at the very bottom; a subscriber goes to his results
@@ -415,16 +417,21 @@ function payRenderSheet(T){
   $('payList').innerHTML='';T.list.forEach(function(t){var li=document.createElement('li');li.textContent=t;$('payList').appendChild(li);});
   $('payPrice').textContent=T.price.replace('{p}',payPrice());$('payRenew').textContent=PAY.kind==='rustore'?T.renewRs:T.renew;$('payRestore').textContent=T.restore;$('payManage').textContent=T.manage;
   var g=$('payGo');g.textContent=PAY.busy?T.busy:T.go.replace('{p}',payPrice());g.disabled=PAY.busy;g.hidden=PAY.owned;
+  var mo=PAY.kind==='play'&&!PAY.owned;$('payMo').hidden=!mo;$('payMo').textContent=T.mo.replace('{p}',payPriceMo());$('payMo').disabled=PAY.busy;if(PAY.kind==='play')$('payRenew').textContent=T.renewPl;$('payMon').hidden=!mo;$('payMonN').hidden=!mo;$('payMon').textContent=T.mon.replace('{p}',payPriceM());$('payMon').disabled=PAY.busy;$('payMonN').textContent=T.monN;  // Nov 2026-11-11: a month without auto-renew, Google Play only
   var m=$('payMsg');m.textContent=PAY.owned?T.ok:(PAY.err?T.err:(payAsk==='restore'&&!PAY.busy?T.none:''));m.className='msg'+(PAY.owned?' ok':(m.textContent?' err':''));}
 window.payRender=payRender;
 function openPay(){track('pay_open');payAsk='';PAY.err='';payRender();$('payModal').hidden=false;document.body.classList.add('lock');}
 function closePay(){$('payModal').hidden=true;document.body.classList.remove('lock');}
 var payWas=PAY.owned;PAY.on(function(){payRender();if(PAY.owned&&!payWas&&payAsk){payWas=true;setTimeout(function(){closePay();exStopTimers();EX.on=false;awake(false);go('scrL1');},1200);}payWas=PAY.owned;});
 $('exPay').addEventListener('click',openPay);
-['payH','payList','exOffer','payPrice','payGo','payMsg','payRenew','payNote'].forEach(function(id){$('exPayBox').appendChild($(id));});$('exPayBox').appendChild(document.querySelector('.paylinks'));  // Nov: the offer sits under the result, scroll down to «Оформить подписку»
+['payH','payList','exOffer','payPrice','payGo','payMo','payMon','payMonN','payMsg','payRenew','payNote'].forEach(function(id){$('exPayBox').appendChild($(id));});$('exPayBox').appendChild(document.querySelector('.paylinks'));  // Nov: the offer sits under the result, scroll down to «Оформить подписку»
 $('payClose').addEventListener('click',closePay);
 $('payModal').addEventListener('click',function(e){if(e.target===this)closePay();});
 $('payGo').addEventListener('click',function(){if(PAY.busy||PAY.owned)return;track('pay_buy');if(!PAY.available){var m=$('payMsg');m.textContent=PAY.kind==='rustore'?D.PAY.waitRs:D.PAY.wait;m.className='msg err';return;}payAsk='buy';PAY.buy();});  // the store has not answered yet (no network)
+function payMonth(msg){if(PAY.busy)return;track('pay_buy_month');if(!PAY.availM){var m=$(msg);m.textContent=D.PAY.wait;m.className='msg err';return;}payAsk='buy';PAY.buyMonth();}
+$('payMon').addEventListener('click',function(){if(!PAY.owned)payMonth('payMsg');});
+function payMonthly(msg){if(PAY.busy)return;track('pay_buy_monthly');if(!PAY.availMo){var m=$(msg);m.textContent=D.PAY.wait;m.className='msg err';return;}payAsk='buy';PAY.buyMonthly();}
+$('payMo').addEventListener('click',function(){if(!PAY.owned)payMonthly('payMsg');});
 $('ofWinBtn').addEventListener('click',function(){$('payGo').click();});  // the medal is the choice: tapping it buys, like «Оформить подписку»
 // RuStore build: subscriptions are managed in the RuStore app, not on a Google Play page
 ['payManage','subManage'].forEach(function(id){$(id).addEventListener('click',function(e){if(PAY.manage){e.preventDefault();PAY.manage();}});});
@@ -481,8 +488,14 @@ function l1Render(){if(!$('l1H'))return;var T=D.L1,k=l1Today();
   $('l1Sub').textContent=k>=3?T.full:'';
   var cs=l1Pairs().map(function(x){return Math.max(x.a||0,x.c||0);}),best=cs.length?Math.max.apply(null,cs):0;$('l1Best').hidden=!best;$('l1BestL').textContent=T.best;$('l1BestS').textContent=D.X.ctrl0;$('l1BestV').textContent=T1('bestV',{t:best});  // Nov: one number, the best control hold at the end of a training
   $('l1Chk').hidden=!l1CheckDue();$('l1ChkT').textContent=T.chkT;$('l1ChkGo').textContent=T.chkGo;
-  $('l1ChartH').textContent=T.chartH;$('l1Note').textContent=T.note;l1Chart();}
-function l1Open(skip){skip=skip===true;$('exPlan').hidden=true;if(l1Today()>=3)return;track('l1_open');var n=l1DayN();
+  $('l1ChartH').textContent=T.chartH;$('l1Note').textContent=T.note;l1Chart();
+  var n=l1Streak();$('l1Streak').hidden=n<2;$('l1Streak').textContent=T1('strk',{n:daysN(n)});
+  l1RenRender();if(!PAY.owned){b.hidden=true;$('l1Now').hidden=true;$('l1Next').hidden=true;}else b.hidden=false;}  // access is over: no training, the card above sells the next month
+/* Nov 2026-11-11: streak = Level 1 days in a row up to today (or up to yesterday, while today is still open) */
+function l1Streak(){var k=l1Days(),d=new Date(),n=0;if(k.indexOf(dkey(d.getTime()))<0)d.setDate(d.getDate()-1);
+  while(k.indexOf(dkey(d.getTime()))>=0){n++;d.setDate(d.getDate()-1);}return n;}
+function daysN(n){if(lang!=='ru')return n+(n===1?' day':' days');var a=n%10,b=n%100;return n+(a===1&&b!==11?' день':(a>=2&&a<=4&&(b<12||b>14)?' дня':' дней'));}
+function l1Open(skip){skip=skip===true;if(!PAY.owned)return;$('exPlan').hidden=true;if(l1Today()>=3)return;track('l1_open');var n=l1DayN();
   if(!L1.start){L1.start=Date.now();L1.base=history[0]&&history[0].ts?history[0].ts.inhale:0;}
   EX={on:true,base:0,goal:0,state:'',hd:0,l1:n,m:0,steps:['in','ex','ex','ex','in'],i:0,res:[],miss:[]};
   $('exTtl').textContent=T1('howH',{n:n});$('exNote').textContent=D.X.note;$('exQuit').textContent=D.X.quit;$('exHow').textContent=D.X.howLink;$('exAgain').textContent=D.X.againLink;$('exHome').textContent=D.L1.back;$('exMail').hidden=true;$('exPay').hidden=true;
@@ -495,7 +508,7 @@ function l1Done(ctrlS){var a=EX.res[0]||0,b=Math.round(ctrlS),rec={d:Date.now(),
   exCard('',txt,'');var r=$('exRes');r.innerHTML='';var ln=document.createElement('div');ln.className='exline'+(up?' up':'');ln.textContent=T1('lineIn',{a:a,b:b}).replace(/(\d) /g,'$1 ').replace(' →',' →');r.appendChild(ln);r.hidden=false;
   exRing('idle done '+(up?'lv2':(b<a?'lv0':'lv1')),'','','');exPrg.style.transition='stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';exPrg.style.stroke=up?col(2):'transparent';exPrg.style.strokeDashoffset=up?0:C;
   $('exBtns').hidden=false;$('exMail').hidden=true;$('exPay').hidden=true;$('exHome').className='again';$('exHome').hidden=false;$('exPlan').hidden=false;$('exPlan').textContent=D.L1.plan;/* Nov 2026-10-24: plan the next training right here, results below */$('exQuit').hidden=true;$('exHow').hidden=true;$('exAgain').hidden=true;$('exNote').hidden=true;$('scrEx').classList.add('res');
-  wSync();l1Remind();}
+  wSync();l1Remind();l1StreakRemind();}
 /* Nov 2026-10-24: after a week of Level 1 trainings, offer the full test again to check the result */
 function l1CheckAt(){var t=Math.max(L1.start||0,history[0]?history[0].d:0);return L1.start?t+7*864e5:0;}
 function l1CheckDue(){return L1.s.length>=3&&l1CheckAt()&&Date.now()>=l1CheckAt();}
@@ -504,18 +517,33 @@ function l1CheckRemind(){var LN=P.LocalNotifications,at=l1CheckAt();if(!LN||!at|
     return LN.schedule({notifications:[{id:3,title:D.L1.h,body:D.L1.chkT,schedule:{at:new Date(at),allowWhileIdle:true}}]});}).catch(function(){});}
 $('l1ChkGo').addEventListener('click',function(){track('l1_check');newTest();go('scrTest');window.scrollTo(0,0);});
 function l1Remind(){l1CheckRemind();var LN=P.LocalNotifications;if(!LN||L1.plan)return;  // a planned training keeps its own reminder
-  var t=new Date(Date.now()+24*3600*1000);  // tomorrow at the same time, replaced by each new session
+  var t=new Date(Date.now()+24*3600*1000),sn=l1Streak(),body=sn>=2?T1('remS',{n:daysN(sn)}):D.L1.remB;  // tomorrow at the same time, replaced by each new session
   LN.cancel({notifications:[{id:2}]}).catch(function(){}).then(function(){return LN.requestPermissions();}).then(function(p){if(!p||p.display!=='granted')return;
-    return LN.schedule({notifications:[{id:2,title:D.L1.h,body:D.L1.remB,schedule:{at:t,allowWhileIdle:true}}]});}).catch(function(){});}
-function l1Tab(){var on=PAY.owned;$('tabL1').hidden=!on;}
+    return LN.schedule({notifications:[{id:2,title:D.L1.h,body:body,schedule:{at:t,allowWhileIdle:true}}]});}).catch(function(){});}
+// Nov 2026-11-11: a streak of 2+ days gets one more nudge tomorrow at 20:00 if there was no workout yet (the next workout moves it a day on)
+function l1StreakRemind(){var LN=P.LocalNotifications;if(!LN)return;var sn=l1Streak();
+  LN.cancel({notifications:[{id:7}]}).catch(function(){}).then(function(){if(sn<2||!PAY.owned)return;var t=new Date();t.setDate(t.getDate()+1);t.setHours(20,0,0,0);
+    return LN.requestPermissions().then(function(p){if(!p||p.display!=='granted')return;return LN.schedule({notifications:[{id:7,title:D.L1.h,body:T1('saveS',{n:daysN(sn)}),schedule:{at:t,allowWhileIdle:true}}]});});}).catch(function(){});}
+function l1Had(){try{if(PAY.owned&&PAY.kind==='play')localStorage.setItem('rt_l1had','1');return PAY.kind==='play'&&localStorage.getItem('rt_l1had')==='1';}catch(e){return false;}}
+function l1Tab(){var on=PAY.owned||l1Had();$('tabL1').hidden=!on;if(!$('scrL1').hidden)l1Render();}  // Nov 2026-11-11: after the month ends the tab stays, with the results and a «extend» card
+// the «extend» card on the Level 1 screen: while the month runs (top-up adds a month) and after it ended
+function l1RenRender(){var on=PAY.kind==='play'&&(PAY.plan==='month'||(!PAY.owned&&l1Had()));$('l1Ren').hidden=!on;if(!on)return;
+  $('l1RenT').textContent=PAY.owned?(PAY.until?D.renOn.replace('{d}',subDay(PAY.until)):D.subOn):D.renOff;
+  $('l1RenM').textContent=PAY.busy?D.PAY.busy:D.renM.replace('{p}',payPriceM());$('l1RenM').disabled=PAY.busy;
+  $('l1RenY').textContent=D.renY.replace('{p}',payPrice());$('l1RenY').hidden=PAY.plan==='year';$('l1RenMo').textContent=D.renMo.replace('{p}',payPriceMo());
+  var m=$('l1RenMsg');if(!PAY.err&&m.className.indexOf('err')<0)m.textContent='';if(PAY.err){m.textContent=D.PAY.err;m.className='msg err';}}
+$('l1RenM').addEventListener('click',function(){payMonth('l1RenMsg');});
+$('l1RenMo').addEventListener('click',function(){payMonthly('l1RenMsg');});
+$('l1RenY').addEventListener('click',function(){if(PAY.busy)return;track('pay_buy');if(!PAY.available){var m=$('l1RenMsg');m.textContent=D.PAY.wait;m.className='msg err';return;}payAsk='buy';PAY.buy();});
+PAY.on(l1RenRender);
 function subDay(t){var d=new Date(t);return lang==='ru'?('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+d.getFullYear():d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});}
 function subTxt(){return PAY.owned?(PAY.until?D.subTill.replace('{d}',subDay(PAY.until)):D.subOn):D.subOff;}
 function subRow(){$('subRow').hidden=!(PAY.store||PAY.owned);$('subSt').textContent=subTxt();$('subRn').hidden=!(PAY.owned&&PAY.until);$('subRn').textContent=PAY.renew?D.subRen:D.subEnd;$('subManage').hidden=!PAY.owned;$('subManage').textContent=D.PAY.manage;  // no subscription: Play's list is empty, so no link. Settings and the Level 1 screen show what Google Play says about the subscription
-  $('l1SubSt').hidden=!PAY.owned;$('l1SubSt').textContent=subTxt();}
+  $('l1SubSt').hidden=!PAY.owned||PAY.plan==='month';$('l1SubSt').textContent=subTxt();}
 // Nov 2026-10-25: a reminder 7 days and 1 day before the paid year ends or renews
-function subRemind(){var LN=P.LocalNotifications;if(!LN||!PAY.checked)return;var key=PAY.owned&&PAY.until?PAY.until+'|'+PAY.renew+'|'+lang:'';var was='';try{was=localStorage.getItem('rt_subrem')||'';}catch(e){}if(key===was)return;
+function subRemind(){var LN=P.LocalNotifications;if(!LN||!PAY.checked)return;var key=PAY.owned&&PAY.until?PAY.until+'|'+PAY.renew+'|'+PAY.plan+'|'+lang:'';var was='';try{was=localStorage.getItem('rt_subrem')||'';}catch(e){}if(key===was)return;
   try{localStorage.setItem('rt_subrem',key);}catch(e){}
-  LN.cancel({notifications:[{id:4},{id:5}]}).catch(function(){}).then(function(){if(!key)return;var n=[[4,7,PAY.renew?D.sub7R:D.sub7E],[5,1,PAY.renew?D.sub1R:D.sub1E]].map(function(x){return {id:x[0],title:D.subT,body:x[2],schedule:{at:new Date(PAY.until-x[1]*864e5),allowWhileIdle:true}};}).filter(function(x){return +x.schedule.at>Date.now()+60e3;});
+  LN.cancel({notifications:[{id:4},{id:5},{id:6}]}).catch(function(){}).then(function(){if(!key)return;var n=(PAY.plan==='month'?[[4,3,D.m3],[5,1,D.m1],[6,0,D.m0]]:PAY.plan==='monthly'?[[5,1,PAY.renew?D.sub1Mo:D.sub1MoE]]:[[4,7,PAY.renew?D.sub7R:D.sub7E],[5,1,PAY.renew?D.sub1R:D.sub1E]]).map(function(x){return {id:x[0],title:D.subT,body:x[2],schedule:{at:new Date(PAY.until-x[1]*864e5),allowWhileIdle:true}};}).filter(function(x){return +x.schedule.at>Date.now()+60e3;});
     if(!n.length)return;return LN.requestPermissions().then(function(p){if(!p||p.display!=='granted')return;return LN.schedule({notifications:n});});}).catch(function(){});}
 PAY.on(subRow);PAY.on(subRemind);
 PAY.on(l1Tab);l1Tab();  // a bought level shows at once, even if Play does not answer on this start
