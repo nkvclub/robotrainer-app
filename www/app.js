@@ -130,18 +130,20 @@ ORDER.forEach(function(m){var row=document.createElement('div');row.className='r
 function sqPaint(){if(mode!=='load'||run||ts.load!==undefined)return;$('sqUnit').textContent=D.sqUnit;$('sqDid').textContent=D.sqDid;
   box.classList.toggle('ready',!!sqN);$('lbl').textContent=sqN?D.start:D.sqFirst;}
 function newTest(){stopRest();sqN=0;$('sqNum').value='';ts={};lv={};rest=0;finished=false;$('bars').classList.remove('results');$('out').hidden=true;$('againBtn').hidden=true;ORDER.forEach(function(m){rows[m].fill.style.width='0';});pick('inhale');}
-/* App Review 1.4.1 (Nov 2026-11-11): «are you OK» check. After 60 s of any hold a screen asks to touch it to go on;
-   then again every 30 s. No touch in 10 s = the hold stops by itself with an alarm and «breathe». */
-var OK_ASK=60,OK_NEXT=30,OK_WAIT=10,OK={ask:OK_ASK,dl:0,s:0};
-(function(){var d=document.createElement('div');d.id='okChk';d.hidden=true;d.innerHTML='<div class="okbox"><div class="okq" id="okQ"></div><div class="okt" id="okT"></div></div>';document.body.appendChild(d);
-  var yes=function(e){e.preventDefault();e.stopPropagation();OK.ask=OK.s+OK_NEXT;OK.dl=0;d.hidden=true;track('ok_touch');};
-  d.addEventListener('pointerdown',yes);d.addEventListener('click',function(e){e.stopPropagation();});})();
+/* App Review 1.4.1 (Nov 2026-11-11): «still holding?» check. After 90 s of any hold a window asks
+   «Still holding your breath?» with two buttons: Yes, go on / No, stop (a beginner who forgot to tap STOP).
+   Asked again every 60 s. No answer in 10 s = the hold stops by itself with an alarm and «breathe». */
+var OK_ASK=90,OK_NEXT=60,OK_WAIT=10,OK={ask:OK_ASK,dl:0,s:0,stop:null};
+(function(){var d=document.createElement('div');d.id='okChk';d.hidden=true;d.innerHTML='<div class="okbox"><div class="okq" id="okQ"></div><div class="okt" id="okT"></div><button type="button" class="okyes" id="okYes"></button><button type="button" class="okno" id="okNo"></button></div>';document.body.appendChild(d);
+  d.addEventListener('click',function(e){e.stopPropagation();});
+  d.querySelector('#okYes').addEventListener('click',function(e){e.stopPropagation();OK.ask=OK.s+OK_NEXT;OK.dl=0;d.hidden=true;track('ok_yes');});
+  d.querySelector('#okNo').addEventListener('click',function(e){e.stopPropagation();var f=OK.stop;okReset();track('ok_no');if(f)f(true);});})();
 function okReset(){OK.ask=OK_ASK;OK.dl=0;$('okChk').hidden=true;}
-function okCheck(s,stop){OK.s=s;
-  if(!OK.dl&&s>=OK.ask){OK.dl=s+OK_WAIT;$('okQ').textContent=D.okQ;$('okT').textContent=D.okT;$('okChk').hidden=false;beep(880,true);track('ok_ask');}
+function okCheck(s,stop){OK.s=s;OK.stop=stop;
+  if(!OK.dl&&s>=OK.ask){OK.dl=s+OK_WAIT;$('okQ').textContent=D.okQ;$('okT').textContent=D.okT;$('okYes').textContent=D.okYes;$('okNo').textContent=D.okNo;$('okChk').hidden=false;beep(880,true);track('ok_ask');}
   else if(OK.dl&&s>=OK.dl){okReset();track('ok_stop');stop();beep(880,true);setTimeout(function(){beep(880,true);},700);return true;}
   return false;}
-function tick(){var s=(performance.now()-t0)/1000;if(okCheck(s,function(){$('btn').click();$('lbl').textContent=D.safeStop;}))return;box.style.setProperty('--puff',Math.min(s/full(mode),1).toFixed(3));prg.style.stroke=acc();prg.style.strokeDashoffset=C*(1-(s%full(mode))/full(mode));rows[mode].wd.textContent=D.going;raf=requestAnimationFrame(tick);}
+function tick(){var s=(performance.now()-t0)/1000;if(okCheck(s,function(asked){if(!run)return;cancelAnimationFrame(raf);$('btn').click();if(!asked)$('lbl').textContent=D.safeStop;}))return;box.style.setProperty('--puff',Math.min(s/full(mode),1).toFixed(3));prg.style.stroke=acc();prg.style.strokeDashoffset=C*(1-(s%full(mode))/full(mode));rows[mode].wd.textContent=D.going;raf=requestAnimationFrame(tick);}
 function overall(){var a=(lv.inhale+lv.exhale+lv.load)/3;return a>=1.5?2:(a>=.6?1:0);}
 function buildResult(o){
   var out=$('out');out.innerHTML='';out.classList.remove('reveal');
@@ -363,7 +365,7 @@ function exRest(sec){exStopTimers();EX.state='rest';EX.w10=false;exDots();exCard
     if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);exReady();}};
   paint();EX.restT=setInterval(paint,250);}
 function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';
-  if(okCheck(s,function(){exEnd();}))return;  // same «are you OK» check in the exercise and Level 1
+  if(okCheck(s,function(){if(EX.state==='hold')exEnd();}))return;  // same «are you OK» check in the exercise and Level 1
   $('exTime').textContent=Math.floor(s);
   if(inh){exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));}
   else if(EX.goal){exPrg.style.strokeDashoffset=C*(1-Math.min(s/EX.goal,1));
