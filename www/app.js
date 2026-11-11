@@ -130,8 +130,18 @@ ORDER.forEach(function(m){var row=document.createElement('div');row.className='r
 function sqPaint(){if(mode!=='load'||run||ts.load!==undefined)return;$('sqUnit').textContent=D.sqUnit;$('sqDid').textContent=D.sqDid;
   box.classList.toggle('ready',!!sqN);$('lbl').textContent=sqN?D.start:D.sqFirst;}
 function newTest(){stopRest();sqN=0;$('sqNum').value='';ts={};lv={};rest=0;finished=false;$('bars').classList.remove('results');$('out').hidden=true;$('againBtn').hidden=true;ORDER.forEach(function(m){rows[m].fill.style.width='0';});pick('inhale');}
-var SAFE_MAX=180;  // App Review 1.4.1: no breath hold ever runs longer than 3 minutes, the timer stops it and says breathe
-function tick(){var s=(performance.now()-t0)/1000;if(s>=SAFE_MAX){$('btn').click();$('lbl').textContent=D.safeStop;return;}box.style.setProperty('--puff',Math.min(s/full(mode),1).toFixed(3));prg.style.stroke=acc();prg.style.strokeDashoffset=C*(1-(s%full(mode))/full(mode));rows[mode].wd.textContent=D.going;raf=requestAnimationFrame(tick);}
+/* App Review 1.4.1 (Nov 2026-11-11): «are you OK» check. After 60 s of any hold a screen asks to touch it to go on;
+   then again every 30 s. No touch in 10 s = the hold stops by itself with an alarm and «breathe». */
+var OK_ASK=60,OK_NEXT=30,OK_WAIT=10,OK={ask:OK_ASK,dl:0,s:0};
+(function(){var d=document.createElement('div');d.id='okChk';d.hidden=true;d.innerHTML='<div class="okbox"><div class="okq" id="okQ"></div><div class="okt" id="okT"></div></div>';document.body.appendChild(d);
+  var yes=function(e){e.preventDefault();e.stopPropagation();OK.ask=OK.s+OK_NEXT;OK.dl=0;d.hidden=true;track('ok_touch');};
+  d.addEventListener('pointerdown',yes);d.addEventListener('click',function(e){e.stopPropagation();});})();
+function okReset(){OK.ask=OK_ASK;OK.dl=0;$('okChk').hidden=true;}
+function okCheck(s,stop){OK.s=s;
+  if(!OK.dl&&s>=OK.ask){OK.dl=s+OK_WAIT;$('okQ').textContent=D.okQ;$('okT').textContent=D.okT;$('okChk').hidden=false;beep(880,true);track('ok_ask');}
+  else if(OK.dl&&s>=OK.dl){okReset();track('ok_stop');stop();beep(880,true);setTimeout(function(){beep(880,true);},700);return true;}
+  return false;}
+function tick(){var s=(performance.now()-t0)/1000;if(okCheck(s,function(){$('btn').click();$('lbl').textContent=D.safeStop;}))return;box.style.setProperty('--puff',Math.min(s/full(mode),1).toFixed(3));prg.style.stroke=acc();prg.style.strokeDashoffset=C*(1-(s%full(mode))/full(mode));rows[mode].wd.textContent=D.going;raf=requestAnimationFrame(tick);}
 function overall(){var a=(lv.inhale+lv.exhale+lv.load)/3;return a>=1.5?2:(a>=.6?1:0);}
 function buildResult(o){
   var out=$('out');out.innerHTML='';out.classList.remove('reveal');
@@ -164,6 +174,7 @@ function saveResult(){
   history=history.slice(0,200);store.set('history',history);
 }
 $('btn').addEventListener('click',function(){
+  okReset();
   if(finished){newTest();window.scrollTo({top:0,behavior:'smooth'});return;}  // tap the face again = new test
   if(!run){
     if(mode==='load'&&!sqN){var i=$('sqNum'),w=rows.load.sq;w.classList.remove('nudge');void w.offsetWidth;w.classList.add('nudge');i.focus();return;}  // number of squats first
@@ -189,7 +200,7 @@ ORDER.forEach(function(m){rows[m].row.addEventListener('click',function(e){
   if(r.classList.contains('locked')){track('locked_tap');r.classList.remove('nudge');void r.offsetWidth;r.classList.add('nudge');}});});
 // Repeat the last finished step (person made a mistake), like the reset button on a phone timer
 function lastDone(){return ORDER.filter(function(k){return ts[k]!==undefined;}).pop();}
-function cancelHold(){run=false;cancelAnimationFrame(raf);box.style.setProperty('--puff',0);}
+function cancelHold(){okReset();run=false;cancelAnimationFrame(raf);box.style.setProperty('--puff',0);}
 $('stepBtn').addEventListener('click',function(){if(finished)return;
   if(run){track('step_cancel_'+mode);cancelHold();pick(mode);return;}  // during a hold: start this step over
   var k=lastDone();if(!k)return;track('step_again_'+k);
@@ -333,7 +344,7 @@ function exDots(){var d=$('exDots');d.innerHTML='';var res=EX.state==='res';  //
 function exCard(h,t,btn,wait){$('exH').textContent=h;$('exT').textContent=t;var g=$('exGo');g.classList.toggle('wait',!btn);g.disabled=!btn;g.textContent=btn||wait||D.start;g.classList.toggle('stop',btn===D.X.stopW);}  // during rest the button stays in place, greyed, so nothing jumps
 function exRing(cls,time,lbl,cap){exBox.className='ringbox '+cls;$('exTime').textContent=time||'';$('exLbl').textContent=lbl||'';$('exCap').innerHTML=cap||'';$('exTap').textContent='';}  // Nov 2026-10-24: СТАРТ / СТОП live on the button under the circle, like the test; the circle still works on tap
 function exBtn(t,on,stop){var g=$('exGo');g.textContent=t;g.disabled=!on;g.classList.toggle('wait',!on);g.classList.toggle('stop',!!stop);}  // blue СТАРТ, red СТОП, grey while resting
-function exStopTimers(){cancelAnimationFrame(EX.raf);clearInterval(EX.restT);EX.restT=0;}
+function exStopTimers(){okReset();cancelAnimationFrame(EX.raf);clearInterval(EX.restT);EX.restT=0;}
 /* step head, as the site's cards: «Замер на вдохе», «Подход 1», «Подход 2 (+5 сек)» */
 function exNo(){var n=0;for(var i=0;i<=EX.i;i++)if(EX.steps[i]==='ex')n++;return n;}
 function exHead(){if(EX.steps[EX.i]==='in')return EX.i?D.X.ctrl:D.X.ctrl0;var n=exNo();return X('setH',{n:n});}
@@ -352,17 +363,17 @@ function exRest(sec){exStopTimers();EX.state='rest';EX.w10=false;exDots();exCard
     if(left<=0){clearInterval(EX.restT);EX.restT=0;beep(880);exReady();}};
   paint();EX.restT=setInterval(paint,250);}
 function exHoldTick(){var s=(performance.now()-EX.t0)/1000,inh=EX.steps[EX.i]==='in';
-  if(s>=SAFE_MAX){exEnd();return;}  // same 3-minute safety stop in the exercise and Level 1
+  if(okCheck(s,function(){exEnd();}))return;  // same «are you OK» check in the exercise and Level 1
   $('exTime').textContent=Math.floor(s);
   if(inh){exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));}
   else if(EX.goal){exPrg.style.strokeDashoffset=C*(1-Math.min(s/EX.goal,1));
     if(s>=EX.goal&&!EX.hit){EX.hit=true;exPrg.style.stroke=col(2);exBox.classList.add('hit');}}  // red until the goal, green after, like the site's button
   else exPrg.style.strokeDashoffset=C*(1-(s%full('exhale'))/full('exhale'));
   EX.raf=requestAnimationFrame(exHoldTick);}
-function exStart(lag){lag=lag||0;EX.state='hold';EX.hit=false;EX.goal=exGoal();EX.t0=performance.now()-lag;EX.wT0=Date.now()-lag;wSync();beep(880);awake(true);exDots();
+function exStart(lag){okReset();lag=lag||0;EX.state='hold';EX.hit=false;EX.goal=exGoal();EX.t0=performance.now()-lag;EX.wT0=Date.now()-lag;wSync();beep(880);awake(true);exDots();
   exPrg.style.stroke=col(0);exBtn(D.X.tapStop,1,1);exRing('exhold goal','0','','');  // Nov 2026-10-24: red in every hold, like the site's button; green only once a set's goal is reached
   EX.raf=requestAnimationFrame(exHoldTick);}
-function exEnd(lag){cancelAnimationFrame(EX.raf);var s=(performance.now()-(lag||0)-EX.t0)/1000,inh=EX.steps[EX.i]==='in';beep(330);
+function exEnd(lag){okReset();cancelAnimationFrame(EX.raf);var s=(performance.now()-(lag||0)-EX.t0)/1000,inh=EX.steps[EX.i]==='in';beep(330);
   var r=Math.max(1,Math.round(s));EX.res[EX.i]=r;  // Nov: no step is ever repeated, a short hold counts as it is
 
   if(EX.goal&&!EX.hit)EX.miss[EX.i]=true;
