@@ -37,7 +37,7 @@ jobs:
               sys.exit('build not processed yet')
           PY
       - name: Cancel waiting review
-        if: env.SEND == 'SEND'
+        if: env.SEND == 'SEND' || env.SEND == 'CANCEL'
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
