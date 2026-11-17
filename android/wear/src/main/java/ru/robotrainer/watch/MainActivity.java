@@ -1,6 +1,17 @@
 package ru.robotrainer.watch;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.SystemClock;
+import androidx.core.app.NotificationCompat;
+import androidx.wear.ongoing.OngoingActivity;
+import androidx.wear.ongoing.Status;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,7 +45,9 @@ public class MainActivity extends Activity implements DataClient.OnDataChangedLi
     String st = "idle", lang = "", id = "";
     long end, t0, shownAt, tapAt;
     int goal, step;
-    boolean inh, phone = true;
+    boolean inh, phone = true, visible;
+    static final String CH = "exercise";
+    static final int NOTE = 1;
     String[] dots = new String[0];
 
     final Runnable tick = new Runnable() {
@@ -42,7 +55,7 @@ public class MainActivity extends Activity implements DataClient.OnDataChangedLi
             long now = System.currentTimeMillis();
             if (st.equals("rest") && end - now <= 10000 && end - now > 0) buzz(id + "rest:" + step);  // the one buzz: 10 s left, get ready
             if (st.equals("rest") && now >= end) setSt("ready");
-            draw();
+            if (visible) draw();
             h.postDelayed(this, 100);
         }
     };
@@ -52,11 +65,18 @@ public class MainActivity extends Activity implements DataClient.OnDataChangedLi
         view = new RingView(this);
         view.setOnClickListener(v -> tap());
         setContentView(view);
+        // the phone's state keeps coming while the screen is closed, so the rest buzz still happens
+        Wearable.getDataClient(this).addListener(this);
+        NotificationManager nm = getSystemService(NotificationManager.class);
+        nm.cancel(NOTE);  // left over if the app was closed in the middle
+        nm.createNotificationChannel(new NotificationChannel(CH, getString(R.string.ch), NotificationManager.IMPORTANCE_LOW));
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+            requestPermissions(new String[] {Manifest.permission.POST_NOTIFICATIONS}, 1);
     }
 
     @Override protected void onResume() {
         super.onResume();
-        Wearable.getDataClient(this).addListener(this);
+        visible = true;
         // the last state the phone sent, so the watch shows the right step when it is opened in the middle
         Wearable.getDataClient(this).getDataItems(new Uri.Builder().scheme("wear").path(STATE).build())
             .addOnSuccessListener(items -> {
@@ -72,11 +92,13 @@ public class MainActivity extends Activity implements DataClient.OnDataChangedLi
 
     @Override protected void onPause() {
         super.onPause();
-        Wearable.getDataClient(this).removeListener(this);
+        visible = false;
     }
 
     @Override protected void onDestroy() {
         h.removeCallbacks(tick);
+        Wearable.getDataClient(this).removeListener(this);
+        getSystemService(NotificationManager.class).cancel(NOTE);
         super.onDestroy();
     }
 
@@ -113,11 +135,49 @@ public class MainActivity extends Activity implements DataClient.OnDataChangedLi
     }
 
     void setSt(String s) {
-        if (!s.equals(st)) shownAt = System.currentTimeMillis();
+        boolean changed = !s.equals(st);
+        if (changed) shownAt = System.currentTimeMillis();
         st = s;
         boolean on = s.equals("rest") || s.equals("ready") || s.equals("hold");
         if (on) getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if (changed || on) ongoing(on);
+    }
+
+    /* Ongoing Activity (Wear App Quality): while the exercise runs, the watch face shows the ring icon
+       with the hold or rest time, and recent apps has a chip that opens this screen again.
+       It goes away when the phone says the exercise is over. */
+    void ongoing(boolean on) {
+        NotificationManager nm = getSystemService(NotificationManager.class);
+        if (!on) { nm.cancel(NOTE); return; }
+        long now = System.currentTimeMillis(), el = SystemClock.elapsedRealtime();
+        String label;
+        Status.Part time = null;
+        if (st.equals("hold")) { label = getString(R.string.s_hold); time = new Status.StopwatchPart(el - (now - t0)); }
+        else if (st.equals("rest")) { label = getString(R.string.s_rest); time = new Status.TimerPart(el + (end - now)); }
+        else label = getString(R.string.s_ready);
+        PendingIntent open = PendingIntent.getActivity(this, 0,
+            new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Builder n = new NotificationCompat.Builder(this, CH)
+            .setSmallIcon(R.drawable.ic_ongoing)
+            .setContentTitle(getString(R.string.app_name))
+            .setContentText(label)
+            .setCategory(NotificationCompat.CATEGORY_WORKOUT)
+            .setContentIntent(open)
+            .setOngoing(true)
+            .setSilent(true)
+            .setOnlyAlertOnce(true)
+            .setTimeoutAfter(15 * 60 * 1000L);  // the phone went quiet: do not leave the icon forever
+        Status.Builder sb = new Status.Builder().addPart("type", new Status.TextPart(label));
+        if (time != null) sb.addTemplate("#type# #time#").addPart("time", time); else sb.addTemplate("#type#");
+        new OngoingActivity.Builder(getApplicationContext(), NOTE, n)
+            .setStaticIcon(R.drawable.ic_ongoing)
+            .setTouchIntent(open)
+            .setStatus(sb.build())
+            .build()
+            .apply(getApplicationContext());
+        try { nm.notify(NOTE, n.build()); } catch (SecurityException ignored) {}
     }
 
     /* START / STOP. Taps right after a change are ignored, so one tap never starts and stops a hold */

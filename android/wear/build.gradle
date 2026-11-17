@@ -10,8 +10,8 @@ android {
         minSdkVersion 30
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Own range so it never meets the phone's version codes in the store
-        versionCode 1002
-        versionName "1.0.1"
+        versionCode 1003
+        versionName "1.0.2"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -43,4 +43,7 @@ android {
 
 dependencies {
     implementation "com.google.android.gms:play-services-wearable:19.0.0"
+    // Ongoing Activity: the exercise shows on the watch face and in recent apps (Wear App Quality, Nov 2026-11-17)
+    implementation "androidx.wear:wear-ongoing:1.0.0"
+    implementation "androidx.core:core:1.15.0"
 }

@@ -7,4 +7,8 @@
     <string name="start">СТАРТ</string>
     <string name="stop">СТОП</string>
     <string name="done">Готово!\nРезультат\nна телефоне</string>
+    <string name="ch">Идёт упражнение</string>
+    <string name="s_hold">Задержка</string>
+    <string name="s_rest">Отдых</string>
+    <string name="s_ready">Готов</string>
 </resources>

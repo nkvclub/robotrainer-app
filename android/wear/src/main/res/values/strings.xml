@@ -7,4 +7,8 @@
     <string name="start">START</string>
     <string name="stop">STOP</string>
     <string name="done">Done!\nYour result\nis on the phone</string>
+    <string name="ch">Exercise in progress</string>
+    <string name="s_hold">Hold</string>
+    <string name="s_rest">Rest</string>
+    <string name="s_ready">Ready</string>
 </resources>
