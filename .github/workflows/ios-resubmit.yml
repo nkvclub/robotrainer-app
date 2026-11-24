@@ -53,6 +53,13 @@ jobs:
           APP_BUILD: ${{ env.BUILD }}
           ASC_STEP: submit
         run: ASC_KEY_PATH="$RUNNER_TEMP/key.p8" python3 .github/asc/listing.py
+      - name: Resend rejected submission as is
+        if: env.SEND == 'RESEND'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: cd .github/asc && ASC_KEY_PATH="$RUNNER_TEMP/key.p8" python3 resend.py
       - name: Remove key
         if: always()
         run: rm -f "$RUNNER_TEMP/key.p8"
