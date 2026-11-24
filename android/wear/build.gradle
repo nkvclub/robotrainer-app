@@ -1,0 +1,46 @@
+apply plugin: 'com.android.application'
+
+// Watch remote for the exercise (Wear OS: Galaxy Watch 4 and newer, Pixel Watch).
+// Same app id and key as the phone app, so the two can talk; it goes into the same store card.
+android {
+    namespace "ru.robotrainer.watch"
+    compileSdk rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId System.getenv('RT_APP_ID') ?: "ru.robotrainer.app"
+        minSdkVersion 30
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        // Own range so it never meets the phone's version codes in the store
+        versionCode 1002
+        versionName "1.0.1"
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    signingConfigs {
+        debug {
+            storeFile file('../app/test-debug.jks')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+        if (System.getenv('RT_KEYSTORE_FILE')) {
+            release {
+                storeFile file(System.getenv('RT_KEYSTORE_FILE'))
+                storePassword System.getenv('RT_KEYSTORE_PASSWORD')
+                keyAlias 'robotrainer'
+                keyPassword System.getenv('RT_KEYSTORE_PASSWORD')
+            }
+        }
+    }
+    buildTypes {
+        release {
+            if (System.getenv('RT_KEYSTORE_FILE')) signingConfig signingConfigs.release
+            minifyEnabled false
+        }
+    }
+}
+
+dependencies {
+    implementation "com.google.android.gms:play-services-wearable:19.0.0"
+}

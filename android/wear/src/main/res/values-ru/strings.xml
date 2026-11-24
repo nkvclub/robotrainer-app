@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">РобоТренер</string>
+    <string name="wait">Начни тренировку\nна телефоне</string>
+    <string name="nophone">Нет связи\nс телефоном</string>
+    <string name="look">Смотри\nна телефон</string>
+    <string name="start">СТАРТ</string>
+    <string name="stop">СТОП</string>
+    <string name="done">Готово!\nРезультат\nна телефоне</string>
+</resources>

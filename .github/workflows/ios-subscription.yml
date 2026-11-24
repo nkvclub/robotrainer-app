@@ -1,0 +1,27 @@
+name: iOS subscription (App Store Connect)
+
+# Creates the «Level 1» yearly subscription (level1_year, $3.99) for the iOS app.
+# Safe to run again: it only adds what is missing.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/asc/subscription.py
+      - .github/asc/review.png
+      - .github/workflows/ios-subscription.yml
+
+jobs:
+  subscription:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: pip install pyjwt cryptography
+      - name: Create subscription
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/key.p8"
+          ASC_KEY_PATH="$RUNNER_TEMP/key.p8" python3 .github/asc/subscription.py
+          rm -f "$RUNNER_TEMP/key.p8"
