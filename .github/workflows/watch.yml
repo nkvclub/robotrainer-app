@@ -3,7 +3,7 @@ name: Watch build
 # Wear OS watch remote + phone app that talks to it. Test APKs (test key) and Google Play bundles (release key).
 on:
   push:
-    branches: ['claude/project-thread-qobgp8']
+    branches: ['claude/project-thread-qobgp8', 'claude/project-thread-4q83rg']
   workflow_dispatch:
 
 permissions:
